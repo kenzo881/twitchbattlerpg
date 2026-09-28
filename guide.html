@@ -93,7 +93,7 @@ a.top:hover{text-decoration:underline}
 <div class="cmd-desc">Entra nel party per partecipare alle battaglie. Il PG entra a piena vita (HP/MP al massimo).</div>
 <div class="cmd-syntax">!play</div>
 <div class="cmd-note">
-<strong>Se il party è pieno</strong> (max 4 giocatori + streamer) → entri in coda.<br>
+<strong>Se il party è pieno</strong> (max 4 giocatori) → entri in coda.<br>
 <strong>Se sei morto in un dungeon</strong> → devi aspettare che il dungeon finisca.<br>
 <strong>Se hai lasciato il party in un dungeon</strong> → non puoi rientrare finché il dungeon non finisce.
 </div>
@@ -124,9 +124,9 @@ Le armi/armature mostrano anche il numero di <strong>slot materia</strong> (es. 
 </div>
 
 <div class="cmd">
-<div class="cmd-name">!zaino <span class="label everyone">TUTTI</span></div>
+<div class="cmd-name">!bag <span class="label everyone">TUTTI</span></div>
 <div class="cmd-desc">Mostra i consumabili dello zaino del party (condiviso, max 10).</div>
-<div class="cmd-syntax">!zaino</div>
+<div class="cmd-syntax">!bag</div>
 </div>
 
 <div class="cmd">
@@ -144,6 +144,7 @@ Non puoi buttare item equipaggiati. Prima usa <code>!ungear</code>.
 <div class="cmd-desc">Regala un item a un altro giocatore.</div>
 <div class="cmd-syntax">!give &lt;uid&gt; &lt;utente&gt;</div>
 <div class="cmd-example">!give g_011 kenz088</div>
+<div class="cmd-example">!give g_011 @kenz088</div>
 <div class="cmd-note">
 Non puoi regalare item equipaggiati.
 </div>
@@ -219,7 +220,7 @@ Puoi passare più slot: <code>!essenze unequip arma 1 2</code>.
 <div class="cmd">
 <div class="cmd-name">!buy &lt;nome_o_id&gt; <span class="label everyone">TUTTI</span></div>
 <div class="cmd-desc">Compra un item dallo shop.</div>
-<div class="cmd-syntax">!buy &lt;nome_o_id&gt;</div>
+<div class="cmd-syntax">!buy &lt;nome&gt;</div>
 <div class="cmd-example">!buy Spadone di bronzo</div>
 <div class="cmd-note">
 <strong>Livello:</strong> puoi comprare item di livello alto anche se sei di livello basso, ma non puoi equipaggiarli finché non raggiungi il livello richiesto.<br>
@@ -316,16 +317,16 @@ Senza target: attacca il primo nemico vivo.
 <div class="cmd-name">!magia &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
 <div class="cmd-desc">Usa una skill o magia che conosci.</div>
 <div class="cmd-syntax">!magia &lt;nome_skill&gt; &lt;target&gt;</div>
-<div class="cmd-example">!magia Fuoco A</div>
+<div class="cmd-example">!magia Brucia A</div>
 <div class="cmd-note">
 <strong>Skill ad area:</strong> se la skill colpisce tutti i nemici, ignora il target.<br>
-<strong>Skill su alleato:</strong> usa il nome del giocatore come target (es. <code>!magia Cura kenz088</code>).
+<strong>Skill su alleato:</strong> usa il nome del giocatore come target (es. <code>!magia Cura kenz088/@kenz088</code>).
 </div>
 </div>
 
 <div class="cmd">
 <div class="cmd-name">!difendi <span class="label battle">BATTAGLIA</span></div>
-<div class="cmd-desc">Metti il PG in difesa. Riduce i danni ricevuti fino al prossimo turno.</div>
+<div class="cmd-desc">Metti il PG in difesa. Riduce i danni fisici del 50% ricevuti e aumenta evasione del 2.5% fino al prossimo turno.</div>
 <div class="cmd-syntax">!difendi</div>
 </div>
 
@@ -334,6 +335,7 @@ Senza target: attacca il primo nemico vivo.
 <div class="cmd-desc">Usa un consumabile dallo zaino del party.</div>
 <div class="cmd-syntax">!oggetti &lt;nome_item&gt; &lt;target&gt;</div>
 <div class="cmd-example">!oggetti Pozione di Cura kenz088</div>
+<div class="cmd-example">!oggetti Pozione di Cura @kenz088</div>
 </div>
 </section>
 
