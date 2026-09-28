@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guida - Twitch Battle RPG</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#0f0f1a;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh;padding:20px;line-height:1.6}
+.container{max-width:900px;margin:0 auto}
+header{text-align:center;padding:20px 0 30px;border-bottom:2px solid #c9a227;margin-bottom:30px}
+h1{color:#c9a227;font-size:1.8rem;letter-spacing:2px;text-shadow:0 0 10px rgba(201,162,39,.5)}
+.subtitle{color:#8a8070;font-size:.9rem;margin-top:6px;font-style:italic}
+nav{background:#1a1a2a;border:1px solid #2a2a3a;border-radius:6px;padding:16px 20px;margin-bottom:30px}
+nav h2{color:#c9a227;font-size:1rem;margin-bottom:10px;letter-spacing:1px;text-transform:uppercase}
+nav ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px}
+nav a{color:#a09888;text-decoration:none;background:#0f0f1a;padding:6px 12px;border-radius:4px;font-size:.85rem;border:1px solid #2a2a3a;transition:all .2s}
+nav a:hover{color:#c9a227;border-color:#c9a227}
+section{margin-bottom:40px;scroll-margin-top:20px}
+section h2{color:#c9a227;font-size:1.3rem;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;padding-bottom:8px;border-bottom:1px solid #3a3a4a}
+.cmd{background:#1a1a2a;border:1px solid #2a2a3a;border-radius:6px;padding:16px 18px;margin-bottom:14px;transition:border-color .2s}
+.cmd:hover{border-color:#3a3a4a}
+.cmd-name{color:#c9a227;font-family:'Courier New',monospace;font-size:1rem;font-weight:bold;margin-bottom:8px}
+.cmd-desc{color:#e8e0d0;font-size:.95rem;margin-bottom:10px}
+.cmd-syntax{background:#0f0f1a;border-left:3px solid #c9a227;padding:8px 12px;margin:10px 0;font-family:'Courier New',monospace;font-size:.85rem;color:#c9a227;overflow-x:auto}
+.cmd-example{background:#0f0f1a;border-left:3px solid #6a9080;padding:8px 12px;margin:8px 0;font-family:'Courier New',monospace;font-size:.85rem;color:#6a9080}
+.cmd-example::before{content:"Es: ";color:#5a8070;font-weight:bold}
+.cmd-note{font-size:.8rem;color:#8a8070;margin-top:10px;padding-left:12px;border-left:2px solid #5a5060;font-style:italic}
+.cmd-note strong{color:#a09888;font-style:normal}
+.label{display:inline-block;background:#2a2a3a;color:#a09888;font-size:.7rem;padding:2px 8px;border-radius:3px;margin-left:6px;vertical-align:middle;font-weight:normal;letter-spacing:1px}
+.label.everyone{background:#2a3a2a;color:#7a9a7a}
+.label.streamer{background:#3a2a2a;color:#c98a8a}
+.label.battle{background:#2a2a3a;color:#8a8ac9}
+footer{text-align:center;color:#5a5060;font-size:.8rem;margin-top:40px;padding-top:20px;border-top:1px solid #2a2a3a}
+a.top{color:#c9a227;text-decoration:none;font-size:.8rem;float:right;margin-top:8px}
+a.top:hover{text-decoration:underline}
+</style>
+</head>
+<body>
+<div class="container">
+<header>
+<h1>📖 GUIDA COMANDI</h1>
+<div class="subtitle">Twitch Battle RPG — Manuale completo</div>
+</header>
+
+<nav>
+<h2>Indice</h2>
+<ul>
+<li><a href="#pg">👤 Personaggio</a></li>
+<li><a href="#party">🎮 Party</a></li>
+<li><a href="#inv">🎒 Inventario</a></li>
+<li><a href="#equip">⚔️ Equipaggiamento</a></li>
+<li><a href="#essenze">✨ Essenze</a></li>
+<li><a href="#shop">💰 Shop</a></li>
+<li><a href="#market">🏪 Mercatino</a></li>
+<li><a href="#altro">🎁 Altro</a></li>
+<li><a href="#battle">⚔️ Battaglia</a></li>
+</ul>
+</nav>
+
+<!-- PERSONAGGIO -->
+<section id="pg">
+<h2>👤 Personaggio</h2>
+
+<div class="cmd">
+<div class="cmd-name">!create <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Crea il tuo personaggio. Puoi farlo solo una volta.</div>
+<div class="cmd-syntax">!create &lt;classe&gt;</div>
+<div class="cmd-example">!create guerriero</div>
+<div class="cmd-note">
+<strong>Classi disponibili:</strong> guerriero, mago, ladro, avventuriero.<br>
+<strong>Il mago</strong> riceve in omaggio un'essenza elementale casuale (Fuoco, Ghiaccio o Tuono).<br>
+<strong>Nota:</strong> il nome del PG sarà il tuo username Twitch (max 20 caratteri).
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!delete <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Elimina definitivamente il tuo personaggio, l'inventario e tutto l'oro.</div>
+<div class="cmd-syntax">!delete</div>
+<div class="cmd-note">
+<strong>Attenzione:</strong> non è reversibile. Se sei in coda o in party, vieni rimosso automaticamente.
+</div>
+</div>
+</section>
+
+<!-- PARTY -->
+<section id="party">
+<h2>🎮 Party</h2>
+
+<div class="cmd">
+<div class="cmd-name">!play <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Entra nel party per partecipare alle battaglie. Il PG entra a piena vita (HP/MP al massimo).</div>
+<div class="cmd-syntax">!play</div>
+<div class="cmd-note">
+<strong>Se il party è pieno</strong> (max 4 giocatori + streamer) → entri in coda.<br>
+<strong>Se sei morto in un dungeon</strong> → devi aspettare che il dungeon finisca.<br>
+<strong>Se hai lasciato il party in un dungeon</strong> → non puoi rientrare finché il dungeon non finisce.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!leave <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Esci dal party. Il pool del tuo inventario resta intatto, puoi rientrare quando vuoi.</div>
+<div class="cmd-syntax">!leave</div>
+<div class="cmd-note">
+<strong>In dungeon:</strong> non puoi rientrare finché il dungeon non finisce.
+</div>
+</div>
+</section>
+
+<!-- INVENTARIO -->
+<section id="inv">
+<h2>🎒 Inventario</h2>
+
+<div class="cmd">
+<div class="cmd-name">!inv <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra tutto il tuo equipaggiamento e le tue essenze.</div>
+<div class="cmd-syntax">!inv</div>
+<div class="cmd-note">
+Ogni item ha un <strong>UID</strong> (es. <code>g_011</code> per equip, <code>e_004</code> per essenze) che ti serve per equipaggiarli, venderli, regalarli.<br>
+Le armi/armature mostrano anche il numero di <strong>slot materia</strong> (es. <code>[0=0]</code> = 2 slot linkati).
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!zaino <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra i consumabili dello zaino del party (condiviso, max 10).</div>
+<div class="cmd-syntax">!zaino</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!drop &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Butta via un item dal tuo pool.</div>
+<div class="cmd-syntax">!drop &lt;uid&gt;</div>
+<div class="cmd-example">!drop g_011</div>
+<div class="cmd-note">
+Non puoi buttare item equipaggiati. Prima usa <code>!ungear</code>.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!give &lt;uid&gt; &lt;utente&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Regala un item a un altro giocatore.</div>
+<div class="cmd-syntax">!give &lt;uid&gt; &lt;utente&gt;</div>
+<div class="cmd-example">!give g_011 kenz088</div>
+<div class="cmd-note">
+Non puoi regalare item equipaggiati.
+</div>
+</div>
+</section>
+
+<!-- EQUIP -->
+<section id="equip">
+<h2>⚔️ Equipaggiamento</h2>
+
+<div class="cmd">
+<div class="cmd-name">!gear &lt;slot&gt; &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Equipaggia un item in uno slot specifico.</div>
+<div class="cmd-syntax">!gear &lt;slot&gt; &lt;uid&gt;</div>
+<div class="cmd-example">!gear arma g_011</div>
+<div class="cmd-note">
+<strong>Slot disponibili:</strong> <code>arma</code>, <code>armatura</code>, <code>acc1</code>, <code>acc2</code>.<br>
+<strong>Level requirement:</strong> se non hai il livello minimo, l'equip non viene applicato.<br>
+<strong>Compatibilità classe:</strong> solo alcune classi possono equipaggiare alcune armi.<br>
+<strong>Sostituzione:</strong> se lo slot è già occupato, il vecchio item torna in magazzino e ricevi notifica.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!ungear &lt;slot&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Rimuove l'item da uno slot. Se aveva essenze dentro, tornano automaticamente in magazzino.</div>
+<div class="cmd-syntax">!ungear &lt;slot&gt;</div>
+<div class="cmd-example">!ungear arma</div>
+<div class="cmd-note">
+Puoi passare più slot nello stesso comando: <code>!ungear arma armatura</code>.
+</div>
+</div>
+</section>
+
+<!-- ESSENZE -->
+<section id="essenze">
+<h2>✨ Essenze</h2>
+
+<div class="cmd">
+<div class="cmd-name">!essenze equip &lt;arma|armatura&gt; &lt;slot&gt; &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Inserisce un'essenza in uno slot materia dell'arma o dell'armatura equipaggiata.</div>
+<div class="cmd-syntax">!essenze equip &lt;arma|armatura&gt; &lt;slot&gt; &lt;uid&gt;</div>
+<div class="cmd-example">!essenze equip arma 1 e_004</div>
+<div class="cmd-note">
+<strong>Slot:</strong> è il numero dello slot (1, 2, 3...). Guarda <code>!inv</code> per vedere quanti slot ha l'equipaggiato.<br>
+<strong>Sostituzione:</strong> se lo slot è già occupato, l'essenza precedente torna in magazzino e ricevi notifica.<br>
+<strong>Prerequisito:</strong> l'arma/armatura deve essere equipaggiata, altrimenti ricevi: <em>"Equipaggia l'arma/armatura prima."</em><br>
+<strong>Slot insufficienti:</strong> se chiedi uno slot che non esiste, ricevi: <em>"Slot X non esiste (max Y)."</em>
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!essenze unequip &lt;arma|armatura&gt; &lt;slot&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Rimuove l'essenza da uno slot materia. Torna in magazzino.</div>
+<div class="cmd-syntax">!essenze unequip &lt;arma|armatura&gt; &lt;slot&gt;</div>
+<div class="cmd-example">!essenze unequip arma 1</div>
+<div class="cmd-note">
+Puoi passare più slot: <code>!essenze unequip arma 1 2</code>.
+</div>
+</div>
+</section>
+
+<!-- SHOP -->
+<section id="shop">
+<h2>💰 Shop</h2>
+
+<div class="cmd">
+<div class="cmd-name">!shop <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Ricevi il link allo shop online con tutti gli item, divisi per categoria.</div>
+<div class="cmd-syntax">!shop</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!buy &lt;nome_o_id&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Compra un item dallo shop.</div>
+<div class="cmd-syntax">!buy &lt;nome_o_id&gt;</div>
+<div class="cmd-example">!buy Spadone di bronzo</div>
+<div class="cmd-note">
+<strong>Livello:</strong> puoi comprare item di livello alto anche se sei di livello basso, ma non puoi equipaggiarli finché non raggiungi il livello richiesto.<br>
+<strong>Consumabili:</strong> puoi comprarli solo se sei in party o in coda, e non dentro un dungeon.<br>
+<strong>Zaino pieno:</strong> max 10 consumabili per il party.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!bank <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra il tuo oro attuale.</div>
+<div class="cmd-syntax">!bank</div>
+</div>
+</section>
+
+<!-- MERCATINO -->
+<section id="market">
+<h2>🏪 Mercatino</h2>
+
+<div class="cmd">
+<div class="cmd-name">!market <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra tutti gli annunci attivi degli altri giocatori.</div>
+<div class="cmd-syntax">!market</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!marketsell &lt;uid&gt; &lt;prezzo&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Metti in vendita un tuo item al prezzo scelto.</div>
+<div class="cmd-syntax">!marketsell &lt;uid&gt; &lt;prezzo&gt;</div>
+<div class="cmd-example">!marketsell g_011 5000</div>
+<div class="cmd-note">
+<strong>Prezzo:</strong> tra 1 e 300.000 oro.<br>
+<strong>Max annunci:</strong> 5 contemporanei per giocatore.<br>
+<strong>Non puoi vendere</strong> item equipaggiati.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!marketbuy &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Compra l'item di un altro giocatore dal mercatino.</div>
+<div class="cmd-syntax">!marketbuy &lt;uid&gt;</div>
+<div class="cmd-example">!marketbuy g_042</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!marketcancel &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Ritira un tuo annuncio dal mercatino (l'item torna nel tuo pool).</div>
+<div class="cmd-syntax">!marketcancel &lt;uid&gt;</div>
+<div class="cmd-example">!marketcancel g_011</div>
+</div>
+</section>
+
+<!-- ALTRO -->
+<section id="altro">
+<h2>🎁 Altro</h2>
+
+<div class="cmd">
+<div class="cmd-name">!starter <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Richiedi l'equip iniziale (arma + armatura). Lo ricevi automaticamente alla creazione, ma puoi richiederlo se lo hai perso.</div>
+<div class="cmd-syntax">!starter</div>
+<div class="cmd-note">
+<strong>Nota:</strong> <code>!starter</code> NON dà essenze. L'essenza iniziale del mago viene data solo alla creazione.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!rpghelp <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Ricevi il link a questa guida.</div>
+<div class="cmd-syntax">!rpghelp</div>
+</div>
+</section>
+
+<!-- BATTAGLIA -->
+<section id="battle">
+<h2>⚔️ Battaglia</h2>
+<div class="cmd" style="background:#1a1a2a;border-color:#3a3a4a">
+<div class="cmd-desc" style="margin:0">
+Questi comandi funzionano <strong>solo durante il tuo turno in battaglia</strong>. Hai circa 20 secondi per agire, altrimenti attacchi automaticamente.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!attacca [target] <span class="label battle">BATTAGLIA</span></div>
+<div class="cmd-desc">Attacco fisico di base.</div>
+<div class="cmd-syntax">!attacca &lt;lettera&gt;</div>
+<div class="cmd-example">!attacca A</div>
+<div class="cmd-note">
+<strong>Target:</strong> <code>A</code>, <code>B</code>, <code>C</code>... (i nemici vengono mostrati con lettere).<br>
+Senza target: attacca il primo nemico vivo.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!magia &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
+<div class="cmd-desc">Usa una skill o magia che conosci.</div>
+<div class="cmd-syntax">!magia &lt;nome_skill&gt; &lt;target&gt;</div>
+<div class="cmd-example">!magia Fuoco A</div>
+<div class="cmd-note">
+<strong>Skill ad area:</strong> se la skill colpisce tutti i nemici, ignora il target.<br>
+<strong>Skill su alleato:</strong> usa il nome del giocatore come target (es. <code>!magia Cura kenz088</code>).
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!difendi <span class="label battle">BATTAGLIA</span></div>
+<div class="cmd-desc">Metti il PG in difesa. Riduce i danni ricevuti fino al prossimo turno.</div>
+<div class="cmd-syntax">!difendi</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!oggetti &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
+<div class="cmd-desc">Usa un consumabile dallo zaino del party.</div>
+<div class="cmd-syntax">!oggetti &lt;nome_item&gt; &lt;target&gt;</div>
+<div class="cmd-example">!oggetti Pozione di Cura kenz088</div>
+</div>
+</section>
+
+<footer>
+Guida ufficiale - Twitch Battle RPG<br>
+Torna all'<a href="shop.html" style="color:#c9a227;text-decoration:none">Shop</a>
+</footer>
+</div>
+</body>
+</html>
