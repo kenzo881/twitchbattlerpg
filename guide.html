@@ -197,12 +197,13 @@ Puoi passare più slot nello stesso comando: <code>!ungear arma armatura</code>.
 </div>
 
 <div class="cmd">
-<div class="cmd-name">!essenze unequip &lt;arma|armatura&gt; &lt;slot&gt; <span class="label everyone">TUTTI</span></div>
-<div class="cmd-desc">Rimuove l'essenza da uno slot materia. Torna in magazzino.</div>
-<div class="cmd-syntax">!essenze unequip &lt;arma|armatura&gt; &lt;slot&gt;</div>
-<div class="cmd-example">!essenze unequip arma 1</div>
+<div class="cmd-name">!essenze unequip &lt;uid&gt; <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Rimuove l'essenza dal suo slot tramite l'UID. Torna in magazzino.</div>
+<div class="cmd-syntax">!essenze unequip &lt;uid&gt; [...]</div>
+<div class="cmd-example">!essenze unequip e_005</div>
 <div class="cmd-note">
-Puoi passare più slot: <code>!essenze unequip arma 1 2</code>.
+<strong>UID:</strong> lo trovi con <code>!inv</code> accanto all'essenza (es. <code>#e_005 Ghiaccio</code>).<br>
+Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 </div>
 </div>
 </section>
