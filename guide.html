@@ -69,7 +69,7 @@ a.top:hover{text-decoration:underline}
 <div class="cmd-example">!create guerriero</div>
 <div class="cmd-note">
 <strong>Classi disponibili:</strong> guerriero, mago, ladro, avventuriero.<br>
-<strong>Il mago</strong> riceve in omaggio un'essenza elementale casuale (Fuoco, Ghiaccio o Tuono).<br>
+<strong>Il mago</strong> riceve in omaggio un'essenza elementale casuale (Fuoco, Ghiaccio o Tuono), già equipaggiata nell'arma al primo <code>!play</code>.<br>
 <strong>Nota:</strong> il nome del PG sarà il tuo username Twitch (max 20 caratteri).
 </div>
 </div>
@@ -80,6 +80,18 @@ a.top:hover{text-decoration:underline}
 <div class="cmd-syntax">!delete</div>
 <div class="cmd-note">
 <strong>Attenzione:</strong> non è reversibile. Se sei in coda o in party, vieni rimosso automaticamente.
+</div>
+</div>
+
+<div class="cmd">
+<div class="cmd-name">!status <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra livello, HP/MP, statistiche e punti esperienza del tuo personaggio.</div>
+<div class="cmd-syntax">!status</div>
+<div class="cmd-note">
+<strong>Statistiche mostrate:</strong> FRZ (Forza), COS (Costituzione), MAG (Magia), RES (Resistenza), DEX (Destrezza), LUK (Fortuna).<br>
+<strong>Esperienza:</strong> formato <code>0/150</code> = exp attuale / exp necessaria per il prossimo livello. Al livello massimo mostra <code>MAX</code>.<br>
+<strong>Bonus:</strong> il calcolo include gli effetti di equip e essenze equipaggiate, anche quando il PG è fuori dal party.<br>
+<strong>HP/MP fuori party:</strong> vengono mostrati sempre al massimo (il PG viene curato automaticamente quando entra in party).
 </div>
 </div>
 </section>
@@ -164,6 +176,7 @@ Non puoi regalare item equipaggiati.
 <strong>Slot disponibili:</strong> <code>arma</code>, <code>armatura</code>, <code>acc1</code>, <code>acc2</code>.<br>
 <strong>Level requirement:</strong> se non hai il livello minimo, l'equip non viene applicato.<br>
 <strong>Compatibilità classe:</strong> solo alcune classi possono equipaggiare alcune armi.<br>
+<strong>Tipo item:</strong> non puoi mettere un'armatura nello slot arma, un'arma nello slot armatura, o un accessorio in slot arma/armatura (e viceversa).<br>
 <strong>Sostituzione:</strong> se lo slot è già occupato, il vecchio item torna in magazzino e ricevi notifica.
 </div>
 </div>
