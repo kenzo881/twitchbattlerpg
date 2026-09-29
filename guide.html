@@ -315,6 +315,7 @@ Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 <div class="cmd" style="background:#1a1a2a;border-color:#3a3a4a">
 <div class="cmd-desc" style="margin:0">
 Questi comandi funzionano <strong>solo durante il tuo turno in battaglia</strong>. Hai circa 20 secondi per agire, altrimenti attacchi automaticamente.
+Attenzione : qualunque azione effettuata su un alleato deve essere preceduta da @ prima del nome utente.
 </div>
 </div>
 
@@ -341,8 +342,9 @@ Senza target: attacca il primo nemico vivo.
 • <strong>Arti Fisiche:</strong> Sono attacchi e tecniche fisiche speciali (es. <em>Backstab</em>, <em>Oscura</em>, <em>Soffoca</em>). Scalano su attacco fisico e <strong>NON sono influenzate dallo stato Silenzio (Muto)</strong>: possono essere usate sempre liberamente.<br>
 • <strong>Arti Magiche:</strong> Sono incantesimi elementali o di cura (es. <em>Brucia</em>, <em>Brina</em>, <em>Ionizza</em>, <em>Cura</em>). Scalano su potere magico e <strong>SONO bloccate dallo stato Silenzio (Muto)</strong> finché l'effetto non svanisce.<br><br>
 <strong>Targeting:</strong><br>
-• <strong>Arti ad area:</strong> se l'abilità colpisce tutti i nemici o tutti gli alleati, il target viene assegnato automaticamente.<br>
-• <strong>Arti su alleato:</strong> usa il nome del giocatore (es. <code>!arti Cura kenz088</code> o <code>@kenz088</code>).
+• <strong>Arti ad area:</strong>Se si usano arti che normalmente sono singole ma vengono influenzate dall'essenza omni , si deve usare la dicitura "tutti" in questo modo colpisce tutti i nemici. 
+ Se l'abilità invece normalmente colpisce tutti i nemici o tutti gli alleati, il target viene assegnato automaticamente.<br>
+• <strong>Arti su alleato:</strong> usa il nome del giocatore preceduto da @ (es. <code>!arti Cura @kenz088</code>).
 </div>
 </div>
 
@@ -356,7 +358,6 @@ Senza target: attacca il primo nemico vivo.
 <div class="cmd-name">!oggetti &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
 <div class="cmd-desc">Usa un consumabile dallo zaino del party.</div>
 <div class="cmd-syntax">!oggetti &lt;nome_item&gt; &lt;target&gt;</div>
-<div class="cmd-example">!oggetti Pozione di Cura kenz088</div>
 <div class="cmd-example">!oggetti Pozione di Cura @kenz088</div>
 </div>
 </section>
