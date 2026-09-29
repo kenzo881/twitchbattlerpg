@@ -330,13 +330,19 @@ Senza target: attacca il primo nemico vivo.
 </div>
 
 <div class="cmd">
-<div class="cmd-name">!magia &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
-<div class="cmd-desc">Usa una skill o magia che conosci.</div>
-<div class="cmd-syntax">!magia &lt;nome_skill&gt; &lt;target&gt;</div>
-<div class="cmd-example">!magia Brucia A</div>
+<div class="cmd-name">!arti &lt;nome&gt; [target] <span class="label battle">BATTAGLIA</span></div>
+<div class="cmd-desc">Usa un'abilità fisica o una magia che conosci.</div>
+<div class="cmd-syntax">!arti &lt;nome_arte&gt; [target]</div>
+<div class="cmd-example">!arti Backstab A</div>
+<div class="cmd-example">!arti Brucia A</div>
+<div class="cmd-example">!arti Cura kenz088</div>
 <div class="cmd-note">
-<strong>Skill ad area:</strong> se la skill colpisce tutti i nemici, ignora il target.<br>
-<strong>Skill su alleato:</strong> usa il nome del giocatore come target (es. <code>!magia Cura kenz088/@kenz088</code>).
+<strong>Differenza tra Arti Fisiche e Magiche:</strong><br>
+• <strong>Arti Fisiche:</strong> Sono attacchi e tecniche fisiche speciali (es. <em>Backstab</em>, <em>Oscura</em>, <em>Soffoca</em>). Scalano su attacco fisico e <strong>NON sono influenzate dallo stato Silenzio (Muto)</strong>: possono essere usate sempre liberamente.<br>
+• <strong>Arti Magiche:</strong> Sono incantesimi elementali o di cura (es. <em>Brucia</em>, <em>Brina</em>, <em>Ionizza</em>, <em>Cura</em>). Scalano su potere magico e <strong>SONO bloccate dallo stato Silenzio (Muto)</strong> finché l'effetto non svanisce.<br><br>
+<strong>Targeting:</strong><br>
+• <strong>Arti ad area:</strong> se l'abilità colpisce tutti i nemici o tutti gli alleati, il target viene assegnato automaticamente.<br>
+• <strong>Arti su alleato:</strong> usa il nome del giocatore (es. <code>!arti Cura kenz088</code> o <code>@kenz088</code>).
 </div>
 </div>
 
