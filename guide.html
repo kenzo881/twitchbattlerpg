@@ -219,6 +219,22 @@ Puoi passare più slot nello stesso comando: <code>!ungear arma armatura</code>.
 Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 </div>
 </div>
+<div class="cmd">
+<div class="cmd-name">!bombe <span class="label everyone">TUTTI</span></div>
+<div class="cmd-desc">Mostra quante bombe hai e il tuo limite massimo attuale.</div>
+<div class="cmd-syntax">!bombe</div>
+<div class="cmd-note">
+<strong>Prerequisito:</strong> devi avere l'essenza <em>Bombardiere</em> equipaggiata. Altrimenti ricevi: <em>"Devi equipaggiare l'essenza Bombardiere per usare le bombe."</em><br>
+<strong>Cap massimo:</strong> cresce col livello dell'essenza Bombardiere:<br>
+• Lv1 → 2 bombe<br>
+• Lv2 → 3 bombe<br>
+• Lv3 → 4 bombe<br>
+• Lv4 → 5 bombe<br>
+• Lv5 (Master) → 6 bombe<br>
+<strong>Acquisto:</strong> usa <code>!buy bomba N</code> per comprarne N (200 oro ognuna). Funziona anche fuori dal party, purché tu abbia l'essenza equipaggiata.<br>
+<strong>In dungeon:</strong> non puoi comprare bombe mentre il party è in un dungeon. Se le avevi già, le puoi usare normalmente.
+</div>
+</div>
 </section>
 
 <!-- SHOP -->
@@ -237,6 +253,7 @@ Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 <div class="cmd-syntax">!buy &lt;nome&gt;</div>
 <div class="cmd-example">!buy Spadone di bronzo</div>
 <div class="cmd-example">!buy Pozione di cura 3</div>
+<div class="cmd-example">!buy Bomba 3</div>
 <div class="cmd-example">!buy 2 3</div>
 <div class="cmd-note">
 <strong>Livello:</strong> puoi comprare item di livello alto anche se sei di livello basso, ma non puoi equipaggiarli finché non raggiungi il livello richiesto.<br>
@@ -244,7 +261,6 @@ Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 <strong>Zaino pieno:</strong> max 15 consumabili per il party.
 </div>
 </div>
-
 <div class="cmd">
 <div class="cmd-name">!bank <span class="label everyone">TUTTI</span></div>
 <div class="cmd-desc">Mostra il tuo oro attuale.</div>
@@ -336,7 +352,8 @@ Senza target: attacca il primo nemico vivo.
 <div class="cmd-syntax">!arti &lt;nome_arte&gt; [target]</div>
 <div class="cmd-example">!arti Backstab A</div>
 <div class="cmd-example">!arti Brucia A</div>
-<div class="cmd-example">!arti Cura kenz088</div>
+<div class="cmd-example">!arti Cura @kenz088</div>
+<div class="cmd-example">!arti Bomba</div>
 <div class="cmd-note">
 <strong>Differenza tra Arti Fisiche e Magiche:</strong><br>
 • <strong>Arti Fisiche:</strong> Sono attacchi e tecniche fisiche speciali (es. <em>Backstab</em>, <em>Oscura</em>, <em>Soffoca</em>). Scalano su attacco fisico e <strong>NON sono influenzate dallo stato Silenzio (Muto)</strong>: possono essere usate sempre liberamente.<br>
