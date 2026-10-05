@@ -85,7 +85,7 @@ a.top:hover{text-decoration:underline}
 
 <div class="cmd">
 <div class="cmd-name">!status <span class="label everyone">TUTTI</span></div>
-<div class="cmd-desc">Mostra livello, HP/MP, statistiche e punti esperienza del tuo personaggio.</div>
+<div class="cmd-desc">Mostra livello, HP/MP, statistiche, punti esperienza del tuo personaggio e Arti attualmente equipaggiate.</div>
 <div class="cmd-syntax">!status</div>
 <div class="cmd-note">
 <strong>Statistiche mostrate:</strong> FRZ (Forza), COS (Costituzione), MAG (Magia), RES (Resistenza), DEX (Destrezza), LUK (Fortuna).<br>
@@ -221,7 +221,7 @@ Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 </div>
 <div class="cmd">
 <div class="cmd-name">!bombe <span class="label everyone">TUTTI</span></div>
-<div class="cmd-desc">Mostra quante bombe hai e il tuo limite massimo attuale.</div>
+<div class="cmd-desc">Mostra quali e quante bombe hai e il tuo limite massimo attuale.</div>
 <div class="cmd-syntax">!bombe</div>
 <div class="cmd-note">
 <strong>⚠️ Importante: se equipaggi due essenze Bombardiere, vale solo la prima. La seconda non dà nessun bonus — non sprecare oro.</strong>
@@ -232,8 +232,11 @@ Puoi passare più UID: <code>!essenze unequip e_005 e_006</code>.
 • Lv3 → 4 bombe<br>
 • Lv4 → 5 bombe<br>
 • Lv5 (Master) → 6 bombe<br>
-<strong>Acquisto:</strong> usa <code>!buy bomba N</code> per comprarne N (200 oro ognuna). Funziona anche fuori dal party, purché tu abbia l'essenza equipaggiata.<br>
-<strong>In dungeon:</strong> non puoi comprare bombe mentre il party è in un dungeon. Se le avevi già, le puoi usare normalmente.
+<strong>Acquisto:</strong> usa <code>!buy bomba N</code> per comprarne N. Funziona anche fuori dal party, purché tu abbia l'essenza equipaggiata.<br>
+<strong>In dungeon:</strong> non puoi comprare bombe mentre il party è in un dungeon. Se le avevi già, le puoi usare normalmente.<br> 
+ <strong>⚠️ A differenza delle altre Arti, anzichè scrivere il nome dell' Arte, quando si usano, va scritto: "!arti bomba &lt;nome&gt;" per utilizzare la bomba corretta.<br>
+ Il nome DEVE essere SENZA la dicitura bomba.</strong>
+<div class="cmd-example">!arti bomba tossica
 </div>
 </div>
 </section>
