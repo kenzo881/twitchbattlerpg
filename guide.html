@@ -34,10 +34,32 @@ section h2{color:#c9a227;font-size:1.3rem;letter-spacing:2px;text-transform:uppe
 footer{text-align:center;color:#5a5060;font-size:.8rem;margin-top:40px;padding-top:20px;border-top:1px solid #2a2a3a}
 a.top{color:#c9a227;text-decoration:none;font-size:.8rem;float:right;margin-top:8px}
 a.top:hover{text-decoration:underline}
+
+/* TOP NAV BAR & TWITCH LOGIN */
+.top-nav-bar{display:flex;justify-content:space-between;align-items:center;background:rgba(26,26,42,.85);backdrop-filter:blur(10px);border:1px solid #2a2a3a;border-radius:8px;padding:8px 16px;margin-bottom:24px}
+.btn-back{color:#a09888;text-decoration:none;font-size:.88rem;display:inline-flex;align-items:center;gap:6px;transition:all .2s}
+.btn-back:hover{color:#c9a227}
+.twitch-auth-zone{display:flex;align-items:center;gap:10px}
+.twitch-user-pill{display:flex;align-items:center;gap:8px;background:rgba(145,70,255,.15);border:1px solid rgba(145,70,255,.4);padding:4px 10px 4px 6px;border-radius:20px}
+.twitch-avatar{width:26px;height:26px;border-radius:50%;background:#9146ff;display:flex;align-items:center;justify-content:center;font-weight:bold;font-size:.75rem;color:#fff;overflow:hidden}
+.twitch-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+.twitch-name{font-size:.85rem;font-weight:bold;color:#fff}
+.btn-logout{background:transparent;border:none;color:#8a8070;font-size:.75rem;cursor:pointer;text-decoration:underline;transition:color .2s;margin-left:4px}
+.btn-logout:hover{color:#ff6b6b}
+.btn-twitch-login{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(135deg,#9146ff 0%,#772ce8 100%);color:#fff;padding:6px 14px;border-radius:6px;font-size:.82rem;font-weight:bold;text-decoration:none;border:1px solid rgba(255,255,255,.2);cursor:pointer;transition:all .2s ease;box-shadow:0 2px 8px rgba(145,70,255,.3)}
+.btn-twitch-login:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(145,70,255,.5);filter:brightness(1.1)}
 </style>
 </head>
 <body>
 <div class="container">
+
+<div class="top-nav-bar">
+  <a href="main.html" class="btn-back">← Torna al Portale</a>
+  <div class="twitch-auth-zone" id="twitchAuthContainer">
+    <!-- Popolato da JS: pulsante Accedi con Twitch o pillola utente -->
+  </div>
+</div>
+
 <header>
 <h1>📖 GUIDA & COMANDI</h1>
 <div class="subtitle">Twitch Battle RPG — Manuale completo</div>
@@ -384,8 +406,140 @@ Senza target: attacca il primo nemico vivo.
 
 <footer>
 Guida ufficiale - Twitch Battle RPG<br>
-Torna all'<a href="shop.html" style="color:#c9a227;text-decoration:none">Shop</a>
+<a href="main.html" style="color:#c9a227;text-decoration:none">🏠 Portale Principale</a> | <a href="shop.html" style="color:#c9a227;text-decoration:none">💰 Bottega del Mercante</a>
 </footer>
 </div>
+
+<script>
+  // CONFIGURAZIONE TWITCH OAUTH
+  const CLIENT_ID = 'eim2qymtvqvr2s7os8hoonenqzvd71';
+  const STORAGE_USER_KEY = 'tbrpg_twitch_user';
+  const STORAGE_TOKEN_KEY = 'tbrpg_twitch_token';
+  const SCOPES = 'user:read:chat+user:write:chat+chat:edit+chat:read';
+
+  function loginWithTwitch() {
+    if (window.location.protocol === 'file:') {
+      const confirmSim = confirm(
+        "Avviso Ambiente Locale:\n\n" +
+        "Sei in modalità file locale (file://). Le API di Twitch richiedono un indirizzo web HTTPS (come GitHub Pages).\n\n" +
+        "Vuoi attivare una simulazione di prova ora per testare la grafica del profilo?"
+      );
+      if (confirmSim) {
+        const demoUser = {
+          id: '12345678',
+          login: 'gianni23',
+          name: 'Gianni23',
+          avatar: '',
+          loggedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
+        renderUserBar();
+      }
+      return;
+    }
+
+    const currentUrl = window.location.origin + window.location.pathname;
+    const redirectUri = encodeURIComponent(currentUrl);
+    const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${SCOPES}`;
+    window.location.href = authUrl;
+  }
+
+  function logoutTwitch() {
+    localStorage.removeItem(STORAGE_USER_KEY);
+    localStorage.removeItem(STORAGE_TOKEN_KEY);
+    renderUserBar();
+  }
+
+  async function fetchTwitchUserProfile(token) {
+    try {
+      const res = await fetch('https://api.twitch.tv/helix/users', {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Client-Id': CLIENT_ID
+        }
+      });
+      if (!res.ok) {
+        if (res.status === 401) logoutTwitch();
+        return;
+      }
+      const json = await res.json();
+      if (json && json.data && json.data.length > 0) {
+        const u = json.data[0];
+        const userData = {
+          id: u.id,
+          login: u.login,
+          name: u.display_name,
+          avatar: u.profile_image_url,
+          loggedAt: Date.now()
+        };
+        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userData));
+        renderUserBar();
+      }
+    } catch (err) {
+      console.warn("Impossibile contattare Twitch Helix API:", err);
+      renderUserBar();
+    }
+  }
+
+  function renderUserBar() {
+    const container = document.getElementById('twitchAuthContainer');
+    if (!container) return;
+    const stored = localStorage.getItem(STORAGE_USER_KEY);
+
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        const avatarHtml = user.avatar
+          ? `<img src="${user.avatar}" alt="${user.name}">`
+          : user.name.substring(0, 2).toUpperCase();
+
+        container.innerHTML = `
+          <div class="twitch-user-pill">
+            <div class="twitch-avatar">${avatarHtml}</div>
+            <span class="twitch-name">${user.name}</span>
+            <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
+          </div>
+        `;
+        return;
+      } catch (e) {
+        localStorage.removeItem(STORAGE_USER_KEY);
+      }
+    }
+
+    container.innerHTML = `
+      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+        </svg>
+        <span>Accedi con Twitch</span>
+      </button>
+    `;
+  }
+
+  async function initAuth() {
+    const hash = window.location.hash.substring(1);
+    if (hash && hash.includes('access_token=')) {
+      const params = new URLSearchParams(hash);
+      const token = params.get('access_token');
+      if (token) {
+        localStorage.setItem(STORAGE_TOKEN_KEY, token);
+        window.history.replaceState(null, null, window.location.pathname);
+        await fetchTwitchUserProfile(token);
+        return;
+      }
+    }
+
+    const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+    const savedUser = localStorage.getItem(STORAGE_USER_KEY);
+    if (savedToken && !savedUser) {
+      await fetchTwitchUserProfile(savedToken);
+      return;
+    }
+
+    renderUserBar();
+  }
+
+  window.addEventListener('DOMContentLoaded', initAuth);
+</script>
 </body>
 </html>
