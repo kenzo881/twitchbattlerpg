@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Twitch Battle RPG — Portale Ufficiale</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-dark: #0a0a12;
+    --bg-card: rgba(22, 22, 36, 0.75);
+    --bg-card-hover: rgba(30, 30, 50, 0.9);
+    --border-card: rgba(201, 162, 39, 0.25);
+    --border-hover: rgba(201, 162, 39, 0.8);
+    --gold: #c9a227;
+    --gold-glow: rgba(201, 162, 39, 0.4);
+    --gold-light: #f4d368;
+    --twitch-purple: #9146ff;
+    --twitch-hover: #772ce8;
+    --twitch-glow: rgba(145, 70, 255, 0.35);
+    --text-primary: #f0ebe0;
+    --text-secondary: #9a9080;
+    --text-dim: #6a6458;
+    --badge-active-bg: rgba(46, 125, 50, 0.25);
+    --badge-active-border: #4caf50;
+    --badge-soon-bg: rgba(145, 70, 255, 0.15);
+    --badge-soon-border: rgba(145, 70, 255, 0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    overflow-x: hidden;
+    position: relative;
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(145, 70, 255, 0.12) 0%, transparent 50%),
+      radial-gradient(circle at 80% 80%, rgba(201, 162, 39, 0.08) 0%, transparent 40%),
+      radial-gradient(circle at 10% 90%, rgba(30, 30, 70, 0.3) 0%, transparent 50%);
+  }
+
+  /* Sottile griglia fantasy di sfondo */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: linear-gradient(rgba(255,255,255,0.015) 1px, transparent 1px),
+                      linear-gradient(90deg, rgba(255,255,255,0.015) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container {
+    max-width: 1050px;
+    margin: 0 auto;
+    padding: 30px 20px 40px;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+  }
+
+  /* BARRA SUPERIORE TWITCH */
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(18, 18, 30, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 10px 18px;
+    margin-bottom: 35px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+  }
+
+  .brand-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .brand-badge .live-dot {
+    width: 8px;
+    height: 8px;
+    background: #e91e63;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #e91e63;
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.85); }
+  }
+
+  .twitch-auth-zone {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .twitch-user-pill {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(145, 70, 255, 0.12);
+    border: 1px solid rgba(145, 70, 255, 0.35);
+    padding: 4px 12px 4px 6px;
+    border-radius: 30px;
+  }
+  .twitch-avatar {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--twitch-purple);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+    color: #fff;
+    overflow: hidden;
+  }
+  .twitch-name {
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #fff;
+  }
+  .btn-logout {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.78rem;
+    cursor: pointer;
+    text-decoration: underline;
+    transition: color 0.2s;
+  }
+  .btn-logout:hover { color: #ff6b6b; }
+
+  .btn-twitch-login {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--twitch-purple) 0%, var(--twitch-hover) 100%);
+    color: #fff;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    box-shadow: 0 2px 10px var(--twitch-glow);
+  }
+  .btn-twitch-login:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px var(--twitch-glow);
+    filter: brightness(1.1);
+  }
+
+  /* HEADER CENTRALE */
+  header {
+    text-align: center;
+    margin-bottom: 45px;
+  }
+  .title-emblem {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    display: inline-block;
+    filter: drop-shadow(0 0 14px var(--gold-glow));
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+  h1 {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 2.6rem;
+    font-weight: 900;
+    color: var(--gold);
+    letter-spacing: 3px;
+    text-shadow: 0 0 20px var(--gold-glow);
+    margin-bottom: 10px;
+    line-height: 1.15;
+  }
+  .subtitle {
+    font-size: 1.05rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    max-width: 600px;
+    margin: 0 auto;
+    line-height: 1.5;
+  }
+
+  /* GRIGLIA PORTALE (I 4 PULSANTI/CARTE) */
+  .portal-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-bottom: 40px;
+  }
+
+  .portal-card {
+    background: var(--bg-card);
+    backdrop-filter: blur(14px);
+    border: 1px solid var(--border-card);
+    border-radius: 14px;
+    padding: 28px 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    text-decoration: none;
+    color: inherit;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  }
+
+  /* Bagliore d'angolo sulle carte */
+  .portal-card::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; height: 3px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+  /* Stato ATTIVO (Shop e Guida) */
+  .portal-card.active-card:hover {
+    transform: translateY(-5px);
+    border-color: var(--border-hover);
+    background: var(--bg-card-hover);
+    box-shadow: 0 14px 35px rgba(0, 0, 0, 0.5), 0 0 20px var(--gold-glow);
+    cursor: pointer;
+  }
+  .portal-card.active-card:hover::before {
+    opacity: 1;
+  }
+
+  /* Stato DISABILITATO / IN ARRIVO */
+  .portal-card.disabled-card {
+    opacity: 0.65;
+    border-color: rgba(255, 255, 255, 0.08);
+    cursor: not-allowed;
+    background: rgba(16, 16, 26, 0.6);
+  }
+  .portal-card.disabled-card:hover {
+    border-color: rgba(145, 70, 255, 0.3);
+  }
+
+  /* Contenuto della Card */
+  .card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 18px;
+  }
+
+  .card-icon {
+    font-size: 2.4rem;
+    line-height: 1;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.4));
+  }
+
+  .status-badge {
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    padding: 4px 10px;
+    border-radius: 20px;
+  }
+  .status-badge.available {
+    background: var(--badge-active-bg);
+    color: #81c784;
+    border: 1px solid var(--badge-active-border);
+  }
+  .status-badge.soon {
+    background: var(--badge-soon-bg);
+    color: #c49eff;
+    border: 1px solid var(--badge-soon-border);
+  }
+
+  .card-title {
+    font-family: 'Cinzel', Georgia, serif;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    margin-bottom: 10px;
+    letter-spacing: 1px;
+  }
+
+  .portal-card.disabled-card .card-title {
+    color: #c0b8aa;
+  }
+
+  .card-desc {
+    font-size: 0.92rem;
+    color: var(--text-secondary);
+    line-height: 1.55;
+    margin-bottom: 24px;
+    flex-grow: 1;
+  }
+
+  /* Pulsante Azione dentro la Card */
+  .card-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    width: 100%;
+    padding: 12px 18px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.92rem;
+    text-align: center;
+    transition: all 0.25s;
+    border: none;
+    cursor: pointer;
+  }
+
+  .portal-card.active-card .card-btn {
+    background: linear-gradient(135deg, #1c1c2e 0%, #292942 100%);
+    color: var(--gold-light);
+    border: 1px solid var(--gold);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .portal-card.active-card:hover .card-btn {
+    background: linear-gradient(135deg, var(--gold) 0%, #e0b62e 100%);
+    color: #0c0c16;
+    font-weight: 700;
+    box-shadow: 0 4px 14px var(--gold-glow);
+  }
+
+  .portal-card.disabled-card .card-btn {
+    background: rgba(30, 30, 45, 0.5);
+    color: var(--text-dim);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: not-allowed;
+  }
+
+
+  /* FOOTER */
+  footer {
+    text-align: center;
+    color: var(--text-dim);
+    font-size: 0.82rem;
+    padding: 25px 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(10, 10, 16, 0.8);
+    position: relative;
+    z-index: 1;
+  }
+  footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: color 0.2s;
+  }
+  footer a:hover {
+    color: var(--gold);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 768px) {
+    .portal-grid {
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+    h1 {
+      font-size: 2rem;
+    }
+    .top-bar {
+      flex-direction: column;
+      gap: 12px;
+      align-items: stretch;
+      text-align: center;
+    }
+    .twitch-auth-zone {
+      justify-content: center;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+
+  <!-- TOP BAR: Canale & Stato Login Twitch -->
+  <div class="top-bar">
+    <div class="brand-badge">
+      <span class="live-dot"></span>
+      <span>Twitch Battle RPG Live Page</span>
+    </div>
+
+    <div class="twitch-auth-zone" id="twitchAuthContainer">
+      <!-- Gestito via JS: mostra 'Accedi' o profilo loggato -->
+      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="toggleSimulatedLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+        </svg>
+        <span>Accedi con Twitch</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- HEADER -->
+  <header>
+    <div class="title-emblem">⚔️</div>
+    <h1>TWITCH BATTLE RPG</h1>
+    <div class="subtitle">Portale interattivo per i giocatori della live di kenz088</div>
+  </header>
+
+  <!-- I 4 GRANDI MENU DEL PORTALE -->
+  <div class="portal-grid">
+
+    <!-- 1. BOTTEGA DEL MERCANTE (ATTIVO) -->
+    <a href="shop.html" class="portal-card active-card" id="cardShop">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">💰</div>
+          <span class="status-badge available">● Disponibile</span>
+        </div>
+        <div class="card-title">Bottega del Mercante</div>
+        <div class="card-desc">
+          Catalogo completo del mercante : armi, armature ,accessori , essenze e consumabili.
+        </div>
+      </div>
+      <div class="card-btn">
+        <span>🛒 Entra nella Bottega</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <!-- 2. GUIDA COMANDI (ATTIVO) -->
+    <a href="guide.html" class="portal-card active-card" id="cardGuide">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">📖</div>
+          <span class="status-badge available">● Disponibile</span>
+        </div>
+        <div class="card-title">Guida & Comandi</div>
+        <div class="card-desc">
+          Manuale completo dei comandi di chat: creazione personaggio, gestione zaino , mercatino tra giocatori , comandi battaglia , equipaggiamenti , eccetera.
+        </div>
+      </div>
+      <div class="card-btn">
+        <span>📜 Leggi la Guida</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <!-- 3. STATUS & EQUIPAGGIAMENTO (IN ARRIVO) -->
+    <div class="portal-card disabled-card" id="cardStatus" title="Funzionalità in fase di sviluppo">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">🛡️</div>
+          <span class="status-badge soon">Prossimamente</span>
+        </div>
+        <div class="card-title">Status & Equipaggiamento</div>
+        <div class="card-desc">
+          Scheda completa del tuo personaggio in tempo reale : statistiche , equipaggiamento attuale , essenze incastonate , inventario e oro posseduto.
+        </div>
+      </div>
+      <div class="card-btn">
+        <span>🔒 In Arrivo</span>
+      </div>
+    </div>
+
+    <!-- 4. MENU COMBATTIMENTO (IN ARRIVO) -->
+    <div class="portal-card disabled-card" id="cardBattle" title="Funzionalità in fase di sviluppo">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">⚔️</div>
+          <span class="status-badge soon">Prossimamente</span>
+        </div>
+        <div class="card-title">Menu Combattimento</div>
+        <div class="card-desc">
+          Pannello tattico interattivo per la battaglia : puoi selezionare i comandi di combattimento del tuo personaggio.
+        </div>
+      </div>
+      <div class="card-btn">
+        <span>🔒 In Arrivo</span>
+      </div>
+    </div>
+
+  </div>
+
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <p>Twitch Battle RPG &copy; 2026 — Sviluppato per la community di <strong>kenz088</strong></p>
+  <p style="margin-top: 6px; font-size: 0.75rem; color: #5a5448;">
+    I comandi inviati interagiscono in diretta con il gioco trasmesso in streaming.
+  </p>
+</footer>
+
+<script>
+  // GESTIONE SIMULAZIONE LOGIN PER IL TEST LOCALE / PREVIEW
+  // Salva lo stato in localStorage così tutte le pagine (shop, guida, ecc.) lo condividono!
+  const STORAGE_KEY = 'tbrpg_twitch_user';
+
+  function renderUserBar() {
+    const container = document.getElementById('twitchAuthContainer');
+    const stored = localStorage.getItem(STORAGE_KEY);
+
+    if (stored) {
+      try {
+        const user = JSON.parse(stored);
+        container.innerHTML = `
+          <div class="twitch-user-pill">
+            <div class="twitch-avatar">${user.name.substring(0, 2).toUpperCase()}</div>
+            <span class="twitch-name">${user.name}</span>
+            <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account">Esci</button>
+          </div>
+        `;
+        return;
+      } catch (e) {
+        localStorage.removeItem(STORAGE_KEY);
+      }
+    }
+
+    // Default: pulsante di login
+    container.innerHTML = `
+      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="toggleSimulatedLogin()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+        </svg>
+        <span>Accedi con Twitch</span>
+      </button>
+    `;
+  }
+
+  function toggleSimulatedLogin() {
+    // In anteprima/test: simula il login salvando l'utente Gianni23
+    const demoUser = {
+      name: 'kenz088',
+      id: '12345678',
+      loggedAt: Date.now()
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(demoUser));
+    renderUserBar();
+  }
+
+  function logoutTwitch() {
+    localStorage.removeItem(STORAGE_KEY);
+    renderUserBar();
+  }
+
+  // Inizializza la barra utente al caricamento
+  window.addEventListener('DOMContentLoaded', renderUserBar);
+</script>
+
+</body>
+</html>
