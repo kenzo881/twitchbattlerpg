@@ -382,6 +382,12 @@
   }
 
   /* RESPONSIVE */
+  @media (min-width: 769px) {
+    .portal-card.card-full-span {
+      grid-column: span 2;
+    }
+  }
+
   @media (max-width: 768px) {
     .portal-grid {
       grid-template-columns: 1fr;
@@ -431,7 +437,7 @@
     <div class="subtitle">Portale interattivo per la community Twitch di Kenz088</div>
   </header>
 
-  <!-- I 4 GRANDI MENU DEL PORTALE -->
+  <!-- I 5 GRANDI MENU DEL PORTALE -->
   <div class="portal-grid">
 
     <!-- 1. BOTTEGA DEL MERCANTE (ATTIVO) -->
@@ -443,7 +449,7 @@
         </div>
         <div class="card-title">Bottega del Mercante</div>
         <div class="card-desc">
-          Catalogo completo del mercante : armi, armature ,accessori , essenze e consumabili.
+          Catalogo completo del mercante: armi, armature, accessori, essenze e consumabili.
         </div>
       </div>
       <div class="card-btn">
@@ -452,20 +458,20 @@
       </div>
     </a>
 
-    <!-- 2. GUIDA COMANDI (ATTIVO) -->
-    <a href="guide.html" class="portal-card active-card" id="cardGuide">
+    <!-- 2. MERCATINO TRA GIOCATORI (ATTIVO) -->
+    <a href="market.html" class="portal-card active-card" id="cardMarket">
       <div>
         <div class="card-top">
-          <div class="card-icon">📖</div>
+          <div class="card-icon">🏪</div>
           <span class="status-badge available">● Disponibile</span>
         </div>
-        <div class="card-title">Guida & Comandi</div>
+        <div class="card-title">Mercatino tra Giocatori</div>
         <div class="card-desc">
-          Manuale completo dei comandi di chat: creazione personaggio, gestione zaino , mercatino tra giocatori , comandi battaglia , equipaggiamenti , eccetera.
+          Bancarella e compravendita della community: acquista equipaggiamenti ed essenze messi in vendita da altri spettatori, o metti all'asta i tuoi oggetti per guadagnare oro.
         </div>
       </div>
       <div class="card-btn">
-        <span>📜 Leggi la Guida</span>
+        <span>🏷️ Entra nel Mercatino</span>
         <span>→</span>
       </div>
     </a>
@@ -479,7 +485,7 @@
         </div>
         <div class="card-title">Status & Equipaggiamento</div>
         <div class="card-desc">
-          Scheda completa del tuo personaggio in tempo reale : statistiche , equipaggiamento attuale , essenze incastonate , inventario e oro posseduto.
+          Scheda completa del tuo personaggio in tempo reale: statistiche, equipaggiamento attuale, essenze incastonate, inventario e oro posseduto.
         </div>
       </div>
       <div class="card-btn">
@@ -488,8 +494,26 @@
       </div>
     </a>
 
-    <!-- 4. MENU COMBATTIMENTO (IN ARRIVO) -->
-    <div class="portal-card disabled-card" id="cardBattle" title="Funzionalità in fase di sviluppo">
+    <!-- 4. GUIDA & COMANDI (ATTIVO) -->
+    <a href="guide.html" class="portal-card active-card" id="cardGuide">
+      <div>
+        <div class="card-top">
+          <div class="card-icon">📖</div>
+          <span class="status-badge available">● Disponibile</span>
+        </div>
+        <div class="card-title">Guida & Comandi</div>
+        <div class="card-desc">
+          Manuale completo dei comandi di chat: creazione personaggio, gestione zaino, mercatino tra giocatori, comandi battaglia, equipaggiamenti, eccetera.
+        </div>
+      </div>
+      <div class="card-btn">
+        <span>📜 Leggi la Guida</span>
+        <span>→</span>
+      </div>
+    </a>
+
+    <!-- 5. MENU COMBATTIMENTO (IN ARRIVO) -->
+    <div class="portal-card disabled-card card-full-span" id="cardBattle" title="Funzionalità in fase di sviluppo">
       <div>
         <div class="card-top">
           <div class="card-icon">⚔️</div>
@@ -497,7 +521,7 @@
         </div>
         <div class="card-title">Menu Combattimento</div>
         <div class="card-desc">
-          Pannello tattico interattivo per la battaglia : puoi selezionare i comandi di combattimento del tuo personaggio.
+          Pannello tattico interattivo per la battaglia: seleziona in diretta le azioni di combattimento del tuo personaggio durante gli scontri con i boss.
         </div>
       </div>
       <div class="card-btn">
