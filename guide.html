@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{background:#0f0f1a;color:#e8e0d0;font-family:Georgia,serif;min-height:100vh;padding:20px;line-height:1.6}
-.container{max-width:900px;margin:0 auto}
+.container{max-width:1200px;margin:0 auto}
 header{text-align:center;padding:20px 0 30px;border-bottom:2px solid #c9a227;margin-bottom:30px}
 h1{color:#c9a227;font-size:1.8rem;letter-spacing:2px;text-shadow:0 0 10px rgba(201,162,39,.5)}
 .subtitle{color:#8a8070;font-size:.9rem;margin-top:6px;font-style:italic}
@@ -54,13 +54,13 @@ a.top:hover{text-decoration:underline}
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
+  flex-wrap: nowrap;
+  gap: 10px;
   background: rgba(18, 18, 32, 0.9);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 14px;
-  padding: 10px 18px;
+  padding: 8px 14px;
   margin-bottom: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
@@ -68,40 +68,52 @@ a.top:hover{text-decoration:underline}
 .top-nav-left {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 10px;
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .nav-brand-title {
-  font-family: Georgia, serif;
+  font-family: 'Cinzel', Georgia, serif;
   font-weight: 700;
-  font-size: 1.1rem;
-  color: #c9a227;
+  font-size: 1.05rem;
+  color: var(--gold-light, #ffd700);
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   text-decoration: none;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
 .nav-brand-title:hover {
-  filter: drop-shadow(0 0 6px rgba(201, 162, 39, 0.5));
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
 }
 
 .sync-status-pill {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 10px;
+  padding: 4px 9px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #94a3b8;
+  flex-shrink: 0;
+  white-space: nowrap;
 }
-.sync-status-pill.active {
+.sync-status-pill.active,
+.sync-status-pill.synced {
   background: rgba(16, 185, 129, 0.15);
   border-color: #10b981;
   color: #34d399;
+}
+.sync-status-pill.offline {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
 }
 .sync-dot {
   width: 7px;
@@ -113,47 +125,83 @@ a.top:hover{text-decoration:underline}
 .nav-links-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
+  gap: 6px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.nav-links-row::-webkit-scrollbar {
+  display: none;
 }
 
 .nav-pill-btn {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
+  gap: 5px;
+  padding: 5px 10px;
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #cbd5e1;
-  font-size: 0.82rem;
+  font-size: 0.78rem;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 .nav-pill-btn:hover {
-  background: rgba(201, 162, 39, 0.15);
-  border-color: #c9a227;
-  color: #fff;
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  color: #fef08a;
   transform: translateY(-1px);
+}
+.nav-pill-btn.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(201, 162, 39, 0.1) 100%);
+  border-color: #d4af37;
+  color: #fff;
+  font-weight: 600;
 }
 
 .top-nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+.twitch-party-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.btn-cmd-action {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .user-gold-badge {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 8px;
-  background: linear-gradient(135deg, rgba(201, 162, 39, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
-  border: 1px solid rgba(201, 162, 39, 0.4);
-  padding: 5px 14px;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 4px 10px;
   border-radius: 20px;
+  color: #fef08a;
+  font-weight: 700;
+  font-size: 0.78rem;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
   box-shadow: 0 0 12px rgba(201, 162, 39, 0.2);
 }
 .user-gold-badge .coin-icon {
