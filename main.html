@@ -354,8 +354,7 @@
   /* Dettagli interni card */
   .card-top {
     display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
+    align-items: center;
     margin-bottom: 14px;
   }
 
@@ -710,7 +709,6 @@
       <div>
         <div class="card-top">
           <div class="card-icon">⚔️</div>
-          <span class="status-badge available" id="battleStatusBadge">● Disponibile</span>
         </div>
         <div class="card-title">Campo di Battaglia & Turni</div>
         <div class="card-desc">
@@ -728,7 +726,6 @@
       <div>
         <div class="card-top">
           <div class="card-icon">🛡️</div>
-          <span class="status-badge available" id="statusCharBadge">● Scheda Eroe</span>
         </div>
         <div class="card-title">Status & Equipaggiamento</div>
         <div class="card-desc">
@@ -755,7 +752,6 @@
       <div>
         <div class="card-top">
           <div class="card-icon">💰</div>
-          <span class="status-badge available" id="shopStatusBadge">● Disponibile</span>
         </div>
         <div class="card-title">Bottega del Mercante</div>
         <div class="card-desc">
@@ -773,7 +769,6 @@
       <div>
         <div class="card-top">
           <div class="card-icon">🏪</div>
-          <span class="status-badge available" id="marketStatusBadge">● Disponibile</span>
         </div>
         <div class="card-title">Mercatino dei Giocatori</div>
         <div class="card-desc">
@@ -924,8 +919,8 @@
   // AGGIORNA LA BARRA SUPERIORE (STATO LOGIN / UTENTE)
   function renderUserBar() {
     const container = document.getElementById('twitchAuthContainer');
+    if (!container) return;
     const stored = localStorage.getItem(STORAGE_USER_KEY);
-    const statusBadge = document.getElementById('statusCharBadge');
 
     if (stored) {
       try {
@@ -942,18 +937,10 @@
             <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
           </div>
         `;
-
-        if (statusBadge) {
-          statusBadge.innerText = `@${user.name}`;
-        }
         return;
       } catch (e) {
         localStorage.removeItem(STORAGE_USER_KEY);
       }
-    }
-
-    if (statusBadge) {
-      statusBadge.innerText = "● Scheda Eroe";
     }
 
     // Default: Pulsante di accesso Twitch
@@ -965,30 +952,6 @@
         <span>Accedi con Twitch</span>
       </button>
     `;
-  }
-
-  // GESTIONE INIZIALIZZAZIONE & RITORNO DALL'OAUTH TWITCH
-  async function initAuth() {
-    const hash = window.location.hash.substring(1);
-    if (hash && hash.includes('access_token=')) {
-      const params = new URLSearchParams(hash);
-      const token = params.get('access_token');
-      if (token) {
-        localStorage.setItem(STORAGE_TOKEN_KEY, token);
-        window.history.replaceState(null, null, window.location.pathname);
-        await fetchTwitchUserProfile(token);
-        return;
-      }
-    }
-
-    const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
-    const savedUser = localStorage.getItem(STORAGE_USER_KEY);
-    if (savedToken && !savedUser) {
-      await fetchTwitchUserProfile(savedToken);
-      return;
-    }
-
-    renderUserBar();
   }
 
   const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
@@ -1007,14 +970,11 @@
     return 'offline';
   }
 
-  function updateMainGameStatus(data) {
+    function updateMainGameStatus(data) {
     const pill = document.getElementById('mainStatusPill');
     const txt = document.getElementById('mainLiveText');
     const goldBox = document.getElementById('topUserGoldBox');
     const goldVal = document.getElementById('topUserGold');
-    const shopBadge = document.getElementById('shopStatusBadge');
-    const marketBadge = document.getElementById('marketStatusBadge');
-    const battleBadge = document.getElementById('battleStatusBadge');
 
     const state = getGameOperationalState(data);
 
@@ -1031,51 +991,6 @@
       }
     }
 
-    // Aggiornamento status card del portale
-    if (shopBadge) {
-      if (state === 'live') {
-        shopBadge.className = "status-badge available";
-        shopBadge.innerText = "● Bottega Aperta";
-      } else if (state === 'menu') {
-        shopBadge.className = "status-badge available";
-        shopBadge.style.color = "#facc15";
-        shopBadge.innerText = "⏳ Al Menu";
-      } else {
-        shopBadge.className = "status-badge";
-        shopBadge.style.color = "#f87171";
-        shopBadge.innerText = "✕ Chiusa";
-      }
-    }
-
-    if (marketBadge) {
-      if (state === 'live') {
-        marketBadge.className = "status-badge available";
-        marketBadge.innerText = "● Mercatino Aperto";
-      } else if (state === 'menu') {
-        marketBadge.className = "status-badge available";
-        marketBadge.style.color = "#facc15";
-        marketBadge.innerText = "⏳ Al Menu";
-      } else {
-        marketBadge.className = "status-badge";
-        marketBadge.style.color = "#f87171";
-        marketBadge.innerText = "✕ Chiuso";
-      }
-    }
-
-    if (battleBadge && state !== 'live') {
-      const cardBattle = document.getElementById('cardBattle');
-      if (cardBattle) cardBattle.classList.remove('battle-live-active');
-      if (state === 'menu') {
-        battleBadge.className = "status-badge available";
-        battleBadge.style.color = "#facc15";
-        battleBadge.innerText = "⏳ Al Menu";
-      } else {
-        battleBadge.className = "status-badge";
-        battleBadge.style.color = "#f87171";
-        battleBadge.innerText = "✕ Offline";
-      }
-    }
-
     // Aggiornamento saldo Oro se presente
     const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
     if (goldBox && goldVal && d && d.currency) {
@@ -1088,26 +1003,21 @@
   }
 
   // CONTROLLO LIVE DELLO STATO BATTAGLIA
-  async function checkLiveBattleState() {
+    async function checkLiveBattleState() {
     const battleCard = document.getElementById('cardBattle');
-    const badge = document.getElementById('battleStatusBadge');
-    if (!battleCard || !badge) return;
+    if (!battleCard) return;
 
     try {
       const res = await fetch("twitch_battle_state.json?t=" + Date.now());
       if (res.ok) {
         const battle = await res.json();
         if (battle && battle.inBattle === true) {
-          badge.className = "status-badge battle-live";
-          badge.innerText = "⚔️ SCONTRO IN CORSO!";
           battleCard.classList.add("battle-live-active");
           return;
         }
       }
     } catch(e) {}
 
-    badge.className = "status-badge available";
-    badge.innerText = "● Disponibile";
     battleCard.classList.remove("battle-live-active");
   }
 
