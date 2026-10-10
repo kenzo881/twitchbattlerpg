@@ -891,6 +891,45 @@ h1 {
   transform: scale(1.15);
 }
 
+.gear-uid-tag {
+  font-size: 0.72rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 1px 6px;
+  border-radius: 6px;
+  margin-left: 6px;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.materia-uid-pill {
+  font-size: 0.62rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 0 4px;
+  border-radius: 4px;
+  line-height: 1.2;
+}
+
+.modal-uid-tag {
+  font-size: 0.85rem;
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--gold);
+  background: rgba(212, 175, 55, 0.15);
+  border: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 2px 8px;
+  border-radius: 6px;
+  margin-left: 8px;
+  vertical-align: middle;
+}
+
 .synergy-indicator-pill {
   font-size: 0.62rem;
   color: var(--text-dim);
@@ -2092,6 +2131,58 @@ h1 {
   </div>
 </div>
 
+<!-- MODALE DETTAGLI EQUIPAGGIAMENTO -->
+<div id="gearModalOverlay" class="modal-overlay" onclick="closeGearModal(event)">
+  <div class="materia-modal-card" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="equip-icon-wrap" style="width:44px; height:44px;">
+          <img id="modalGearIcon" src="" alt="">
+        </div>
+        <div>
+          <div class="modal-materia-name-row">
+            <h2 id="modalGearName" class="modal-materia-name">Spada</h2>
+            <span id="modalGearTypeBadge" class="modal-cat-badge">Arma</span>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;" id="modalGearLocationText">
+            Stato: Equipaggiato
+          </div>
+        </div>
+      </div>
+      <button class="btn-modal-close" onclick="closeGearModal()">✕</button>
+    </div>
+
+    <div class="modal-body">
+      <div class="modal-section">
+        <div class="section-title">Identificativo Univoco (UID)</div>
+        <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.3); padding:8px 12px; border-radius:8px; border:1px solid rgba(212,175,55,0.25);">
+          <span style="font-family:monospace; font-size:1.05rem; font-weight:700; color:var(--gold);" id="modalGearUidText">#g_000</span>
+          <span style="font-size:0.75rem; color:var(--text-dim);">(UID univoco di inventario e comandi)</span>
+        </div>
+      </div>
+
+      <div class="modal-section">
+        <div class="section-title">Proprietà & Statistiche</div>
+        <div id="modalGearStats" class="modal-stats-pills"></div>
+        <div id="modalGearDesc" class="modal-desc-text" style="margin-top:8px;"></div>
+      </div>
+
+      <div class="modal-section" id="modalGearSocketsSection">
+        <div class="section-title-row">
+          <span class="section-title">Alloggiamenti Essenze</span>
+          <span id="modalGearSocketsCount" style="font-size:0.8rem; color:var(--gold); font-family:monospace;"></span>
+        </div>
+        <div id="modalGearSocketsList" style="margin-top:8px; display:flex; flex-direction:column; gap:6px;"></div>
+      </div>
+    </div>
+
+    <div class="modal-footer">
+      <div id="modalGearActionArea"></div>
+      <button class="btn-modal-dismiss" onclick="closeGearModal()">Chiudi</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL REGISTRO ARTI, MAGIE & TRATTI ATTIVI -->
 <div class="modal-overlay" id="activeArtsModalOverlay" onclick="handleActiveArtsBackdropClick(event)">
   <div class="arts-modal-card" id="activeArtsModalCard" onclick="event.stopPropagation()">
@@ -2162,8 +2253,8 @@ const MATERIA_STAT_BONUSES = {
 };
 const DB_WEAPONS = {"1":{"id":1,"name":"Spadone di ferro","iconIndex":98,"desc":"Arma stage 1, Essenze 1x. [FRZ +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone1>\n<weapon damage>\n100\n</weapon damage>","params":[0,0,1,0,0,0,0,0],"price":0},"2":{"id":2,"name":"Spadone di bronzo","iconIndex":1787,"desc":"Arma stage 2, Essenze 1x. [FRZ +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone2>\n<weapon damage>\n155\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,0,0,0,0],"price":450},"3":{"id":3,"name":"Spadone d'acciaio","iconIndex":1788,"desc":"Arma stage 3, Essenze 1x. [FRZ +5]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone3>\n<weapon damage>\n206\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,0,0,0,0],"price":1200},"4":{"id":4,"name":"Spadone di smeraldo","iconIndex":1789,"desc":"Arma stage 4, Essenze 1x. [FRZ +7]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone4>\n<weapon damage>\n292\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,0,0,0,0],"price":2000},"5":{"id":5,"name":"Spadone d'oro","iconIndex":1790,"desc":"Arma stage 5, Essenze 1x. [FRZ +9]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone5>\n<weapon damage>\n415\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,0,0,0,0],"price":3000},"6":{"id":6,"name":"Spadone leggendario","iconIndex":1791,"desc":"Arma stage 6, Essenze 1x. [FRZ +11]","note":"<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone6>\n<weapon damage>\n589\n</weapon damage>\n<levelReq: 25>","params":[0,0,11,0,0,0,0,0],"price":4500},"7":{"id":7,"name":"Pugnale di ferro","iconIndex":1264,"desc":"Arma stage 1, Essenze 1x [DEX +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger Base>\n<weapon damage>\n83\n</weapon damage>","params":[0,0,1,0,0,0,1,0],"price":0},"8":{"id":8,"name":"Pugnale di bronzo","iconIndex":1266,"desc":"Arma stage 2, Essenze 1x [FRZ +2, DEX +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger2>\n<weapon damage>\n140\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,0,0,1,0],"price":450},"9":{"id":9,"name":"Pugnale d'acciaio","iconIndex":1271,"desc":"Arma stage 3, Essenze 1x [FRZ +4, DEX +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger3>\n<weapon damage>\n209\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,0,0,2,0],"price":1200},"10":{"id":10,"name":"Pugnale di smeraldo","iconIndex":1269,"desc":"Arma stage 4, Essenze 1x [FRZ +6, DEX +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger4>\n<weapon damage>\n283\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,0,0,2,0],"price":2000},"11":{"id":11,"name":"Pugnale d'oro","iconIndex":1267,"desc":"Arma stage 5, Essenze 1x [FRZ +8, DEX +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger5>\n<weapon damage>\n402\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,0,0,3,0],"price":3000},"12":{"id":12,"name":"Pugnale leggendario","iconIndex":1274,"desc":"Arma stage 6, Essenze 1x [FRZ +10, Dex +4]","note":"<materia slots: 0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger6>\n<weapon damage>\n571\n</weapon damage>\n<levelReq: 25>","params":[0,0,11,0,0,0,4,0],"price":4500},"13":{"id":13,"name":"Ascia di ferro","iconIndex":1312,"desc":"Arma stage 1, Essenze 1x [FRZ +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe Base>\n<weapon damage>\n95\n</weapon damage>","params":[0,0,1,0,0,0,0,0],"price":0},"14":{"id":14,"name":"Ascia di bronzo","iconIndex":1314,"desc":"Arma stage 2, Essenze 1x [FRZ +3, MAG +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe2>\n<weapon damage>\n143\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,1,0,0,0],"price":450},"15":{"id":15,"name":"Ascia d'acciaio","iconIndex":1319,"desc":"Arma stage 3, Essenze 1x [FRZ +5, MAG +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe3>\n<weapon damage>\n203\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,1,0,0,0],"price":1200},"16":{"id":16,"name":"Ascia di smeraldo","iconIndex":1317,"desc":"Arma stage 4, Essenze 1x [FRZ +7, MAG +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe4>\n<weapon damage>\n265\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,2,0,0,0],"price":2000},"17":{"id":17,"name":"Ascia d'oro","iconIndex":1315,"desc":"Arma stage 5, Essenze 1x [FRZ +9, MAG +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe5>\n<weapon damage>\n370\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,2,0,0,0],"price":3000},"18":{"id":18,"name":"Ascia leggendaria","iconIndex":1322,"desc":"Arma stage 6, Essenze 1x [FRZ +10, MAG +4]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe6>\n<weapon damage>\n550\n</weapon damage>\n<levelReq: 25>","params":[0,0,10,0,4,0,0,0],"price":4500},"19":{"id":19,"name":"Bastone di legno","iconIndex":1344,"desc":"Arma stage 1, Essenze 1x [MAG +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane Base>\n<weapon damage>\n70\n</weapon damage>","params":[0,0,0,0,3,0,0,0],"price":0},"20":{"id":20,"name":"Bastone di bronzo","iconIndex":1346,"desc":"Arma stage 2, Essenze 1x [FRZ +2, MAG +4]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane2>\n<weapon damage>\n100\n</weapon damage>\n<levelReq: 5>","params":[0,0,2,0,4,0,0,0],"price":450},"21":{"id":21,"name":"Bastone d'acciaio","iconIndex":1351,"desc":"Arma stage 3, Essenze 1x [FRZ +3, MAG +6]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane3>\n<weapon damage>\n142\n</weapon damage>\n<levelReq: 10>","params":[0,0,3,0,6,0,0,0],"price":1200},"22":{"id":22,"name":"Bastone di smeraldo","iconIndex":1349,"desc":"Arma stage 4, Essenze 1x [FRZ +4, MAG +7]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane4>\n<weapon damage>\n202\n</weapon damage>\n<levelReq: 15>","params":[0,0,4,0,7,0,0,0],"price":2000},"23":{"id":23,"name":"Bastone d'oro","iconIndex":1347,"desc":"Arma stage 5, Essenze 1x [FRZ +6, MAG +8]","note":"<materia slots: 0=0, type weapon, growth 1, icon icon 1803, 1804>\n<Weapon Image: Cane5>\n<weapon damage>\n287\n</weapon damage>\n<levelReq: 20>","params":[0,0,6,0,8,0,0,0],"price":3000},"24":{"id":24,"name":"Bastone leggendario","iconIndex":1354,"desc":"Arma stage 6, Essenze 1x [FRZ +8, MAG +12]","note":"<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane6>\n<weapon damage>\n408\n</weapon damage>\n<levelReq: 25>","params":[0,0,8,0,12,0,0,0],"price":4500},"38":{"id":38,"name":"Mani Nude","iconIndex":77,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},"39":{"id":39,"name":"Colossus","iconIndex":730,"desc":"Un blocco d'acciaio enorme, ma maneggevole, Materia 0x. [Atk 35, Cos +32, Mag +40, Dex -2%, Luk +10, Hit 107%]","note":"<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 0, icon 161, 162>\n<Weapon Image: 2handed1>\n<weapon damage>\n350\n</weapon damage>\n\n","params":[0,0,0,30,40,0,0,10],"price":0},"40":{"id":40,"name":"Nova","iconIndex":1733,"desc":"Spada di origine sconosciuta. Ignora la riduzione danno Morph [Frz +10, Dex +2, Hit 98%] Materia 0.5x","note":"<materia slots: 0=0:0=0:0=0:0, type weapon, growth 0.5, icon 160, 161, 162>\n<Weapon Image: Futuristic Sword Green>\n<Conformer>","params":[0,0,45,0,0,0,10,0],"price":0}};
 const DB_ARMORS = {"1":{"id":1,"name":"Essenze Magiche","etypeId":2,"iconIndex":1805,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"2":{"id":2,"name":"Fuoco","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ardenti, elemento Fuoco.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 2\naddedcut\nskills: 1:6, 2:7, 3:8\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"3":{"id":3,"name":"Ghiaccio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Gelanti, elemento Ghiaccio.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 3\naddedcut\nskills: 1:9, 2:10, 3:11\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"4":{"id":4,"name":"Tuono","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Folgoranti, elemento Tuono.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 4\naddedcut\nskills: 1:12, 2:13, 3:14\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"5":{"id":5,"name":"Terra","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Sismiche, elemento Terra.","note":"<materia>\nap: 4300, 7200, 19000, 7500\nprice: 52500\nelements: 6\naddedcut\nskills: 1:41, 2:42, 3:43\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"6":{"id":6,"name":"Veleno","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Tossiche, elemento Veleno.","note":"<materia>\nap: 4500, 8000, 19000, 6500\nprice: 48500\nelements: 11\nstates: 4\naddedcut\nskills: 1:27, 2:28, 3:29\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"7":{"id":7,"name":"Cura","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ristorative.","note":"<materia>\nap: 3900, 6600, 16500, 7800\nprice: 42000\nskills: 1:15, 2:16, 3:17\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mdf +2>","params":[0,0,-1,0,1,0,0,0],"price":800,"isMateria":true},"8":{"id":8,"name":"Tempo","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Temporali,  aumento/diminuzione Destrezza.","note":"<materia>\nap: 7500, 18000, 25000 ,40000\nprice: 46500\nskills: 1:18, 2:19, 3:20\nstates: 11,13\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"9":{"id":9,"name":"Oblio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Oblio, ad area, non elementale.","note":"<materia>\nap: 10300, 51700\nprice: 150000\nskills: 1:40, 2:39\naddedcut\n</materia>\n<bonus lv3:mat +4>","params":[0,0,-4,-2,4,2,0,0],"price":0,"isMateria":true},"10":{"id":10,"name":"Drain","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Drain.","note":"<materia>\nap: 40000\nprice: 52500\nskills: 1:21\naddedcut\n</materia>","params":[0,0,-2,0,2,0,0,0],"price":0,"isMateria":true},"11":{"id":11,"name":"Rinascita","etypeId":3,"iconIndex":1805,"desc":"Essenza di Magie di Resurrezione.","note":"<materia>\nap: 45000, 55000\nprice: 60000\nskills: 1:44, 2:45\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"12":{"id":12,"name":"Pietra","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:34\nstates: 17\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"13":{"id":13,"name":"Morte","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:47\nstates: 20\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"15":{"id":15,"name":"Essenze Fisiche","etypeId":2,"iconIndex":1821,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"16":{"id":16,"name":"Sabotaggio","etypeId":3,"iconIndex":1821,"desc":"Essenza di sabotaggio. Permette di debilitare i nemici.","note":"<materia>\ntype: command\nap: 3700, 24500\nprice: 50000\nskills: 1:57, 2:58\naddedcut\n</materia>\n<bonus lv3:atk +2, luk+2>","params":[0,0,0,0,0,0,0,0],"price":600,"isMateria":true},"17":{"id":17,"name":"Assalto","etypeId":3,"iconIndex":1821,"desc":"Essenza d'assalto. Permette di sferrare potenti pugnalate alle spalle.","note":"<materia>\ntype: command\nap: 34500\nprice: 50000\nskills: 1:59\naddedcut\n</materia>\n<bonus lv2:atk+ 3, luk +3>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"18":{"id":18,"name":"Bombardiere","etypeId":3,"iconIndex":1821,"desc":"Essenza che permette di lanciare bombe ai nemici. Munizioni limitate.","note":"<materia>\ntype: command\nap: 2800, 4700, 12500, 12000\nprice: 50000\nskills: 1:64\naddedcut\nbombAmmo\n</materia>\n<bonus lv4:atk +1, agi +1>\n<bonus lv5:atk +2, agi +2>","params":[0,0,0,0,0,0,1,0],"price":800,"isMateria":true},"21":{"id":21,"name":"Essenze Support","etypeId":2,"iconIndex":1807,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"22":{"id":22,"name":"Omni","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette a una Essenza collegata di poter essere usata su obbiettivi multipli.","note":"<materia>\ntype: support\nap: 7200, 10800, 16200, 22300\nprice: 55000\npaired: all\nlimited\n</materia>\n<bonus lv4:mp +25>\n<bonus lv5:mp +50>","params":[0,0,0,0,0,0,0,0],"price":1000,"isMateria":true},"23":{"id":23,"name":"Elemento","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare l' elemento dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 20000, 40000, 60000, 80000\nprice: 90000\npaired: elemental +30%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"24":{"id":24,"name":"Stato","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare lo stato alterato dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 100000\nprice: 90000\npaired: added effect +15%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"25":{"id":25,"name":"Assorbi HP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in Hp dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nhpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"26":{"id":26,"name":"Assorbi MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in MP dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nmpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"27":{"id":27,"name":"Turbo MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che aumenta il danno dell' Essenza  collegata in %, ma ne aumenta il consumo di Mp.","note":"<materia>\ntype: support\nap: 10000, 30000, 60000, 120000\nprice: 105000\npaired: damage +10%\npaired: mp cost +10%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"28":{"id":28,"name":"Final Attack","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 20000, 40000, 80000, 160000\nprice: 200000\npaired: final +100%\nlimited\n</materia>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"29":{"id":29,"name":"Extra","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette un attacco extra dopo aver utilizzato l' Essenza collegata.","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: addedcut\n</materia>\n<bonus lv2:agi +3>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"30":{"id":30,"name":"Quadra","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: quadra\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"31":{"id":31,"name":"Costo Hp","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 100000\nprice: 95000\npaired: hpcost\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"35":{"id":35,"name":"Essenze Summon","etypeId":2,"iconIndex":1806,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"41":{"id":41,"name":"Essenze Independent","etypeId":2,"iconIndex":1822,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"42":{"id":42,"name":"Vita Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Hp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: hp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"43":{"id":43,"name":"Mana Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Mp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: mp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"44":{"id":44,"name":"Destrezza Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Destrezza in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: agi +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"45":{"id":45,"name":"Fortuna Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Fortuna in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: luk +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"46":{"id":46,"name":"Magia Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Magia in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: mat +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"47":{"id":47,"name":"Nemesi","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di contrattaccare gli attacchi fisici.","note":"<materia>\nap: 5800, 5200, 17800, 13200\nprice: 71000\neffect: cnt +20%\nindependent\n</materia>\n<bonus lv4:atk+ 1>\n<bonus lv5:atk+ 1, luk +1>","params":[0,0,0,0,0,0,1,0],"price":1500,"isMateria":true},"48":{"id":48,"name":"Egida","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di intercettare gli attacchi fisici verso gli alleati.","note":"<materia>\ntype: independent\nap: 4400, 4200, 16900, 14500\nprice: 100000\ncover\n</materia>\n<bonus lv4:def +1, mdf +1>\n<bonus lv5:def +1, hp +150>","params":[0,0,0,1,0,0,0,0],"price":600,"isMateria":true},"61":{"id":61,"name":"Armature e accessori","etypeId":2,"iconIndex":128,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"62":{"id":62,"name":"Anello Arcano","etypeId":3,"iconIndex":3682,"desc":"Anello con potere magico. [+3 MAG, +25 MP]","note":"","params":[0,25,0,0,3,0,0,0],"price":2500,"isMateria":""},"63":{"id":63,"name":"Anello Agile","etypeId":3,"iconIndex":3680,"desc":"Anello che aumentà la Destrezza e la Fortuna. [+3 DEX, +3 LUK]","note":"","params":[0,0,0,0,0,0,3,3],"price":2500,"isMateria":""},"64":{"id":64,"name":"Collana Resiliente","etypeId":3,"iconIndex":4535,"desc":"Collana che rende più resistente il portatore. [+3 COS, +3 RES]","note":"","params":[0,0,0,3,0,3,0,0],"price":2500,"isMateria":""},"65":{"id":65,"name":"Corazza di cuoio","etypeId":2,"iconIndex":4192,"desc":"Semplice, ma resistente, Essenze 1x, [+2 Cos, +2 Res].","note":"<materia slots: 0=0, type armor, growth 1, icon 161, 162>\n","params":[0,0,0,2,0,2,0,0],"price":0,"isMateria":false},"66":{"id":66,"name":"Anello Robusto","etypeId":3,"iconIndex":4537,"desc":"Sempre pronto a combattere! [+3 FRZ, +100 HP].","note":"","params":[100,0,3,0,0,0,0,0],"price":2500,"isMateria":""},"67":{"id":67,"name":"Guanti del Potere","etypeId":3,"iconIndex":4040,"desc":"Cambia l' attacco base in Doppio Attacco.","note":"<doubleAttack>","params":[0,0,4,0,0,0,2,0],"price":0,"isMateria":false},"68":{"id":68,"name":"Cappuccio Sdoppiante","etypeId":3,"iconIndex":4857,"desc":"Fornisce l' abilità Doppia Magia.","note":"\n\n","params":[0,0,0,0,4,2,0,0],"price":0,"isMateria":false},"69":{"id":69,"name":"Guanti Plasmanti","etypeId":3,"iconIndex":4072,"desc":"Fornisce l'abilità Trasforma.","note":"","params":[0,0,3,0,0,0,1,0],"price":0,"isMateria":""},"70":{"id":70,"name":"Scouter","etypeId":3,"iconIndex":699,"desc":"Strano congegno di provenienza sconosciuta. Fornisce l' abilità Esamina.","note":"","params":[0,0,1,0,1,0,0,0],"price":2000,"isMateria":""},"71":{"id":71,"name":"Bracciali del Titano","etypeId":3,"iconIndex":4991,"desc":"Enormi bracciali che appartenevano a un gigante. [Frz + 33%]","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"72":{"id":72,"name":"Anello della Fenice","etypeId":3,"iconIndex":4736,"desc":"Fornisce Autoresurrezione una volta per battaglia.","note":"attenzione a spostarli , controllare\nAutolife.js","params":[0,0,0,2,0,5,0,0],"price":0,"isMateria":false},"73":{"id":73,"name":"Orecchino di Smeraldo","etypeId":3,"iconIndex":4602,"desc":"Aumenta i danni magici del 33%.","note":"attenzione a spostarli , controllare\nmagicalaccessorio.js","params":[0,0,0,0,20,0,0,0],"price":0,"isMateria":false},"74":{"id":74,"name":"Guanti del Ladro","etypeId":3,"iconIndex":142,"desc":"Fornisce l'abilità Furto.","note":"","params":[0,0,0,0,0,0,2,0],"price":0,"isMateria":""},"75":{"id":75,"name":"Vestiti","etypeId":2,"iconIndex":2218,"desc":"Vestiti base del personaggio [COS 0, RES 0]","note":"<materia slots: 0=0:0, type armor, growth 1, icon 1803, 1804>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":false},"76":{"id":76,"name":"Giacca in pelle","etypeId":2,"iconIndex":2217,"desc":"Una semplice giacca in pelle [COS +1, RES +1]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 5>","params":[0,0,0,1,0,1,0,0],"price":300,"isMateria":false},"77":{"id":77,"name":"Armatura in pelle","etypeId":2,"iconIndex":2216,"desc":"Armatura in pelle di decente fattura [COS +3, RES +2]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 10>","params":[0,0,0,3,0,2,0,0],"price":800,"isMateria":false},"78":{"id":78,"name":"Cotta di maglia","etypeId":2,"iconIndex":2215,"desc":"Una cotta di maglia ben fatta [COS +6, RES +4]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 15>","params":[0,0,0,6,0,4,0,0],"price":1500,"isMateria":false},"79":{"id":79,"name":"Armatura in ferro","etypeId":2,"iconIndex":2214,"desc":"Un'armatura di ferro forgiata da un fabbro competente [COS +9, RES +6]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 20>","params":[0,0,0,9,0,6,0,0],"price":2200,"isMateria":false},"80":{"id":80,"name":"Armatura pesante","etypeId":2,"iconIndex":2213,"desc":"Un'armatura pesante di pregiata fattura  [COS +14, RES +9]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 25>","params":[0,0,0,14,0,9,0,0],"price":3000,"isMateria":false}};
-const FALLBACK_OWNERS = {"test_bomb":{"slot":100,"class":"guerriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_altro":{"slot":101,"class":"mago","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_ladro":{"slot":102,"class":"ladro","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_avventuriero":{"slot":103,"class":"avventuriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"ashen84":{"slot":10,"class":"ladro","sprite":"pg_mora_2","face":"pg_mora_2_face","sv":"pg_mora_2_sv","level":1,"exp":23,"equips":[{"slotIndex":0,"etypeId":1,"itemId":7},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"captainlover92":{"slot":11,"class":"avventuriero","sprite":"pg_biondo_2","face":"pg_biondo_2_face","sv":"pg_biondo_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":13},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"kenz088":{"slot":12,"class":"guerriero","sprite":"pg_bionda_2","face":"pg_bionda_2_face","sv":"pg_bionda_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":1},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]}};
-const FALLBACK_INVENTORY = {"test_altro":{"equip":[],"essenze":[]},"test_ladro":{"equip":[],"essenze":[]},"test_avventuriero":{"equip":[],"essenze":[]},"test_guerriero":{"equip":[],"essenze":[]},"test_bomb":{"equip":[],"essenze":[]},"ashen84":{"equip":[{"uid":"g_011","type":"weapon","itemId":7,"equippedSlot":0},{"uid":"g_012","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_005","armorId":17,"ap":20,"level":1,"equippedSlot":{"set":0,"slot":0},"owner":"ashen84"}]},"captainlover92":{"equip":[{"uid":"g_013","type":"weapon","itemId":13,"equippedSlot":0},{"uid":"g_014","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[]},"kenz088":{"equip":[{"uid":"g_015","type":"weapon","itemId":1,"equippedSlot":0},{"uid":"g_016","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_004","armorId":48,"ap":20,"level":1,"equippedSlot":{"set":1,"slot":2},"owner":"kenz088"}]}};
+const FALLBACK_OWNERS = {"test_bomb":{"slot":100,"class":"guerriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_altro":{"slot":101,"class":"mago","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_ladro":{"slot":102,"class":"ladro","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_avventuriero":{"slot":103,"class":"avventuriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"ashen84":{"slot":10,"class":"ladro","sprite":"pg_mora_2","face":"pg_mora_2_face","sv":"pg_mora_2_sv","level":1,"exp":23,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"captainlover92":{"slot":11,"class":"avventuriero","sprite":"pg_biondo_2","face":"pg_biondo_2_face","sv":"pg_biondo_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"kenz088":{"slot":12,"class":"guerriero","sprite":"pg_bionda_2","face":"pg_bionda_2_face","sv":"pg_bionda_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]}};
+const FALLBACK_INVENTORY = {};
 const FALLBACK_CURRENCY = {"test_altro":1322,"test_ladro":1322,"test_avventuriero":1322,"test_guerriero":111,"test_bomb":1127,"ashen84":84,"captainlover92":634,"kenz088":434};
 
 let DB_OWNERS = (typeof window !== 'undefined' && window.__TWITCH_OWNERS) ? window.__TWITCH_OWNERS : ((typeof window !== 'undefined' && window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.owners) ? window.__LIVE_GAME_DATA.owners : FALLBACK_OWNERS);
@@ -2733,8 +2824,9 @@ function renderSocketMetaHtml(sock) {
   if (sock.materia) {
     return `
       <div class="materia-slot-meta">
-        <div class="materia-name-label" title="${sock.materia.name}">${sock.materia.name}</div>
-        <button class="btn-slot-unequip-under" onclick="handleUnequipEssence('${sock.materia.uid}')" title="Smonta ${sock.materia.name}">✕</button>
+        <div class="materia-name-label" title="${sock.materia.name} #${sock.materia.uid}">${sock.materia.name}</div>
+        <div class="materia-uid-pill" title="UID: ${sock.materia.uid}">#${sock.materia.uid}</div>
+        <button class="btn-slot-unequip-under" onclick="handleUnequipEssence('${sock.materia.uid}')" title="Smonta ${sock.materia.name} (#${sock.materia.uid})">✕</button>
       </div>
     `;
   } else {
@@ -2848,12 +2940,15 @@ function renderEquipSlots() {
           <span class="equip-type-label">${slotDef.icon} ${slotDef.label}</span>
           <button class="btn-unequip-gear" onclick="handleUnequipGear('${slotDef.key}')">✕ Smonta</button>
         </div>
-        <div class="equip-main-row">
+        <div class="equip-main-row" style="cursor:pointer;" onclick="openGearModal('${item.uid}')" title="Clicca per visualizzare dettagli completi e UID">
           <div class="equip-icon-wrap">
             <img src="${item.iconData}" alt="">
           </div>
           <div class="equip-name-box">
-            <div class="equip-name" title="${item.name}">${item.name}</div>
+            <div class="equip-name" title="${item.name} #${item.uid}">
+              <span>${item.name}</span>
+              ${item.uid ? `<span class="gear-uid-tag">#${item.uid}</span>` : ''}
+            </div>
             <div class="equip-stats">${item.stats || 'Proprietà base'}</div>
           </div>
         </div>
@@ -3000,6 +3095,7 @@ function renderInventoryGrid() {
             <div class="inv-item-info">
               <div class="inv-item-name">
                 <span>${it.name}</span>
+                <span class="gear-uid-tag">#${it.uid}</span>
                 <span style="font-size:0.7rem; color:${borderCol}; background:${borderCol}22; padding:1px 6px; border-radius:10px; font-weight:700;">Lv ${it.level}</span>
               </div>
               <div class="inv-item-desc">${it.desc || 'Essenza magica per alloggiamento.'}</div>
@@ -3021,12 +3117,18 @@ function renderInventoryGrid() {
               <img src="${it.iconData}" alt="">
             </div>
             <div class="inv-item-info">
-              <div class="inv-item-name">${it.name}</div>
+              <div class="inv-item-name">
+                <span>${it.name}</span>
+                <span class="gear-uid-tag">#${it.uid}</span>
+              </div>
               <div class="inv-item-desc">${it.desc || 'Equipaggiamento pronto per essere indossato.'}</div>
               ${it.stats ? `<div class="inv-item-stats">[${it.stats}]</div>` : ''}
             </div>
           </div>
-          <button class="inv-item-btn" onclick="event.stopPropagation(); quickEquipGear('${it.uid}')">Indossa ⚔️</button>
+          <div style="display:flex; gap:6px;">
+            <button class="inv-item-btn" style="background:rgba(255,255,255,0.08); border-color:rgba(255,255,255,0.2);" onclick="event.stopPropagation(); openGearModal('${it.uid}')">Dettagli 🔍</button>
+            <button class="inv-item-btn" onclick="event.stopPropagation(); quickEquipGear('${it.uid}')">Indossa ⚔️</button>
+          </div>
         </div>
       `;
     }
@@ -3096,7 +3198,7 @@ function openMateriaModal(uid) {
 
   document.getElementById("modalMateriaIcon").src = mat.iconData;
   document.getElementById("modalMateriaIconWrap").style.borderColor = catColor;
-  document.getElementById("modalMateriaName").innerText = mat.name;
+  document.getElementById("modalMateriaName").innerHTML = `${mat.name} <span class="modal-uid-tag">#${mat.uid}</span>`;
 
   const badge = document.getElementById("modalMateriaCatBadge");
   badge.innerText = mat.category;
@@ -3222,6 +3324,134 @@ function closeMateriaModal(e) {
     return;
   }
   const overlay = document.getElementById("materiaModalOverlay");
+  if (overlay) {
+    overlay.classList.remove("active");
+    overlay.classList.remove("modal-active");
+  }
+}
+
+// MODAL DETTAGLI EQUIPAGGIAMENTO
+function openGearModal(uid) {
+  let gear = null;
+  let isEquipped = false;
+  let slotKey = null;
+
+  for (const k of ['arma', 'armatura', 'acc1', 'acc2']) {
+    if (charState.equipped[k] && charState.equipped[k].uid === uid) {
+      gear = charState.equipped[k];
+      isEquipped = true;
+      slotKey = k;
+      break;
+    }
+  }
+
+  if (!gear) {
+    const bg = charState.backpack.gear.find(g => g.uid === uid);
+    if (bg) {
+      gear = bg;
+      isEquipped = false;
+    }
+  }
+
+  if (!gear) return;
+
+  const overlay = document.getElementById("gearModalOverlay");
+  if (!overlay) return;
+
+  document.getElementById("modalGearIcon").src = gear.iconData || '';
+  document.getElementById("modalGearName").innerHTML = `${gear.name} <span class="modal-uid-tag">#${gear.uid}</span>`;
+  document.getElementById("modalGearUidText").innerText = `#${gear.uid}`;
+  
+  const typeBadge = document.getElementById("modalGearTypeBadge");
+  if (typeBadge) {
+    typeBadge.innerText = (gear.type === 'weapon' ? 'Arma' : (gear.type === 'armor' ? 'Armatura' : 'Accessorio'));
+  }
+
+  const locEl = document.getElementById("modalGearLocationText");
+  if (locEl) {
+    locEl.innerHTML = isEquipped 
+      ? `<span style="color:var(--success);">⚔️ Equipaggiato in: <b>${slotKey.toUpperCase()}</b></span>`
+      : `<span style="color:var(--text-muted);">🎒 Nello Zaino</span>`;
+  }
+
+  // Statistiche
+  const statsEl = document.getElementById("modalGearStats");
+  if (statsEl) {
+    if (gear.statBonus && Object.keys(gear.statBonus).length > 0) {
+      const labels = { frz: 'FRZ', cos: 'COS', mag: 'MAG', res: 'RES', dex: 'DEX', luk: 'LUK', hp: 'HP', mp: 'MP' };
+      statsEl.innerHTML = Object.keys(gear.statBonus).map(k => {
+        const v = gear.statBonus[k];
+        const isNeg = v < 0;
+        return `<div class="modal-stat-pill ${isNeg ? 'negative' : ''}">${v > 0 ? '+' + v : v} ${labels[k] || k.toUpperCase()}</div>`;
+      }).join("");
+    } else if (gear.stats) {
+      statsEl.innerHTML = `<div class="modal-stat-pill">${gear.stats}</div>`;
+    } else {
+      statsEl.innerHTML = `<span style="font-size:0.75rem; color:var(--text-muted);">Nessuna variazione parametri base.</span>`;
+    }
+  }
+
+  const descEl = document.getElementById("modalGearDesc");
+  if (descEl) {
+    descEl.innerText = gear.desc || 'Equipaggiamento resistente pronto alla battaglia.';
+  }
+
+  // Sockets
+  const socketsSec = document.getElementById("modalGearSocketsSection");
+  const socketsCount = document.getElementById("modalGearSocketsCount");
+  const socketsList = document.getElementById("modalGearSocketsList");
+  if (socketsSec && socketsList) {
+    if (gear.sockets && gear.sockets.length > 0) {
+      socketsSec.style.display = "block";
+      const schematic = renderSlotsSchematic(gear.groups);
+      socketsCount.innerText = `${gear.sockets.length} Slot ${schematic}`;
+      socketsList.innerHTML = gear.sockets.map(s => {
+        if (s.materia) {
+          const catCol = MATERIA_COLORS[s.materia.category] || '#10b981';
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); padding:6px 10px; border-radius:6px;">
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span style="color:var(--text-dim); font-size:0.75rem;">Slot ${s.slotNum}:</span>
+                <span style="font-weight:600; color:${catCol};">${s.materia.name}</span>
+                <span class="materia-uid-pill" title="UID Essenza">#${s.materia.uid}</span>
+                <span style="font-size:0.7rem; color:var(--text-muted);">(Lv ${s.materia.level})</span>
+              </div>
+              <button class="inv-item-btn" style="padding:2px 8px; font-size:0.7rem;" onclick="closeGearModal(); openMateriaModal('${s.materia.uid}')">Dettagli Essenza 🔍</button>
+            </div>
+          `;
+        } else {
+          return `
+            <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.02); border:1px dashed rgba(255,255,255,0.08); padding:6px 10px; border-radius:6px; color:var(--text-dim); font-size:0.75rem;">
+              <span>Slot ${s.slotNum}: Vuoto ◈</span>
+              <span>Trascina essenza per alloggiarla</span>
+            </div>
+          `;
+        }
+      }).join("");
+    } else {
+      socketsSec.style.display = "none";
+    }
+  }
+
+  // Action area
+  const actionEl = document.getElementById("modalGearActionArea");
+  if (actionEl) {
+    if (isEquipped) {
+      actionEl.innerHTML = `<button class="btn-modal-unequip" onclick="handleUnequipGear('${slotKey}'); closeGearModal();">✕ Smonta nello Zaino</button>`;
+    } else {
+      actionEl.innerHTML = `<button class="inv-item-btn" style="padding:8px 16px; font-weight:700;" onclick="quickEquipGear('${gear.uid}'); closeGearModal();">Indossa Subito ⚔️</button>`;
+    }
+  }
+
+  overlay.classList.add("active");
+  overlay.classList.add("modal-active");
+}
+
+function closeGearModal(e) {
+  if (e && e.target && e.target.id !== "gearModalOverlay" && !e.target.classList.contains("btn-modal-close") && !e.target.classList.contains("btn-modal-dismiss") && !e.target.classList.contains("btn-modal-unequip")) {
+    return;
+  }
+  const overlay = document.getElementById("gearModalOverlay");
   if (overlay) {
     overlay.classList.remove("active");
     overlay.classList.remove("modal-active");
@@ -3459,7 +3689,7 @@ function getActiveCharacterArts() {
             desc: skill.desc,
             levelReq: skill.level !== undefined ? skill.level : (skill.levelReq || 1),
             category: mat.category,
-            source: `Essenza ${mat.name} (Lv.${matLevel}) • ${piece.name} [Slot ${sock.slotNum}]`,
+            source: `Essenza ${mat.name} (#${mat.uid}) (Lv.${matLevel}) • ${piece.name} (#${piece.uid}) [Slot ${sock.slotNum}]`,
             badgeColor: MATERIA_COLORS[mat.category] || '#10b981'
           });
         });
@@ -3473,7 +3703,7 @@ function getActiveCharacterArts() {
           icon: passiveInfo.icon,
           badgeColor: passiveInfo.badgeColor,
           desc: passiveInfo.desc + (statBonusStr ? ` [${statBonusStr}]` : ''),
-          source: `Essenza ${mat.name} (Lv.${matLevel}) • ${piece.name} [Slot ${sock.slotNum}]`
+          source: `Essenza ${mat.name} (#${mat.uid}) (Lv.${matLevel}) • ${piece.name} (#${piece.uid}) [Slot ${sock.slotNum}]`
         });
       } else if (unlockedSkills.length === 0) {
         result.passives.push({
@@ -3482,7 +3712,7 @@ function getActiveCharacterArts() {
           icon: '💎',
           badgeColor: MATERIA_COLORS[mat.category] || '#10b981',
           desc: (mat.desc || 'Conferisce risonanza magica e potenziamento.') + (statBonusStr ? ` [${statBonusStr}]` : ''),
-          source: `Essenza ${mat.name} (Lv.${matLevel}) • ${piece.name} [Slot ${sock.slotNum}]`
+          source: `Essenza ${mat.name} (#${mat.uid}) (Lv.${matLevel}) • ${piece.name} (#${piece.uid}) [Slot ${sock.slotNum}]`
         });
       }
     });
@@ -3498,7 +3728,7 @@ function getActiveCharacterArts() {
             result.synergies.push({
               name: `Sinergia ${syn.sourceName} + ${syn.targetName}`,
               effect: syn.effectName,
-              source: `${piece.name} [Slot ${g.slots[0]} ═ ${g.slots[1]}]`
+              source: `${piece.name} (#${piece.uid}) [Slot ${g.slots[0]} ═ ${g.slots[1]}]`
             });
           }
         }
@@ -3526,7 +3756,7 @@ function getActiveCharacterArts() {
         icon: specialTrait.icon,
         desc: specialTrait.desc,
         stats: item.stats || '',
-        source: `${item.name} (${ek.label})`
+        source: `${item.name} #${item.uid || ''} (${ek.label})`
       });
     } else if (item.stats || item.desc) {
       result.gearTraits.push({
@@ -3536,7 +3766,7 @@ function getActiveCharacterArts() {
         icon: ek.key.startsWith('acc') ? '💍' : (ek.key === 'arma' ? '⚔️' : '🛡️'),
         desc: item.desc || item.stats || 'Proprietà base.',
         stats: item.stats || '',
-        source: `${item.name} (${ek.label})`
+        source: `${item.name} #${item.uid || ''} (${ek.label})`
       });
     }
   });
