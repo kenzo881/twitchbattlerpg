@@ -1825,6 +1825,92 @@ h1 {
 .btn-sync-live.syncing {
   opacity: 0.7;
 }
+
+/* BOTTONI COMANDI RAPIDI PARTY (!play & !leave) */
+.twitch-party-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.btn-cmd-action {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: 'Cinzel', serif;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  padding: 6px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  user-select: none;
+  border: 1px solid transparent;
+  outline: none;
+}
+
+.btn-cmd-action .cmd-icon {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.btn-cmd-action .cmd-label {
+  font-family: monospace;
+  font-size: 0.9rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* !play: Verde Smeraldo / Eroe */
+.btn-cmd-play {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.22) 0%, rgba(5, 150, 105, 0.38) 100%);
+  border-color: rgba(52, 211, 153, 0.55);
+  color: #a7f3d0;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.18);
+}
+
+.btn-cmd-play:hover {
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.38) 0%, rgba(5, 150, 105, 0.6) 100%);
+  border-color: #34d399;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(16, 185, 129, 0.38);
+}
+
+/* !leave: Rosso Carminio / Abbandono */
+.btn-cmd-leave {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(185, 28, 28, 0.35) 100%);
+  border-color: rgba(248, 113, 113, 0.5);
+  color: #fca5a5;
+  box-shadow: 0 2px 10px rgba(239, 68, 68, 0.18);
+}
+
+.btn-cmd-leave:hover {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.35) 0%, rgba(185, 28, 28, 0.55) 100%);
+  border-color: #ef4444;
+  color: #ffffff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.38);
+}
+
+.btn-cmd-action:active {
+  transform: translateY(1px);
+}
+
+/* Stato Bloccato in Battaglia */
+.btn-cmd-action.in-battle-locked {
+  opacity: 0.6;
+  filter: grayscale(0.5);
+  cursor: not-allowed;
+  border-style: dashed;
+}
+.btn-cmd-action.in-battle-locked:hover {
+  transform: none;
+  box-shadow: none;
+}
+
 .sync-pill {
   background: rgba(59, 130, 246, 0.15);
   border-color: rgba(59, 130, 246, 0.4);
@@ -1997,6 +2083,18 @@ h1 {
       <span class="twitch-status-pill sync-pill" id="syncStatusBadge">
         <span class="pulse-dot"></span> <span id="syncStatusText">Sincronizzato</span>
       </span>
+    </div>
+
+    <!-- AZIONI RAPIDE PARTY (!play / !leave) -->
+    <div class="twitch-party-actions" id="twitchPartyActions">
+      <button type="button" class="btn-cmd-action btn-cmd-play" id="btnCmdPlay" onclick="triggerPlayCommand()" title="Unisciti alla battaglia o alla coda del party (!play)">
+        <span class="cmd-icon">⚔️</span>
+        <span class="cmd-label">!play</span>
+      </button>
+      <button type="button" class="btn-cmd-action btn-cmd-leave" id="btnCmdLeave" onclick="triggerLeaveCommand()" title="Esci dal party o dalla coda (!leave)">
+        <span class="cmd-icon">🚪</span>
+        <span class="cmd-label">!leave</span>
+      </button>
     </div>
 
     <div class="twitch-user-area">
@@ -4240,6 +4338,50 @@ async function sendTwitchChatMessage(message) {
   }
 }
 
+// COMANDI RAPIDI PARTY (!play / !leave)
+function triggerPlayCommand() {
+  const liveData = (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  const inBattle = !!(liveData && liveData.inBattle);
+  if (inBattle) {
+    showToast(
+      "⚔️ Combattimento in corso!",
+      "Non puoi usare <b>!play</b> durante una battaglia per evitare errori di sincronizzazione del party. Attendi il termine dello scontro!"
+    );
+    return;
+  }
+  executeChatCommand('!play');
+}
+
+function triggerLeaveCommand() {
+  const liveData = (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  const inBattle = !!(liveData && liveData.inBattle);
+  if (inBattle) {
+    showToast(
+      "⚔️ Combattimento in corso!",
+      "Non puoi usare <b>!leave</b> durante una battaglia per non compromettere il party in corso. Attendi il termine dello scontro!"
+    );
+    return;
+  }
+  executeChatCommand('!leave');
+}
+
+function updatePartyActionsBattleState(inBattle) {
+  const playBtn = document.getElementById("btnCmdPlay");
+  const leaveBtn = document.getElementById("btnCmdLeave");
+  if (!playBtn || !leaveBtn) return;
+  if (inBattle) {
+    playBtn.classList.add("in-battle-locked");
+    leaveBtn.classList.add("in-battle-locked");
+    playBtn.title = "Combattimento in corso: !play temporaneamente bloccato durante la battaglia";
+    leaveBtn.title = "Combattimento in corso: !leave temporaneamente bloccato durante la battaglia";
+  } else {
+    playBtn.classList.remove("in-battle-locked");
+    leaveBtn.classList.remove("in-battle-locked");
+    playBtn.title = "Unisciti alla battaglia o alla coda del party (!play)";
+    leaveBtn.title = "Lascia il party o la coda (!leave)";
+  }
+}
+
 function checkGameActive(data) {
   const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
   if (!d) return false;
@@ -4261,21 +4403,36 @@ function updateGameStatusUI(active, data) {
   const topSyncPill = document.getElementById("syncStatusBadge");
   const topSyncText = document.getElementById("syncStatusText");
   const liveData = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  const inBattle = !!(active && liveData && liveData.inBattle);
+
+  // Aggiorna lo stato visivo dei pulsanti rapidi party (!play / !leave)
+  updatePartyActionsBattleState(inBattle);
 
   if (active) {
     if (banner) {
-      banner.className = "game-status-banner online";
-      if (icon) icon.innerText = "🟢";
-      if (title) title.innerText = "GIOCO ATTIVO & CONNESSO";
-      if (desc) desc.innerText = "Partita in corso! Sincronizzazione in tempo reale attiva con RPG Maker.";
-      if (pill) {
-        pill.className = "banner-status-pill online";
-        pill.innerText = "ONLINE LIVE ⚡";
+      if (inBattle) {
+        banner.className = "game-status-banner online";
+        if (icon) icon.innerText = "⚔️";
+        if (title) title.innerText = "GIOCO ATTIVO — COMBATTIMENTO IN CORSO";
+        if (desc) desc.innerText = "Una battaglia è in corso! I comandi !play e !leave sono temporaneamente protetti per sicurezza fino al termine dello scontro.";
+        if (pill) {
+          pill.className = "banner-status-pill online";
+          pill.innerText = "IN BATTAGLIA ⚔️";
+        }
+      } else {
+        banner.className = "game-status-banner online";
+        if (icon) icon.innerText = "🟢";
+        if (title) title.innerText = "GIOCO ATTIVO & CONNESSO";
+        if (desc) desc.innerText = "Partita in corso! Sincronizzazione in tempo reale attiva con RPG Maker.";
+        if (pill) {
+          pill.className = "banner-status-pill online";
+          pill.innerText = "ONLINE LIVE ⚡";
+        }
       }
     }
     if (topSyncPill) {
       topSyncPill.className = "twitch-status-pill sync-pill synced";
-      if (topSyncText) topSyncText.innerText = `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
+      if (topSyncText) topSyncText.innerText = inBattle ? `In Battaglia ⚔️ [${new Date().toLocaleTimeString('it-IT')}]` : `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
     }
   } else if (liveData && liveData.inTitle) {
     if (banner) {
