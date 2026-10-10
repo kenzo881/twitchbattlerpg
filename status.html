@@ -2168,39 +2168,50 @@ body.is-dragging-essence .materia-slot-meta * {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .sync-status-pill.active,
 .sync-status-pill.synced,
 .sync-status-pill.live {
   background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #34d399 !important;
 }
+.sync-status-pill.active .sync-dot,
+.sync-status-pill.synced .sync-dot,
+.sync-status-pill.live .sync-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 8px #34d399 !important;
+}
 .sync-status-pill.menu,
-.sync-status-pill.title,
-.sync-status-pill.waiting {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: #f59e0b !important;
-  color: #fbbf24 !important;
+.sync-status-pill.title {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1px solid rgba(234, 179, 8, 0.35) !important;
+  color: #facc15 !important;
+}
+.sync-status-pill.menu .sync-dot,
+.sync-status-pill.title .sync-dot {
+  background: #facc15 !important;
+  box-shadow: 0 0 8px #facc15 !important;
 }
 .sync-status-pill.offline {
   background: rgba(239, 68, 68, 0.15) !important;
-  border-color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
   color: #f87171 !important;
+}
+.sync-status-pill.offline .sync-dot {
+  background: #f87171 !important;
+  box-shadow: 0 0 8px #f87171 !important;
 }
 .sync-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
 }
 
 .nav-links-row {
@@ -5214,19 +5225,25 @@ function updatePartyActionsBattleState(inBattle) {
   }
 }
 
-function checkGameActive(data) {
+function getGameOperationalState(data) {
   const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-  if (!d) return false;
-  if (d.gameActive === false) return false;
-  const ts = d.heartbeat || d.timestamp || 0;
-  if (!ts) return false;
-  const diff = Date.now() - ts;
-  return diff < 35000 && diff > -10000;
+  if (!d) return 'offline';
+  const now = Date.now();
+  const hb = d.heartbeat || d.timestamp || 0;
+  if (!hb) return 'offline';
+  const diff = now - hb;
+  if (diff > 25000 || diff < -10000) return 'offline';
+  if (d.gameActive === true && !d.inTitle) return 'live';
+  if (d.inTitle === true || d.gameActive === false) return 'menu';
+  return 'offline';
 }
 
-function updateGameStatusUI(active, data) {
-  isGameCurrentlyActive = active;
+function checkGameActive(data) {
+  return getGameOperationalState(data) === 'live';
+}
 
+function updateGameStatusUI(active, liveData) {
+  const state = getGameOperationalState(liveData);
   const banner = document.getElementById("gameStatusBanner");
   const icon = document.getElementById("gameStatusIcon");
   const title = document.getElementById("gameStatusTitle");
@@ -5234,19 +5251,15 @@ function updateGameStatusUI(active, data) {
   const pill = document.getElementById("gameStatusPill");
   const topSyncPill = document.getElementById("syncStatusBadge");
   const topSyncText = document.getElementById("syncStatusText");
-  const liveData = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-  const inBattle = !!(active && liveData && liveData.inBattle);
 
-  // Aggiorna lo stato visivo dei pulsanti rapidi party (!play / !leave)
-  updatePartyActionsBattleState(inBattle);
-
-  if (active) {
+  if (state === 'live') {
+    isGameCurrentlyActive = true;
     if (banner) {
-      if (inBattle) {
-        banner.className = "game-status-banner online";
+      if (liveData && liveData.inBattle) {
+        banner.className = "game-status-banner battle-banner";
         if (icon) icon.innerText = "⚔️";
-        if (title) title.innerText = "GIOCO ATTIVO — COMBATTIMENTO IN CORSO";
-        if (desc) desc.innerText = "Una battaglia è in corso! I comandi !play e !leave sono temporaneamente protetti per sicurezza fino al termine dello scontro.";
+        if (title) title.innerText = "BATTAGLIA IN CORSO!";
+        if (desc) desc.innerText = "Combattimento attivo! Segui i turni ed entra nello scontro.";
         if (pill) {
           pill.className = "banner-status-pill online";
           pill.innerText = "IN BATTAGLIA ⚔️";
@@ -5263,15 +5276,16 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (topSyncPill) {
-      topSyncPill.className = "sync-status-pill active";
+      topSyncPill.className = "sync-status-pill live";
       if (topSyncText) topSyncText.innerText = "Live";
     }
-  } else if (liveData && liveData.inTitle) {
+  } else if (state === 'menu') {
+    isGameCurrentlyActive = false;
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🟡";
       if (title) title.innerText = "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)";
-      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi sia alla Lobby per iniziare la sincronizzazione in tempo reale!";
+      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi che la partita venga avviata per iniziare la sincronizzazione in tempo reale!";
       if (pill) {
         pill.className = "banner-status-pill offline";
         pill.innerText = "AL MENU ⏳";
@@ -5282,6 +5296,7 @@ function updateGameStatusUI(active, data) {
       if (topSyncText) topSyncText.innerText = "Menu";
     }
   } else {
+    isGameCurrentlyActive = false;
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🔴";
@@ -5351,9 +5366,13 @@ function updateSyncStatusBadge(synced) {
   const text = document.getElementById("syncStatusText");
   if (!badge || !text) return;
 
-  if (synced && isGameCurrentlyActive) {
-    badge.className = "sync-status-pill active";
+  const state = getGameOperationalState();
+  if (state === 'live') {
+    badge.className = "sync-status-pill live";
     text.innerText = "Live";
+  } else if (state === 'menu') {
+    badge.className = "sync-status-pill menu";
+    text.innerText = "Menu";
   } else {
     badge.className = "sync-status-pill offline";
     text.innerText = "Offline";

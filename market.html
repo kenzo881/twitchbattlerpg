@@ -110,39 +110,50 @@ body {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .sync-status-pill.active,
 .sync-status-pill.synced,
 .sync-status-pill.live {
   background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #34d399 !important;
 }
+.sync-status-pill.active .sync-dot,
+.sync-status-pill.synced .sync-dot,
+.sync-status-pill.live .sync-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 8px #34d399 !important;
+}
 .sync-status-pill.menu,
-.sync-status-pill.title,
-.sync-status-pill.waiting {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: #f59e0b !important;
-  color: #fbbf24 !important;
+.sync-status-pill.title {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1px solid rgba(234, 179, 8, 0.35) !important;
+  color: #facc15 !important;
+}
+.sync-status-pill.menu .sync-dot,
+.sync-status-pill.title .sync-dot {
+  background: #facc15 !important;
+  box-shadow: 0 0 8px #facc15 !important;
 }
 .sync-status-pill.offline {
   background: rgba(239, 68, 68, 0.15) !important;
-  border-color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
   color: #f87171 !important;
+}
+.sync-status-pill.offline .sync-dot {
+  background: #f87171 !important;
+  box-shadow: 0 0 8px #f87171 !important;
 }
 .sync-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
 }
 
 .nav-links-row {
@@ -2702,13 +2713,12 @@ function checkGameActive(data) {
 }
 
 function updateGameStatusUI(active, data) {
-  isGameCurrentlyActive = active;
+  const syncBadge = document.getElementById("syncStatusBadge");
   const banner = document.getElementById("gameStatusBanner");
   const icon = document.getElementById("gameStatusIcon");
   const title = document.getElementById("gameStatusTitle");
   const desc = document.getElementById("gameStatusDesc");
   const pill = document.getElementById("gameStatusPill");
-  const syncBadge = document.getElementById("syncStatusBadge");
   const syncText = document.getElementById("syncStatusText");
   const liveData = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
 
@@ -2726,29 +2736,15 @@ function updateGameStatusUI(active, data) {
     if (syncBadge) syncBadge.className = "sync-status-pill active";
     if (syncText) syncText.innerText = "Live";
     document.body.classList.remove("game-offline");
-  } else if (liveData && liveData.inTitle) {
-    if (banner) {
-      banner.className = "game-status-banner offline";
-      if (icon) icon.innerText = "🟡";
-      if (title) title.innerText = "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)";
-      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi che la partita inizi per consultare il mercatino.";
-      if (pill) {
-        pill.className = "banner-status-pill offline";
-        pill.innerText = "AL MENU ⏳";
-      }
-    }
-    if (syncBadge) syncBadge.className = "sync-status-pill menu";
-    if (syncText) syncText.innerText = "Menu";
-    document.body.classList.add("game-offline");
   } else {
     if (banner) {
       banner.className = "game-status-banner offline";
-      if (icon) icon.innerText = "🔴";
-      if (title) title.innerText = "GIOCO NON RILEVATO (OFFLINE)";
-      if (desc) desc.innerText = "TBRPG è chiuso o non attivo. Aspetta che il gioco sia online per visualizzare inserzioni, zaino ed equipaggiamenti.";
+      if (icon) icon.innerText = (liveData && liveData.inTitle) ? "🟡" : "🔴";
+      if (title) title.innerText = (liveData && liveData.inTitle) ? "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)" : "GIOCO NON RILEVATO (OFFLINE)";
+      if (desc) desc.innerText = (liveData && liveData.inTitle) ? "Il gioco è aperto al Menu. Attendi che la partita inizi per consultare il mercatino." : "TBRPG è chiuso o non attivo. Aspetta che il gioco sia online per visualizzare inserzioni, zaino ed equipaggiamenti.";
       if (pill) {
         pill.className = "banner-status-pill offline";
-        pill.innerText = "GIOCO CHIUSO ✕";
+        pill.innerText = (liveData && liveData.inTitle) ? "AL MENU ⏳" : "GIOCO CHIUSO ✕";
       }
     }
     if (syncBadge) syncBadge.className = "sync-status-pill offline";
@@ -3400,6 +3396,15 @@ function refreshAllViews() {
 // MODALE ACQUISTO (BUY)
 // -------------------------------------------------------------
 function openBuyModal(uid) {
+  const st = getGameOperationalState();
+  if (st !== 'live') {
+    if (st === 'menu') {
+      showToast("Al Menu 🟡", "Il gioco è al menu iniziale. Potrai acquistare appena la partita inizia!");
+    } else {
+      showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline. Entra in partita per acquistare!");
+    }
+    return;
+  }
   if (!isGameCurrentlyActive) {
     showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Gli acquisti sono consentiti solo quando il gioco è attivo.");
     return;
@@ -3484,11 +3489,16 @@ async function executeBuyAction() {
 // MODALE VENDITA (SELL)
 // -------------------------------------------------------------
 function openSellModal(uid, isEssence) {
-  if (!isGameCurrentlyActive) {
-    showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Puoi mettere oggetti in vendita solo quando il gioco è attivo.");
+  const st = getGameOperationalState();
+  if (st !== 'live') {
+    if (st === 'menu') {
+      showToast("Al Menu 🟡", "Il gioco è al menu iniziale. Potrai vendere appena la partita inizia!");
+    } else {
+      showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline. Entra in partita per vendere!");
+    }
     return;
   }
-  if (!currentUser) return;
+if (!currentUser) return;
   const myLogin = currentUser.login.toLowerCase();
   const inv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
   const pool = isEssence ? inv.essenze : inv.equip;
@@ -3579,11 +3589,16 @@ async function executeSellAction() {
 // MODALE RITIRO (WITHDRAW)
 // -------------------------------------------------------------
 function openWithdrawModal(uid) {
-  if (!isGameCurrentlyActive) {
-    showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Puoi ritirare inserzioni solo quando il gioco è attivo.");
+  const st = getGameOperationalState();
+  if (st !== 'live') {
+    if (st === 'menu') {
+      showToast("Al Menu 🟡", "Il gioco è al menu iniziale. Potrai ritirare oggetti appena la partita inizia!");
+    } else {
+      showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline. Entra in partita per ritirare!");
+    }
     return;
   }
-  if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
+if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
   const listing = DB_MARKET.listings.find(l => l.uid === uid);
   if (!listing) return;
 
@@ -3863,6 +3878,40 @@ function renderSlotsSchematic(groups) {
 // -------------------------------------------------------------
 // TOAST NOTIFICATIONS
 // -------------------------------------------------------------
+function getGameOperationalState(data) {
+  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  if (!d) return 'offline';
+  const now = Date.now();
+  const hb = d.heartbeat || d.timestamp || 0;
+  if (!hb) return 'offline';
+  const diff = now - hb;
+  if (diff > 25000 || diff < -10000) return 'offline';
+  if (d.gameActive === true && !d.inTitle) return 'live';
+  if (d.inTitle === true || d.gameActive === false) return 'menu';
+  return 'offline';
+}
+
+function updateGameStatusUI(active, data) {
+  const state = getGameOperationalState(data);
+  const pill = document.getElementById("syncStatusBadge");
+  const text = document.getElementById("syncStatusText");
+  if (!pill || !text) return;
+
+  if (state === 'live') {
+    pill.className = "sync-status-pill live";
+    text.innerText = "Live";
+    isGameCurrentlyActive = true;
+  } else if (state === 'menu') {
+    pill.className = "sync-status-pill menu";
+    text.innerText = "Menu";
+    isGameCurrentlyActive = false;
+  } else {
+    pill.className = "sync-status-pill offline";
+    text.innerText = "Offline";
+    isGameCurrentlyActive = false;
+  }
+}
+
 function showToast(title, msg) {
   const container = document.getElementById("toastContainer");
   if (!container) return;

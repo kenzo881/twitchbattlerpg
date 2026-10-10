@@ -101,39 +101,50 @@
   gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .sync-status-pill.active,
 .sync-status-pill.synced,
 .sync-status-pill.live {
   background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #34d399 !important;
 }
+.sync-status-pill.active .sync-dot,
+.sync-status-pill.synced .sync-dot,
+.sync-status-pill.live .sync-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 8px #34d399 !important;
+}
 .sync-status-pill.menu,
-.sync-status-pill.title,
-.sync-status-pill.waiting {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: #f59e0b !important;
-  color: #fbbf24 !important;
+.sync-status-pill.title {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1px solid rgba(234, 179, 8, 0.35) !important;
+  color: #facc15 !important;
+}
+.sync-status-pill.menu .sync-dot,
+.sync-status-pill.title .sync-dot {
+  background: #facc15 !important;
+  box-shadow: 0 0 8px #facc15 !important;
 }
 .sync-status-pill.offline {
   background: rgba(239, 68, 68, 0.15) !important;
-  border-color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
   color: #f87171 !important;
+}
+.sync-status-pill.offline .sync-dot {
+  background: #f87171 !important;
+  box-shadow: 0 0 8px #f87171 !important;
 }
 .sync-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
 }
 
     .nav-links-row {
@@ -1283,6 +1294,7 @@
     }
 
 </style>
+  <script src="status_data.js"></script>
 </head>
 <body>
 
@@ -1552,18 +1564,142 @@
     <span id="toastText">Comando inviato!</span>
   </div>
 
-  <script>
+    <script>
     // ============================================================
     // SINCRONIZZAZIONE REALTIME FIREBASE & LOCALE
     // ============================================================
+    const TWITCH_CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5";
+    const STREAMER_CHANNEL = "kenz088";
     const FIREBASE_BATTLE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/battle_state.json";
     const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
 
-    let lastBattleDataJson = "";
+    let currentUser = null;
+    let twitchToken = null;
+    let battleState = null;
+    let selectedTargetStr = "";
+    let pendingActionType = ""; // 'attack', 'limit', 'skill', 'bomb', 'item'
+    let pendingActionDetail = null;
     let isGameRunning = false;
 
+    // RILEVAMENTO RIGOROSO DELLE 3 CONDIZIONI: 'live' | 'menu' | 'offline'
+    function getGameOperationalState(data) {
+      const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+      if (!d) return 'offline';
+      const now = Date.now();
+      const hb = d.heartbeat || d.timestamp || 0;
+      if (!hb) return 'offline';
+      const diff = now - hb;
+      if (diff > 25000 || diff < -10000) return 'offline';
+      if (d.gameActive === true && !d.inTitle) return 'live';
+      if (d.inTitle === true || d.gameActive === false) return 'menu';
+      return 'offline';
+    }
+
+    // Inizializzazione Autenticazione Twitch
+    function initAuth() {
+      if (window.location.hash) {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const token = params.get("access_token");
+        if (token) {
+          localStorage.setItem("tbrpg_twitch_token", token);
+          window.history.replaceState(null, null, window.location.pathname);
+        }
+      }
+
+      twitchToken = localStorage.getItem("tbrpg_twitch_token");
+      const rawUser = localStorage.getItem("tbrpg_twitch_user") || localStorage.getItem("tbrpg_user");
+      if (rawUser) {
+        try {
+          if (rawUser.trim().startsWith("{")) {
+            currentUser = JSON.parse(rawUser);
+          } else {
+            currentUser = { id: "0", login: rawUser.toLowerCase(), name: rawUser, avatar: "" };
+          }
+        } catch(e) {
+          currentUser = { id: "0", login: rawUser.toLowerCase(), name: rawUser, avatar: "" };
+        }
+      }
+
+      if (window.location.protocol === "file:" && (!currentUser || !currentUser.login)) {
+        currentUser = { id: "0", login: "kenz088", name: "kenz088", avatar: "" };
+      }
+
+      renderAuthUI();
+      if (twitchToken && (!currentUser || !currentUser.avatar)) {
+        fetchTwitchUser(twitchToken);
+      }
+    }
+
+    function renderAuthUI() {
+      const userBox = document.getElementById("topTwitchUserBox");
+      const loginBtn = document.getElementById("topBtnLoginTwitch");
+      const goldBox = document.getElementById("topUserGoldBox");
+
+      if (currentUser && currentUser.login) {
+        if (userBox) userBox.style.display = "flex";
+        if (loginBtn) loginBtn.style.display = "none";
+        if (goldBox) goldBox.style.display = "inline-flex";
+
+        const nameEl = document.getElementById("topTwitchName");
+        if (nameEl) nameEl.innerText = "@" + (currentUser.name || currentUser.login);
+
+        const avatarImg = document.getElementById("topTwitchAvatarImg");
+        const avatarInitials = document.getElementById("topTwitchAvatarInitials");
+        if (currentUser.avatar && avatarImg) {
+          avatarImg.src = currentUser.avatar;
+          avatarImg.style.display = "block";
+          if (avatarInitials) avatarInitials.style.display = "none";
+        } else if (avatarInitials) {
+          if (avatarImg) avatarImg.style.display = "none";
+          avatarInitials.innerText = (currentUser.name || currentUser.login || "TW").substring(0, 2).toUpperCase();
+          avatarInitials.style.display = "inline";
+        }
+      } else {
+        if (userBox) userBox.style.display = "none";
+        if (loginBtn) loginBtn.style.display = "inline-flex";
+      }
+    }
+
+    async function fetchTwitchUser(token) {
+      try {
+        const res = await fetch("https://api.twitch.tv/helix/users", {
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Client-Id": TWITCH_CLIENT_ID
+          }
+        });
+        if (res.ok) {
+          const json = await res.json();
+          if (json && json.data && json.data.length > 0) {
+            const u = json.data[0];
+            currentUser = {
+              id: u.id,
+              login: u.login,
+              name: u.display_name,
+              avatar: u.profile_image_url
+            };
+            localStorage.setItem("tbrpg_twitch_user", JSON.stringify(currentUser));
+            renderAuthUI();
+          }
+        }
+      } catch(err) {}
+    }
+
+    function loginWithTwitch() {
+      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+      const scopes = encodeURIComponent("chat:read chat:edit user:read:chat user:write:chat");
+      window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scopes}`;
+    }
+
+    function logoutTwitch() {
+      localStorage.removeItem("tbrpg_twitch_token");
+      localStorage.removeItem("tbrpg_twitch_user");
+      currentUser = null;
+      twitchToken = null;
+      renderAuthUI();
+    }
+
     function initFirebaseStreams() {
-      // 1. Stream in tempo reale dello stato battaglia (EventSource)
       try {
         if (typeof EventSource !== 'undefined') {
           const esBattle = new EventSource(FIREBASE_BATTLE_URL);
@@ -1571,68 +1707,58 @@
             try {
               const payload = JSON.parse(e.data);
               const data = (payload && payload.data !== undefined) ? payload.data : payload;
-              if (data && typeof data === 'object') {
-                updateBattleView(data);
-              }
+              if (data && typeof data === 'object') updateBattleView(data);
             } catch(err) {}
           };
           esBattle.addEventListener('put', handleBattleEvent);
           esBattle.addEventListener('patch', handleBattleEvent);
 
-          // 2. Stream dello stato generale del gioco (live_data)
           const esLive = new EventSource(FIREBASE_LIVE_URL);
           const handleLiveEvent = (e) => {
             try {
               const payload = JSON.parse(e.data);
               const data = (payload && payload.data !== undefined) ? payload.data : payload;
-              if (data && typeof data === 'object') {
-                handleLiveGameStatus(data);
-              }
+              if (data && typeof data === 'object') handleLiveGameStatus(data);
             } catch(err) {}
           };
           esLive.addEventListener('put', handleLiveEvent);
           esLive.addEventListener('patch', handleLiveEvent);
         }
-      } catch(e) {
-        console.warn("EventSource setup fallito, uso polling fallback:", e);
-      }
+      } catch(e) {}
     }
 
     function handleLiveGameStatus(data) {
-      if (!data) return;
-      const now = Date.now();
-      const hb = data.heartbeat || data.timestamp || 0;
-      const diff = now - hb;
-      isGameRunning = !!(data.gameActive === true && diff < 30000 && diff > -5000 && !data.inTitle);
-
+      const state = getGameOperationalState(data);
       const pill = document.getElementById("syncStatusBadge");
       const text = document.getElementById("syncStatusText");
       const goldBox = document.getElementById("topUserGold");
 
-      // Aggiorna saldo Oro se disponibile
-      if (goldBox && data.currency) {
+      const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+      if (goldBox && d && d.currency) {
         const u = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase() : "";
-        if (u && data.currency[u] !== undefined) {
-          goldBox.innerText = data.currency[u];
+        if (u && d.currency[u] !== undefined) {
+          goldBox.innerText = d.currency[u];
         }
       }
 
       if (pill && text) {
-        if (isGameRunning) {
-          pill.className = "sync-status-pill active";
+        if (state === 'live') {
+          pill.className = "sync-status-pill live";
           text.innerText = "Live";
-        } else if (data && data.inTitle) {
+          isGameRunning = true;
+        } else if (state === 'menu') {
           pill.className = "sync-status-pill menu";
           text.innerText = "Menu";
+          isGameRunning = false;
         } else {
           pill.className = "sync-status-pill offline";
           text.innerText = "Offline";
+          isGameRunning = false;
         }
       }
     }
 
     async function fetchBattleState() {
-      // 1. Prova prima Firebase per sincronizzazione cloud immediata
       let fetchedFromFirebase = false;
       try {
         const fbRes = await fetch(FIREBASE_BATTLE_URL + "?t=" + Date.now());
@@ -1645,7 +1771,6 @@
         }
       } catch(e) {}
 
-      // 2. Se Firebase non è disponibile o in locale, prova il file locale twitch_battle_state.json
       if (!fetchedFromFirebase) {
         try {
           const res = await fetch("twitch_battle_state.json?t=" + Date.now());
@@ -1660,7 +1785,6 @@
         }
       }
 
-      // 3. Controlla anche live_data per stato gioco & oro
       try {
         const lRes = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
         if (lRes.ok) {
@@ -1683,12 +1807,10 @@
       const waitingScreen = document.getElementById("waitingScreen");
       const activeBattleScreen = document.getElementById("activeBattleScreen");
 
-      // Se non in battaglia o non ci sono nemici vivi
       if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0) {
         waitingScreen.style.display = "flex";
         activeBattleScreen.style.display = "none";
 
-        // Pulizia completa del DOM per non mostrare residui
         const grid = document.getElementById("enemiesGrid");
         if (grid) grid.innerHTML = "";
         const row = document.getElementById("partyRow");
@@ -1696,11 +1818,14 @@
         const myStates = document.getElementById("myStatesRow");
         if (myStates) myStates.innerHTML = "";
 
-        // Aggiorna titolo schermata di attesa in base allo stato del gioco
         const waitTitle = document.querySelector(".waiting-title");
         const waitDesc = document.querySelector(".waiting-desc");
         if (waitTitle && waitDesc) {
-          if (!isGameRunning) {
+          const opState = getGameOperationalState();
+          if (opState === 'menu') {
+            waitTitle.innerText = "Gioco al Menu Iniziale";
+            waitDesc.innerHTML = "Il gioco TBRPG è attualmente aperto alla Schermata del Titolo.<br>Quando avvierai o caricherai una partita ed entrerai in battaglia, questa schermata si attiverà in tempo reale.";
+          } else if (opState === 'offline') {
             waitTitle.innerText = "Gioco Non Rilevato (Offline)";
             waitDesc.innerHTML = "TBRPG è attualmente chiuso o non attivo.<br>Quando il gioco verrà avviato e inizierà un combattimento, questa schermata si aggiornerà in tempo reale.";
           } else {
@@ -1714,16 +1839,9 @@
       waitingScreen.style.display = "none";
       activeBattleScreen.style.display = "flex";
 
-      // 1. Nemici
       renderEnemies(data.enemies || []);
-
-      // 2. Party & Turno
       renderParty(data.party || [], data.currentTurnUser);
-
-      // 3. Timer
       renderTimer(data.timerSeconds || 0);
-
-      // 4. Cruscotto personale del giocatore loggato
       renderPlayerDashboard(data.party || [], data.currentTurnUser);
     }
 
@@ -1809,7 +1927,6 @@
       const badge = document.getElementById("myTurnBadge");
       const dash = document.getElementById("playerDashboard");
 
-      // Se il giocatore loggato NON è nel party di questa battaglia:
       if (!myActor) {
         spectatorNotice.style.display = "block";
         gaugesContainer.style.display = "none";
@@ -1821,7 +1938,6 @@
         return;
       }
 
-      // Il giocatore è nel party!
       spectatorNotice.style.display = "none";
       gaugesContainer.style.display = "grid";
       actionsContainer.style.display = "grid";
@@ -1829,13 +1945,11 @@
       document.getElementById("myDashboardName").innerText = myActor.name;
       document.getElementById("myDashboardSub").innerText = `@${myActor.owner}`;
 
-      // Portrait
       const portEl = document.getElementById("myDashboardPortrait");
       if (portEl) {
         portEl.style.cssText = getFaceSpriteStyle(myActor.faceName, myActor.faceIndex);
       }
 
-      // Turno
       const isMyTurn = myActor.isTurn || (currentTurnUser && myActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
       if (isMyTurn) {
         badge.className = "dashboard-status-tag turn-active";
@@ -1847,7 +1961,6 @@
         dash.classList.remove("my-turn-active");
       }
 
-      // Barre PV, PM, Limit
       const hp = myActor.hp || 0;
       const maxHp = Math.max(1, myActor.maxHp || 1);
       const hpPct = Math.min(100, Math.round((hp / maxHp) * 100));
@@ -1878,7 +1991,6 @@
         limitBar.classList.remove("limit-ready-pulse");
       }
 
-      // Pulsante Attacca / Limit
       const btnAttack = document.getElementById("btnActionAttack");
       const btnAttackIcon = document.getElementById("btnAttackIcon");
       const btnAttackLabel = document.getElementById("btnAttackLabel");
@@ -1892,7 +2004,6 @@
         btnAttackLabel.innerText = "Attacca";
       }
 
-      // Stati alterati
       const statesRow = document.getElementById("myStatesRow");
       statesRow.innerHTML = (myActor.states || []).map(st => `<span class="state-badge">⚠️ ${st.name}</span>`).join("");
     }
@@ -1905,9 +2016,371 @@
     }
 
     // ============================================================
+    // AZIONI DI BATTAGLIA & BLOCCO DI SICUREZZA STATO
+    // ============================================================
+    function checkCanExecuteBattleCommand() {
+      const st = getGameOperationalState();
+      if (st !== 'live') {
+        if (st === 'menu') {
+          showToast("⚠️ Il gioco è al menu iniziale. I comandi saranno disponibili all'avvio della partita!", "⏳");
+        } else {
+          showToast("🔴 Il gioco è offline. Entra in partita per combattere!", "✕");
+        }
+        return false;
+      }
+      if (!battleState || !battleState.inBattle) {
+        showToast("⚔️ I comandi di combattimento sono attivi solo durante una battaglia in gioco!", "⚠️");
+        return false;
+      }
+      return true;
+    }
+
+    function openAttackModal() {
+      if (!checkCanExecuteBattleCommand()) return;
+      const myActor = getMyCurrentActor();
+      const isLimit = myActor && (myActor.isLimit || (myActor.tp >= 100));
+      pendingActionType = isLimit ? "limit" : "attack";
+      pendingActionDetail = null;
+      document.getElementById("targetModalTitle").innerText = isLimit ? "Limit Break 🔥 - Seleziona Bersaglio" : "Attacco Fisico ⚔️ - Seleziona Bersaglio";
+      populateTargetModal(false, false);
+      openTargetModal();
+    }
+
+    function openSkillsModal() {
+      if (!checkCanExecuteBattleCommand()) return;
+      const myActor = getMyCurrentActor();
+      const list = document.getElementById("skillsChoiceList");
+      if (!list) return;
+
+      const skills = (myActor && myActor.skills) ? myActor.skills : [];
+      let html = "";
+      if (skills.length > 0) {
+        html += skills.map((s, idx) => `
+          <div class="action-choice-item" onclick="chooseSkillAction(${idx})">
+            <div>
+              <div style="font-weight:700; color:#fff;">${s.name}</div>
+              <div style="font-size:0.8rem; color:var(--text-muted);">${s.desc || ''}</div>
+            </div>
+            <div style="color:#60a5fa; font-weight:700;">${s.mpCost || 0} MP</div>
+          </div>
+        `).join("");
+      } else {
+        html += '<div style="color:var(--text-muted); padding:12px; text-align:center;">Nessuna magia equipaggiata.</div>';
+      }
+
+      html += `
+        <div class="action-choice-item" style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px;" onclick="closeSkillsModal(); openBombsModal();">
+          <div>
+            <div style="font-weight:700; color:var(--gold-light);">💣 Lancia Bomba (Munizioni)</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">Usa munizioni esplosive dall'inventario</div>
+          </div>
+          <div style="color:var(--gold); font-weight:700;">Vai ➔</div>
+        </div>
+      `;
+
+      list.innerHTML = html;
+      document.getElementById("skillsModalOverlay").classList.add("active");
+    }
+
+    function closeSkillsModal(e) {
+      if (e && e.target && e.target.id !== "skillsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("skillsModalOverlay").classList.remove("active");
+    }
+
+    function chooseSkillAction(idx) {
+      const myActor = getMyCurrentActor();
+      if (!myActor || !myActor.skills || !myActor.skills[idx]) return;
+      const s = myActor.skills[idx];
+      pendingActionType = "skill";
+      pendingActionDetail = s;
+      document.getElementById("skillsModalOverlay").classList.remove("active");
+      document.getElementById("targetModalTitle").innerText = `${s.name} - Seleziona Bersaglio`;
+      populateTargetModal(!!s.isArea, !!s.isAlly);
+      openTargetModal();
+    }
+
+    function openBombsModal() {
+      if (!checkCanExecuteBattleCommand()) return;
+      const list = document.getElementById("bombsChoiceList");
+      if (!list) return;
+
+      const bombTypes = [
+        { type: "fuoco", name: "Bomba di Fuoco 🔥", desc: "Danno da fuoco a impatto esplosivo" },
+        { type: "tuono", name: "Bomba di Tuono ⚡", desc: "Scarica elettrica devastante" },
+        { type: "gelo", name: "Bomba di Gelo ❄️", desc: "Congelamento e schegge taglienti" },
+        { type: "terra", name: "Bomba di Terra 🪨", desc: "Onda sismica contundente" }
+      ];
+
+      list.innerHTML = bombTypes.map(b => `
+        <div class="action-choice-item" onclick="chooseBombAction('${b.type}')">
+          <div>
+            <div style="font-weight:700; color:#fff;">${b.name}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">${b.desc}</div>
+          </div>
+          <div style="color:var(--gold); font-weight:700;">1 Munizione</div>
+        </div>
+      `).join("");
+
+      document.getElementById("bombsModalOverlay").classList.add("active");
+    }
+
+    function closeBombsModal(e) {
+      if (e && e.target && e.target.id !== "bombsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("bombsModalOverlay").classList.remove("active");
+    }
+
+    function chooseBombAction(type) {
+      pendingActionType = "bomb";
+      pendingActionDetail = { type: type };
+      document.getElementById("bombsModalOverlay").classList.remove("active");
+      document.getElementById("targetModalTitle").innerText = `Lancio Bomba (${type.toUpperCase()}) - Bersaglio`;
+      populateTargetModal(false, false);
+      openTargetModal();
+    }
+
+    function openItemsModal() {
+      if (!checkCanExecuteBattleCommand()) return;
+      const list = document.getElementById("itemsChoiceList");
+      if (!list) return;
+
+      const items = (battleState && battleState.items) ? battleState.items : [
+        { name: "Pozione", desc: "Recupera 500 PV" },
+        { name: "Granpozione", desc: "Recupera 1500 PV" },
+        { name: "Etere", desc: "Recupera 100 PM" },
+        { name: "Coda di Fenice", desc: "Rianima un alleato K.O." }
+      ];
+
+      list.innerHTML = items.map(it => `
+        <div class="action-choice-item" onclick="chooseItemAction('${it.name}')">
+          <div>
+            <div style="font-weight:700; color:#fff;">🧪 ${it.name}</div>
+            <div style="font-size:0.8rem; color:var(--text-muted);">${it.desc || ''}</div>
+          </div>
+          <div style="color:#34d399; font-weight:700;">Usa</div>
+        </div>
+      `).join("");
+
+      document.getElementById("itemsModalOverlay").classList.add("active");
+    }
+
+    function closeItemsModal(e) {
+      if (e && e.target && e.target.id !== "itemsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("itemsModalOverlay").classList.remove("active");
+    }
+
+    function chooseItemAction(name) {
+      pendingActionType = "item";
+      pendingActionDetail = { name: name };
+      document.getElementById("itemsModalOverlay").classList.remove("active");
+      document.getElementById("targetModalTitle").innerText = `Usa ${name} - Bersaglio`;
+      populateTargetModal(false, true);
+      openTargetModal();
+    }
+
+    function triggerGuardAction() {
+      if (!checkCanExecuteBattleCommand()) return;
+      executeSendCommand("!difendi");
+    }
+
+    // ============================================================
+    // GESTIONE DELLA MODALE BERSAGLI
+    // ============================================================
+    function populateTargetModal(allowArea = false, onlyAllies = false) {
+      selectedTargetStr = "";
+      document.getElementById("chipDefaultTarget").classList.add("selected");
+
+      const enemyContainer = document.getElementById("targetEnemiesChips");
+      if (onlyAllies) {
+        enemyContainer.parentElement.style.display = "none";
+      } else {
+        enemyContainer.parentElement.style.display = "block";
+        const enemies = (battleState && battleState.enemies) ? battleState.enemies : [];
+        enemyContainer.innerHTML = enemies.map(e => `
+          <button class="target-chip enemy-chip" id="targetChipEnemy_${e.letter}" onclick="selectTargetOption('${e.letter}')">
+            <span>👾</span>
+            <span>Nemico ${e.letter} (${e.name})</span>
+          </button>
+        `).join("");
+      }
+
+      const allyContainer = document.getElementById("targetAlliesChips");
+      const party = (battleState && battleState.party) ? battleState.party : [];
+      allyContainer.innerHTML = party.map(p => {
+        const owner = p.owner || p.name;
+        return `
+          <button class="target-chip ally-chip" id="targetChipAlly_${owner}" onclick="selectTargetOption('@${owner}')">
+            <span>🛡️</span>
+            <span>@${owner}</span>
+          </button>
+        `;
+      }).join("");
+
+      const areaSection = document.getElementById("targetAreaSection");
+      const areaChips = document.getElementById("targetAreaChips");
+      if (allowArea) {
+        areaSection.style.display = "block";
+        areaChips.innerHTML = `
+          <button class="target-chip enemy-chip" onclick="selectTargetOption('tutti nemici')">
+            <span>💥</span>
+            <span>Tutti i Nemici (Area)</span>
+          </button>
+          <button class="target-chip ally-chip" onclick="selectTargetOption('tutti alleati')">
+            <span>✨</span>
+            <span>Tutti gli Alleati (Area)</span>
+          </button>
+        `;
+      } else {
+        areaSection.style.display = "none";
+      }
+    }
+
+    function selectTargetOption(target) {
+      selectedTargetStr = (target === "default") ? "" : target;
+      document.querySelectorAll(".target-chip").forEach(c => c.classList.remove("selected"));
+
+      if (!selectedTargetStr) {
+        document.getElementById("chipDefaultTarget").classList.add("selected");
+      } else if (selectedTargetStr.startsWith("@")) {
+        const clean = selectedTargetStr.substring(1);
+        const chip = document.getElementById("targetChipAlly_" + clean);
+        if (chip) chip.classList.add("selected");
+      } else if (selectedTargetStr.length === 1) {
+        const chip = document.getElementById("targetChipEnemy_" + selectedTargetStr);
+        if (chip) chip.classList.add("selected");
+      }
+    }
+
+    function openTargetModal() {
+      document.getElementById("targetModalOverlay").classList.add("active");
+    }
+
+    function closeTargetModal(e) {
+      if (e && e.target && e.target.id !== "targetModalOverlay" && !e.target.classList.contains("btn-close-modal") && !e.target.classList.contains("btn-modal-cancel")) return;
+      document.getElementById("targetModalOverlay").classList.remove("active");
+    }
+
+    function confirmExecuteAction() {
+      if (!checkCanExecuteBattleCommand()) {
+        closeTargetModal();
+        return;
+      }
+      closeTargetModal();
+      let cmdString = "";
+      const targetArg = selectedTargetStr ? (" " + selectedTargetStr) : "";
+
+      if (pendingActionType === "attack") {
+        cmdString = `!attacca${targetArg}`;
+      } else if (pendingActionType === "limit") {
+        cmdString = `!limit${targetArg}`;
+      } else if (pendingActionType === "skill") {
+        cmdString = `!arti ${pendingActionDetail.name}${targetArg}`;
+      } else if (pendingActionType === "bomb") {
+        cmdString = `!arti bomba ${pendingActionDetail.type}${targetArg}`;
+      } else if (pendingActionType === "item") {
+        cmdString = `!oggetti ${pendingActionDetail.name}${targetArg}`;
+      }
+
+      if (cmdString) {
+        executeSendCommand(cmdString);
+      }
+    }
+
+    // ============================================================
+    // INVIO DEL COMANDO (TWITCH CHAT + APPUNTI)
+    // ============================================================
+    async function executeSendCommand(cmd) {
+      if (!checkCanExecuteBattleCommand()) return;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(cmd);
+        } catch (e) {}
+      }
+
+      let sentChat = false;
+      const myLogin = currentUser ? (currentUser.login || currentUser.name) : "";
+      if (twitchToken && myLogin) {
+        try {
+          const userRes = await fetch("https://api.twitch.tv/helix/users?login=" + STREAMER_CHANNEL, {
+            headers: {
+              "Authorization": "Bearer " + twitchToken,
+              "Client-Id": TWITCH_CLIENT_ID
+            }
+          });
+          if (userRes.ok) {
+            const uData = await userRes.json();
+            const broadcasterId = uData.data[0].id;
+            
+            const myUserRes = await fetch("https://api.twitch.tv/helix/users?login=" + myLogin, {
+              headers: {
+                "Authorization": "Bearer " + twitchToken,
+                "Client-Id": TWITCH_CLIENT_ID
+              }
+            });
+            if (myUserRes.ok) {
+              const myData = await myUserRes.json();
+              const senderId = myData.data[0].id;
+
+              const sendRes = await fetch("https://api.twitch.tv/helix/chat/messages", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + twitchToken,
+                  "Client-Id": TWITCH_CLIENT_ID,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  broadcaster_id: broadcasterId,
+                  sender_id: senderId,
+                  message: cmd
+                })
+              });
+              if (sendRes.ok) {
+                sentChat = true;
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Invio Helix chat fallito:", err);
+        }
+      }
+
+      if (sentChat) {
+        showToast(`Inviato in chat Twitch: ${cmd}`, "🚀");
+      } else {
+        showToast(`Comando pronto negli appunti: ${cmd}`, "📋");
+      }
+    }
+
+    function showToast(msg, icon = "⚔️") {
+      const toast = document.getElementById("battleToast");
+      if (!toast) return;
+      document.getElementById("toastIcon").innerText = icon;
+      document.getElementById("toastText").innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    // ============================================================
     // AVVIO
     // ============================================================
+    function pollLocalBattleStatus() {
+      if (window.location.protocol.startsWith("http")) return;
+      const old = document.getElementById("local-status-script-battle");
+      if (old) old.remove();
+      const s = document.createElement("script");
+      s.id = "local-status-script-battle";
+      s.src = "status_data.js?t=" + Date.now();
+      s.onload = () => {
+        if (window.__LIVE_GAME_DATA) handleLiveGameStatus(window.__LIVE_GAME_DATA);
+      };
+      document.head.appendChild(s);
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
+      pollLocalBattleStatus();
+      setInterval(pollLocalBattleStatus, 2000);
       initAuth();
       initFirebaseStreams();
       fetchBattleState();

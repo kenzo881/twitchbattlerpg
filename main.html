@@ -578,7 +578,80 @@
       padding-bottom: 70px;
     }
   }
+
+  /* TOP NAV STATUS PILL & GOLD BADGE UNIFICATI */
+  .sync-status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    flex-shrink: 0;
+    white-space: nowrap;
+    transition: all 0.25s ease;
+  }
+  .sync-status-pill.active,
+  .sync-status-pill.synced,
+  .sync-status-pill.live {
+    background: rgba(16, 185, 129, 0.15) !important;
+    border: 1px solid rgba(16, 185, 129, 0.35) !important;
+    color: #34d399 !important;
+  }
+  .sync-status-pill.active .sync-dot,
+  .sync-status-pill.synced .sync-dot,
+  .sync-status-pill.live .sync-dot {
+    background: #34d399 !important;
+    box-shadow: 0 0 8px #34d399 !important;
+  }
+  .sync-status-pill.menu,
+  .sync-status-pill.title {
+    background: rgba(234, 179, 8, 0.15) !important;
+    border: 1px solid rgba(234, 179, 8, 0.35) !important;
+    color: #facc15 !important;
+  }
+  .sync-status-pill.menu .sync-dot,
+  .sync-status-pill.title .sync-dot {
+    background: #facc15 !important;
+    box-shadow: 0 0 8px #facc15 !important;
+  }
+  .sync-status-pill.offline {
+    background: rgba(239, 68, 68, 0.15) !important;
+    border: 1px solid rgba(239, 68, 68, 0.35) !important;
+    color: #f87171 !important;
+  }
+  .sync-status-pill.offline .sync-dot {
+    background: #f87171 !important;
+    box-shadow: 0 0 8px #f87171 !important;
+  }
+  .sync-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .user-gold-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+    border: 1px solid rgba(212, 175, 55, 0.4);
+    padding: 5px 14px;
+    border-radius: 20px;
+    box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+    font-size: 0.92rem;
+  }
+  .user-gold-badge .coin-icon { font-size: 1.1rem; }
+  .user-gold-badge .gold-val {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 700;
+    color: var(--gold-light, #ffd700);
+  }
+
 </style>
+  <script src="status_data.js"></script>
 </head>
 <body>
 
@@ -586,19 +659,34 @@
 
   <!-- TOP BAR: Canale & Stato Login Twitch -->
   <div class="top-bar">
-    <div class="brand-badge">
-      <span class="live-dot" id="mainLiveDot" style="background:#ef4444;"></span>
-              <span id="mainLiveText" style="color:#f87171;">Offline</span>
+    <div style="display: flex; align-items: center; gap: 14px; flex-wrap: wrap;">
+      <a href="main.html" style="text-decoration: none; font-family: 'Cinzel', Georgia, serif; font-weight: 700; font-size: 1.15rem; color: var(--gold-light); display: inline-flex; align-items: center; gap: 8px;">
+        <span>⚔️</span>
+        <span>TBRPG</span>
+      </a>
+
+      <div class="sync-status-pill offline" id="mainStatusPill">
+        <span class="sync-dot" id="mainLiveDot"></span>
+        <span id="mainLiveText">Offline</span>
+      </div>
     </div>
 
-    <div class="twitch-auth-zone" id="twitchAuthContainer">
-      <!-- Gestito via JS: mostra 'Accedi' o profilo loggato -->
-      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-        </svg>
-        <span>Accedi con Twitch</span>
-      </button>
+    <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+      <!-- SALDO ORO UTENTE -->
+      <div class="user-gold-badge" id="topUserGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
+        <span class="coin-icon">🪙</span>
+        <span class="gold-val" id="topUserGold">--</span>
+        <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
+      </div>
+
+      <div class="twitch-auth-zone" id="twitchAuthContainer">
+        <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+          <span>Accedi con Twitch</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -667,7 +755,7 @@
       <div>
         <div class="card-top">
           <div class="card-icon">💰</div>
-          <span class="status-badge available">● Disponibile</span>
+          <span class="status-badge available" id="shopStatusBadge">● Disponibile</span>
         </div>
         <div class="card-title">Bottega del Mercante</div>
         <div class="card-desc">
@@ -685,7 +773,7 @@
       <div>
         <div class="card-top">
           <div class="card-icon">🏪</div>
-          <span class="status-badge available">● Disponibile</span>
+          <span class="status-badge available" id="marketStatusBadge">● Disponibile</span>
         </div>
         <div class="card-title">Mercatino dei Giocatori</div>
         <div class="card-desc">
@@ -906,40 +994,96 @@
   const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
   let firebaseConnected = false;
 
-  function updateMainGameStatus(data) {
-    const dot = document.getElementById('mainLiveDot');
-    const txt = document.getElementById('mainLiveText');
-    if (!dot || !txt) return;
-
-    if (!data) {
-      dot.className = "live-dot";
-      dot.style.background = "#ef4444";
-      txt.innerText = "Offline";
-      txt.style.color = "#f87171";
-      return;
-    }
-    firebaseConnected = true;
-
+      function getGameOperationalState(data) {
+    const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+    if (!d) return 'offline';
     const now = Date.now();
-    const hb = (data && (data.heartbeat || data.timestamp)) || 0;
+    const hb = d.heartbeat || d.timestamp || 0;
+    if (!hb) return 'offline';
     const diff = now - hb;
-    const active = (data && data.gameActive === true) && (diff < 20000 && diff > -5000) && (!data.inTitle);
+    if (diff > 25000 || diff < -10000) return 'offline';
+    if (d.gameActive === true && !d.inTitle) return 'live';
+    if (d.inTitle === true || d.gameActive === false) return 'menu';
+    return 'offline';
+  }
 
-    if (active) {
-      dot.className = "live-dot active";
-      dot.style.background = "#10b981";
-      txt.innerText = "Live";
-      txt.style.color = "#34d399";
-    } else if (data && data.inTitle) {
-      dot.className = "live-dot";
-      dot.style.background = "#facc15";
-      txt.innerText = "Menu";
-      txt.style.color = "#facc15";
-    } else {
-      dot.className = "live-dot";
-      dot.style.background = "#ef4444";
-      txt.innerText = "Offline";
-      txt.style.color = "#f87171";
+  function updateMainGameStatus(data) {
+    const pill = document.getElementById('mainStatusPill');
+    const txt = document.getElementById('mainLiveText');
+    const goldBox = document.getElementById('topUserGoldBox');
+    const goldVal = document.getElementById('topUserGold');
+    const shopBadge = document.getElementById('shopStatusBadge');
+    const marketBadge = document.getElementById('marketStatusBadge');
+    const battleBadge = document.getElementById('battleStatusBadge');
+
+    const state = getGameOperationalState(data);
+
+    if (pill && txt) {
+      if (state === 'live') {
+        pill.className = "sync-status-pill live";
+        txt.innerText = "Live";
+      } else if (state === 'menu') {
+        pill.className = "sync-status-pill menu";
+        txt.innerText = "Menu";
+      } else {
+        pill.className = "sync-status-pill offline";
+        txt.innerText = "Offline";
+      }
+    }
+
+    // Aggiornamento status card del portale
+    if (shopBadge) {
+      if (state === 'live') {
+        shopBadge.className = "status-badge available";
+        shopBadge.innerText = "● Bottega Aperta";
+      } else if (state === 'menu') {
+        shopBadge.className = "status-badge available";
+        shopBadge.style.color = "#facc15";
+        shopBadge.innerText = "⏳ Al Menu";
+      } else {
+        shopBadge.className = "status-badge";
+        shopBadge.style.color = "#f87171";
+        shopBadge.innerText = "✕ Chiusa";
+      }
+    }
+
+    if (marketBadge) {
+      if (state === 'live') {
+        marketBadge.className = "status-badge available";
+        marketBadge.innerText = "● Mercatino Aperto";
+      } else if (state === 'menu') {
+        marketBadge.className = "status-badge available";
+        marketBadge.style.color = "#facc15";
+        marketBadge.innerText = "⏳ Al Menu";
+      } else {
+        marketBadge.className = "status-badge";
+        marketBadge.style.color = "#f87171";
+        marketBadge.innerText = "✕ Chiuso";
+      }
+    }
+
+    if (battleBadge && state !== 'live') {
+      const cardBattle = document.getElementById('cardBattle');
+      if (cardBattle) cardBattle.classList.remove('battle-live-active');
+      if (state === 'menu') {
+        battleBadge.className = "status-badge available";
+        battleBadge.style.color = "#facc15";
+        battleBadge.innerText = "⏳ Al Menu";
+      } else {
+        battleBadge.className = "status-badge";
+        battleBadge.style.color = "#f87171";
+        battleBadge.innerText = "✕ Offline";
+      }
+    }
+
+    // Aggiornamento saldo Oro se presente
+    const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+    if (goldBox && goldVal && d && d.currency) {
+      const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
+      if (u && d.currency[u] !== undefined) {
+        goldBox.style.display = 'inline-flex';
+        goldVal.innerText = d.currency[u].toLocaleString('it-IT');
+      }
     }
   }
 
@@ -1000,7 +1144,22 @@
     } catch(e) {}
   }
 
+  function pollLocalStatusMain() {
+    if (window.location.protocol.startsWith("http")) return;
+    const old = document.getElementById("local-status-script-main");
+    if (old) old.remove();
+    const s = document.createElement("script");
+    s.id = "local-status-script-main";
+    s.src = "status_data.js?t=" + Date.now();
+    s.onload = () => {
+      if (window.__LIVE_GAME_DATA) updateMainGameStatus(window.__LIVE_GAME_DATA);
+    };
+    document.head.appendChild(s);
+  }
+
   window.addEventListener('DOMContentLoaded', () => {
+    pollLocalStatusMain();
+    setInterval(pollLocalStatusMain, 2000);
     initAuth();
     initMainFirebaseStream();
     fetchMainGameData();

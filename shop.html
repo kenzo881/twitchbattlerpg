@@ -1085,39 +1085,50 @@ body.game-offline .search-wrapper {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.73rem;
+  font-size: 0.75rem;
   font-weight: 600;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
-  transition: all 0.2s ease;
+  transition: all 0.25s ease;
 }
 .sync-status-pill.active,
 .sync-status-pill.synced,
 .sync-status-pill.live {
   background: rgba(16, 185, 129, 0.15) !important;
-  border-color: #10b981 !important;
+  border: 1px solid rgba(16, 185, 129, 0.35) !important;
   color: #34d399 !important;
 }
+.sync-status-pill.active .sync-dot,
+.sync-status-pill.synced .sync-dot,
+.sync-status-pill.live .sync-dot {
+  background: #34d399 !important;
+  box-shadow: 0 0 8px #34d399 !important;
+}
 .sync-status-pill.menu,
-.sync-status-pill.title,
-.sync-status-pill.waiting {
-  background: rgba(245, 158, 11, 0.15) !important;
-  border-color: #f59e0b !important;
-  color: #fbbf24 !important;
+.sync-status-pill.title {
+  background: rgba(234, 179, 8, 0.15) !important;
+  border: 1px solid rgba(234, 179, 8, 0.35) !important;
+  color: #facc15 !important;
+}
+.sync-status-pill.menu .sync-dot,
+.sync-status-pill.title .sync-dot {
+  background: #facc15 !important;
+  box-shadow: 0 0 8px #facc15 !important;
 }
 .sync-status-pill.offline {
   background: rgba(239, 68, 68, 0.15) !important;
-  border-color: #ef4444 !important;
+  border: 1px solid rgba(239, 68, 68, 0.35) !important;
   color: #f87171 !important;
+}
+.sync-status-pill.offline .sync-dot {
+  background: #f87171 !important;
+  box-shadow: 0 0 8px #f87171 !important;
 }
 .sync-dot {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: currentColor;
+  flex-shrink: 0;
 }
 
 .nav-links-row {
@@ -1585,18 +1596,25 @@ function setShopDatabaseUnavailable() {
   if (text) text.innerText = "Database non disponibile!";
 }
 
-function checkGameActive(data) {
+function getGameOperationalState(data) {
   const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-  if (!d) return false;
-  if (d.gameActive === false) return false;
-  if (d.inTitle === true) return false;
-  const ts = d.heartbeat || d.timestamp || 0;
-  if (!ts) return false;
-  const diff = Date.now() - ts;
-  return diff < 35000 && diff > -10000;
+  if (!d) return 'offline';
+  const now = Date.now();
+  const hb = d.heartbeat || d.timestamp || 0;
+  if (!hb) return 'offline';
+  const diff = now - hb;
+  if (diff > 25000 || diff < -10000) return 'offline';
+  if (d.gameActive === true && !d.inTitle) return 'live';
+  if (d.inTitle === true || d.gameActive === false) return 'menu';
+  return 'offline';
+}
+
+function checkGameActive(data) {
+  return getGameOperationalState(data) === 'live';
 }
 
 function updateGameStatusUI(active, data) {
+  const state = getGameOperationalState(data);
   const pill = document.getElementById("shopGameStatusPill");
   const text = document.getElementById("shopGameStatusText");
   const banner = document.getElementById("gameStatusBanner");
@@ -1605,7 +1623,8 @@ function updateGameStatusUI(active, data) {
   const desc = document.getElementById("gameStatusDesc");
   const bannerPill = document.getElementById("gameStatusPill");
 
-  if (active) {
+  if (state === 'live') {
+    isGameCurrentlyActive = true;
     if (banner) {
       banner.className = "game-status-banner online";
       if (icon) icon.innerText = "🟢";
@@ -1616,9 +1635,10 @@ function updateGameStatusUI(active, data) {
         bannerPill.innerText = "ONLINE LIVE ⚡";
       }
     }
-    if (pill) pill.className = "sync-status-pill active";
+    if (pill) pill.className = "sync-status-pill live";
     if (text) text.innerText = "Live";
-  } else if (data && data.inTitle) {
+  } else if (state === 'menu') {
+    isGameCurrentlyActive = false;
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🟡";
@@ -1632,6 +1652,7 @@ function updateGameStatusUI(active, data) {
     if (pill) pill.className = "sync-status-pill menu";
     if (text) text.innerText = "Menu";
   } else {
+    isGameCurrentlyActive = false;
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🔴";
@@ -2048,6 +2069,16 @@ function closeConfirmModal(e) {
 
 // ESEGUE L'ACQUISTO (PULSANTE 'SI, CONFERMA')
 function confirmPurchase() {
+  const st = getGameOperationalState();
+  if (st !== 'live') {
+    if (st === 'menu') {
+      showToast("⚠️ Al Menu", "Il gioco è al menu iniziale. Potrai acquistare appena la partita inizia!");
+    } else {
+      showToast("🔴 Bottega Chiusa", "Il gioco è offline. Entra in partita per acquistare!");
+    }
+    closeConfirmModal();
+    return;
+  }
   if (!pendingPurchase) return;
 
   const { itemName, itKey, isConsumable, qty, totalPrice, baseCommand, hasEnoughGold } = pendingPurchase;
