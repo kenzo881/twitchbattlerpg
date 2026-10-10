@@ -2166,7 +2166,7 @@ body.is-dragging-essence .materia-slot-meta * {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 9px;
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.73rem;
   font-weight: 600;
@@ -2175,17 +2175,26 @@ body.is-dragging-essence .materia-slot-meta * {
   color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 .sync-status-pill.active,
-.sync-status-pill.synced {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: #10b981;
-  color: #34d399;
+.sync-status-pill.synced,
+.sync-status-pill.live {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+.sync-status-pill.menu,
+.sync-status-pill.title,
+.sync-status-pill.waiting {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
 }
 .sync-status-pill.offline {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
 }
 .sync-dot {
   width: 7px;
@@ -2458,7 +2467,7 @@ body.is-dragging-essence .materia-slot-meta * {
 
       <div class="sync-status-pill offline" id="syncStatusBadge">
         <span class="sync-dot"></span>
-        <span id="syncStatusText">Gioco Chiuso (Offline)</span>
+        <span id="syncStatusText">Offline</span>
       </div>
 
       <div class="nav-links-row">
@@ -5254,8 +5263,8 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (topSyncPill) {
-      topSyncPill.className = "twitch-status-pill sync-pill synced";
-      if (topSyncText) topSyncText.innerText = inBattle ? `In Battaglia ⚔️ [${new Date().toLocaleTimeString('it-IT')}]` : `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
+      topSyncPill.className = "sync-status-pill active";
+      if (topSyncText) topSyncText.innerText = "Live";
     }
   } else if (liveData && liveData.inTitle) {
     if (banner) {
@@ -5269,8 +5278,8 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (topSyncPill) {
-      topSyncPill.className = "twitch-status-pill sync-pill offline";
-      if (topSyncText) topSyncText.innerText = "Al Titolo (In Attesa)";
+      topSyncPill.className = "sync-status-pill menu";
+      if (topSyncText) topSyncText.innerText = "Menu";
     }
   } else {
     if (banner) {
@@ -5284,8 +5293,8 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (topSyncPill) {
-      topSyncPill.className = "twitch-status-pill sync-pill offline";
-      if (topSyncText) topSyncText.innerText = "Gioco Chiuso (Offline)";
+      topSyncPill.className = "sync-status-pill offline";
+      if (topSyncText) topSyncText.innerText = "Offline";
     }
   }
 }
@@ -5342,15 +5351,12 @@ function updateSyncStatusBadge(synced) {
   const text = document.getElementById("syncStatusText");
   if (!badge || !text) return;
 
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('it-IT');
-
   if (synced && isGameCurrentlyActive) {
-    badge.className = "twitch-status-pill sync-pill synced";
-    text.innerText = `Gioco Attivo [${timeStr}]`;
+    badge.className = "sync-status-pill active";
+    text.innerText = "Live";
   } else {
-    badge.className = "twitch-status-pill sync-pill offline";
-    text.innerText = "Gioco Chiuso (Offline)";
+    badge.className = "sync-status-pill offline";
+    text.innerText = "Offline";
   }
 }
 

@@ -94,7 +94,7 @@ a.top:hover{text-decoration:underline}
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 9px;
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.73rem;
   font-weight: 600;
@@ -103,17 +103,26 @@ a.top:hover{text-decoration:underline}
   color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 .sync-status-pill.active,
-.sync-status-pill.synced {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: #10b981;
-  color: #34d399;
+.sync-status-pill.synced,
+.sync-status-pill.live {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+.sync-status-pill.menu,
+.sync-status-pill.title,
+.sync-status-pill.waiting {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
 }
 .sync-status-pill.offline {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
 }
 .sync-dot {
   width: 7px;
@@ -331,9 +340,9 @@ a.top:hover{text-decoration:underline}
       <span>TBRPG</span>
     </a>
 
-    <div class="sync-status-pill active" id="syncStatusBadge">
+    <div class="sync-status-pill offline" id="syncStatusBadge">
       <span class="sync-dot"></span>
-      <span id="syncStatusText">Guida & Manuale</span>
+      <span id="syncStatusText">Offline</span>
     </div>
 
     <div class="nav-links-row">
@@ -780,7 +789,56 @@ Guida ufficiale - Twitch Battle RPG<br>
     }
   }
 
-  async function renderUserBar() {
+  async 
+  const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
+
+  function updateGuideGameStatus(data) {
+    const pill = document.getElementById("syncStatusBadge");
+    const text = document.getElementById("syncStatusText");
+    const goldVal = document.getElementById("topUserGold");
+    if (!pill || !text) return;
+
+    if (!data) {
+      pill.className = "sync-status-pill offline";
+      text.innerText = "Offline";
+      return;
+    }
+
+    const now = Date.now();
+    const hb = (data && (data.heartbeat || data.timestamp)) || 0;
+    const diff = now - hb;
+    const active = (data && data.gameActive === true) && (diff < 30000 && diff > -5000) && (!data.inTitle);
+
+    if (active) {
+      pill.className = "sync-status-pill active";
+      text.innerText = "Live";
+    } else if (data && data.inTitle) {
+      pill.className = "sync-status-pill menu";
+      text.innerText = "Menu";
+    } else {
+      pill.className = "sync-status-pill offline";
+      text.innerText = "Offline";
+    }
+
+    if (goldVal && data.currency) {
+      const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
+      if (u && data.currency[u] !== undefined) {
+        goldVal.innerText = data.currency[u];
+      }
+    }
+  }
+
+  async function checkGuideLiveStatus() {
+    try {
+      const res = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
+      if (res.ok) {
+        const d = await res.json();
+        updateGuideGameStatus(d);
+      }
+    } catch(e) {}
+  }
+
+  function renderUserBar() {
     const container = document.getElementById('twitchAuthContainer');
     const goldBox = document.getElementById('userGoldBox');
     const goldVal = document.getElementById('topUserGold');
@@ -860,7 +918,11 @@ Guida ufficiale - Twitch Battle RPG<br>
     renderUserBar();
   }
 
-  window.addEventListener('DOMContentLoaded', initAuth);
+  window.addEventListener('DOMContentLoaded', () => {
+    initAuth();
+    checkGuideLiveStatus();
+    setInterval(checkGuideLiveStatus, 2500);
+  });
 </script>
 
 <!-- BARRA FISSA IN BASSO PER MOBILE & SPLIT-SCREEN -->

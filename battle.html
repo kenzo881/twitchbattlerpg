@@ -96,36 +96,45 @@
     }
 
     .sync-status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.73rem;
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: var(--text-muted);
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-    .sync-status-pill.active,
-    .sync-status-pill.synced {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: #10b981;
-      color: #34d399;
-    }
-    .sync-status-pill.offline {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: #ef4444;
-      color: #f87171;
-    }
-    .sync-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.73rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+}
+.sync-status-pill.active,
+.sync-status-pill.synced,
+.sync-status-pill.live {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+.sync-status-pill.menu,
+.sync-status-pill.title,
+.sync-status-pill.waiting {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
+}
+.sync-status-pill.offline {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
+}
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
 
     .nav-links-row {
       display: flex;
@@ -1287,7 +1296,7 @@
 
       <div class="sync-status-pill offline" id="syncStatusBadge">
         <span class="sync-dot"></span>
-        <span id="syncStatusText">Connessione Gioco...</span>
+        <span id="syncStatusText">Offline</span>
       </div>
 
       <div class="nav-links-row">
@@ -1609,20 +1618,15 @@
       }
 
       if (pill && text) {
-        if (battleState && battleState.inBattle) {
+        if (isGameRunning) {
           pill.className = "sync-status-pill active";
-          text.innerText = "In Battaglia ⚔️";
-        } else if (isGameRunning) {
-          pill.className = "sync-status-pill active";
-          text.innerText = "Gioco Attivo 🟢";
-        } else if (data.inTitle) {
-          pill.className = "sync-status-pill";
-          pill.style.borderColor = "#facc15";
-          text.style.color = "#facc15";
-          text.innerText = "Al Menu ⏳";
+          text.innerText = "Live";
+        } else if (data && data.inTitle) {
+          pill.className = "sync-status-pill menu";
+          text.innerText = "Menu";
         } else {
           pill.className = "sync-status-pill offline";
-          text.innerText = "Gioco Chiuso (Offline)";
+          text.innerText = "Offline";
         }
       }
     }

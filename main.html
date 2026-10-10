@@ -587,8 +587,8 @@
   <!-- TOP BAR: Canale & Stato Login Twitch -->
   <div class="top-bar">
     <div class="brand-badge">
-      <span class="live-dot" id="mainLiveDot"></span>
-      <span id="mainLiveText">Connessione Gioco...</span>
+      <span class="live-dot" id="mainLiveDot" style="background:#ef4444;"></span>
+              <span id="mainLiveText" style="color:#f87171;">Offline</span>
     </div>
 
     <div class="twitch-auth-zone" id="twitchAuthContainer">
@@ -913,8 +913,9 @@
 
     if (!data) {
       dot.className = "live-dot";
-      txt.innerText = "Gioco Chiuso (Offline)";
-      txt.style.color = "var(--text-secondary)";
+      dot.style.background = "#ef4444";
+      txt.innerText = "Offline";
+      txt.style.color = "#f87171";
       return;
     }
     firebaseConnected = true;
@@ -926,18 +927,19 @@
 
     if (active) {
       dot.className = "live-dot active";
-      txt.innerText = "Gioco Attivo (Partita in corso)";
+      dot.style.background = "#10b981";
+      txt.innerText = "Live";
       txt.style.color = "#34d399";
     } else if (data && data.inTitle) {
       dot.className = "live-dot";
       dot.style.background = "#facc15";
-      txt.innerText = "Al Titolo (In attesa avvio)";
+      txt.innerText = "Menu";
       txt.style.color = "#facc15";
     } else {
       dot.className = "live-dot";
-      dot.style.background = "#64748b";
-      txt.innerText = "Gioco Chiuso (Offline)";
-      txt.style.color = "var(--text-secondary)";
+      dot.style.background = "#ef4444";
+      txt.innerText = "Offline";
+      txt.style.color = "#f87171";
     }
   }
 

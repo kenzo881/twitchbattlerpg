@@ -1083,7 +1083,7 @@ body.game-offline .search-wrapper {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 4px 9px;
+  padding: 4px 10px;
   border-radius: 20px;
   font-size: 0.73rem;
   font-weight: 600;
@@ -1092,17 +1092,26 @@ body.game-offline .search-wrapper {
   color: #94a3b8;
   flex-shrink: 0;
   white-space: nowrap;
+  transition: all 0.2s ease;
 }
 .sync-status-pill.active,
-.sync-status-pill.synced {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: #10b981;
-  color: #34d399;
+.sync-status-pill.synced,
+.sync-status-pill.live {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+.sync-status-pill.menu,
+.sync-status-pill.title,
+.sync-status-pill.waiting {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
 }
 .sync-status-pill.offline {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
 }
 .sync-dot {
   width: 7px;
@@ -1375,7 +1384,7 @@ body.game-offline .search-wrapper {
 
       <div class="sync-status-pill offline" id="shopGameStatusPill">
         <span class="sync-dot"></span>
-        <span id="shopGameStatusText">Gioco Chiuso (Offline)</span>
+        <span id="shopGameStatusText">Offline</span>
       </div>
 
       <div class="nav-links-row">
@@ -1607,8 +1616,8 @@ function updateGameStatusUI(active, data) {
         bannerPill.innerText = "ONLINE LIVE ⚡";
       }
     }
-    if (pill) pill.className = "twitch-status-pill synced";
-    if (text) text.innerText = `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
+    if (pill) pill.className = "sync-status-pill active";
+    if (text) text.innerText = "Live";
   } else if (data && data.inTitle) {
     if (banner) {
       banner.className = "game-status-banner offline";
@@ -1620,8 +1629,8 @@ function updateGameStatusUI(active, data) {
         bannerPill.innerText = "AL MENU ⏳";
       }
     }
-    if (pill) pill.className = "twitch-status-pill title";
-    if (text) text.innerText = "Al Menu (In Attesa)";
+    if (pill) pill.className = "sync-status-pill menu";
+    if (text) text.innerText = "Menu";
   } else {
     if (banner) {
       banner.className = "game-status-banner offline";
@@ -1633,8 +1642,8 @@ function updateGameStatusUI(active, data) {
         bannerPill.innerText = "GIOCO CHIUSO ✕";
       }
     }
-    if (pill) pill.className = "twitch-status-pill offline";
-    if (text) text.innerText = "Gioco Chiuso (Offline)";
+    if (pill) pill.className = "sync-status-pill offline";
+    if (text) text.innerText = "Offline";
   }
 }
 

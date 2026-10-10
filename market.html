@@ -110,21 +110,33 @@ body {
   gap: 6px;
   padding: 4px 10px;
   border-radius: 20px;
-  font-size: 0.75rem;
+  font-size: 0.73rem;
   font-weight: 600;
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--text-muted);
+  color: #94a3b8;
+  flex-shrink: 0;
+  white-space: nowrap;
+  transition: all 0.2s ease;
 }
-.sync-status-pill.active {
-  background: rgba(16, 185, 129, 0.15);
-  border-color: #10b981;
-  color: #34d399;
+.sync-status-pill.active,
+.sync-status-pill.synced,
+.sync-status-pill.live {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: #10b981 !important;
+  color: #34d399 !important;
+}
+.sync-status-pill.menu,
+.sync-status-pill.title,
+.sync-status-pill.waiting {
+  background: rgba(245, 158, 11, 0.15) !important;
+  border-color: #f59e0b !important;
+  color: #fbbf24 !important;
 }
 .sync-status-pill.offline {
-  background: rgba(239, 68, 68, 0.15);
-  border-color: #ef4444;
-  color: #f87171;
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: #ef4444 !important;
+  color: #f87171 !important;
 }
 .sync-dot {
   width: 7px;
@@ -1383,9 +1395,9 @@ body.game-offline .controls-bar .filter-chip {
         <span>TBRPG</span>
       </a>
 
-      <div class="sync-status-pill" id="syncStatusBadge">
+      <div class="sync-status-pill offline" id="syncStatusBadge">
         <span class="sync-dot"></span>
-        <span id="syncStatusText">Connessione Gioco...</span>
+        <span id="syncStatusText">Offline</span>
       </div>
 
       <div class="nav-links-row">
@@ -2712,7 +2724,7 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (syncBadge) syncBadge.className = "sync-status-pill active";
-    if (syncText) syncText.innerText = `Mercatino Live [${new Date().toLocaleTimeString('it-IT')}]`;
+    if (syncText) syncText.innerText = "Live";
     document.body.classList.remove("game-offline");
   } else if (liveData && liveData.inTitle) {
     if (banner) {
@@ -2725,8 +2737,8 @@ function updateGameStatusUI(active, data) {
         pill.innerText = "AL MENU ⏳";
       }
     }
-    if (syncBadge) syncBadge.className = "sync-status-pill offline";
-    if (syncText) syncText.innerText = "Al Menu (In Attesa)";
+    if (syncBadge) syncBadge.className = "sync-status-pill menu";
+    if (syncText) syncText.innerText = "Menu";
     document.body.classList.add("game-offline");
   } else {
     if (banner) {
@@ -2740,7 +2752,7 @@ function updateGameStatusUI(active, data) {
       }
     }
     if (syncBadge) syncBadge.className = "sync-status-pill offline";
-    if (syncText) syncText.innerText = "Gioco Chiuso (Offline)";
+    if (syncText) syncText.innerText = "Offline";
     document.body.classList.add("game-offline");
   }
 }
