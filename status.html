@@ -7,6 +7,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="twitch_owners.js"></script>
+<script src="twitch_inventory_owners.js"></script>
+<script src="twitch_currency.js"></script>
+<script src="status_data.js"></script>
 <style>
 :root {
   --bg-primary: #0a0a14;
@@ -340,17 +344,31 @@ h1 {
   gap: 8px;
 }
 
-.hero-portrait {
+.hero-portrait-frame {
   width: 110px;
   height: 110px;
   border-radius: 16px;
   border: 2px solid var(--gold);
   background: #121222;
   box-shadow: 0 0 20px var(--gold-glow);
-  background-image: url('img/faces/Actor1.png');
-  background-position: 0 0;
-  background-size: 400% 200%;
+  overflow: hidden;
   position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: flex-start;
+  flex-shrink: 0;
+}
+
+.hero-portrait-img {
+  width: 144px;
+  height: 144px;
+  max-width: none;
+  max-height: none;
+  object-fit: none;
+  object-position: 0 0;
+  transform: scale(0.7638); /* 110px / 144px */
+  transform-origin: top left;
+  display: block;
 }
 
 .hero-class-pill {
@@ -1893,7 +1911,9 @@ h1 {
   <!-- HERO BANNER STATUS PG -->
   <div class="hero-card" id="heroCard">
     <div class="hero-portrait-box">
-      <img id="heroPortraitImg" class="hero-portrait-img" src="img/faces/Actor1.png" alt="Ritratto" onerror="this.src='icon/icon.png'; this.style.transform='none'; this.style.width='100%'; this.style.height='100%';">
+      <div class="hero-portrait-frame" id="heroPortraitFrame">
+        <img id="heroPortraitImg" class="hero-portrait-img" src="img/faces/Actor1.png" alt="Ritratto" onerror="this.src='icon/icon.png'; this.style.transform='none'; this.style.width='100%'; this.style.height='100%';">
+      </div>
       <span class="hero-class-pill" id="heroClass">Guerriero</span>
     </div>
 
@@ -2142,12 +2162,15 @@ const MATERIA_STAT_BONUSES = {
 };
 const DB_WEAPONS = {"1":{"id":1,"name":"Spadone di ferro","iconIndex":98,"desc":"Arma stage 1, Essenze 1x. [FRZ +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone1>\n<weapon damage>\n100\n</weapon damage>","params":[0,0,1,0,0,0,0,0],"price":0},"2":{"id":2,"name":"Spadone di bronzo","iconIndex":1787,"desc":"Arma stage 2, Essenze 1x. [FRZ +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone2>\n<weapon damage>\n155\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,0,0,0,0],"price":450},"3":{"id":3,"name":"Spadone d'acciaio","iconIndex":1788,"desc":"Arma stage 3, Essenze 1x. [FRZ +5]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone3>\n<weapon damage>\n206\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,0,0,0,0],"price":1200},"4":{"id":4,"name":"Spadone di smeraldo","iconIndex":1789,"desc":"Arma stage 4, Essenze 1x. [FRZ +7]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone4>\n<weapon damage>\n292\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,0,0,0,0],"price":2000},"5":{"id":5,"name":"Spadone d'oro","iconIndex":1790,"desc":"Arma stage 5, Essenze 1x. [FRZ +9]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone5>\n<weapon damage>\n415\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,0,0,0,0],"price":3000},"6":{"id":6,"name":"Spadone leggendario","iconIndex":1791,"desc":"Arma stage 6, Essenze 1x. [FRZ +11]","note":"<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone6>\n<weapon damage>\n589\n</weapon damage>\n<levelReq: 25>","params":[0,0,11,0,0,0,0,0],"price":4500},"7":{"id":7,"name":"Pugnale di ferro","iconIndex":1264,"desc":"Arma stage 1, Essenze 1x [DEX +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger Base>\n<weapon damage>\n83\n</weapon damage>","params":[0,0,1,0,0,0,1,0],"price":0},"8":{"id":8,"name":"Pugnale di bronzo","iconIndex":1266,"desc":"Arma stage 2, Essenze 1x [FRZ +2, DEX +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger2>\n<weapon damage>\n140\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,0,0,1,0],"price":450},"9":{"id":9,"name":"Pugnale d'acciaio","iconIndex":1271,"desc":"Arma stage 3, Essenze 1x [FRZ +4, DEX +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger3>\n<weapon damage>\n209\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,0,0,2,0],"price":1200},"10":{"id":10,"name":"Pugnale di smeraldo","iconIndex":1269,"desc":"Arma stage 4, Essenze 1x [FRZ +6, DEX +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger4>\n<weapon damage>\n283\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,0,0,2,0],"price":2000},"11":{"id":11,"name":"Pugnale d'oro","iconIndex":1267,"desc":"Arma stage 5, Essenze 1x [FRZ +8, DEX +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger5>\n<weapon damage>\n402\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,0,0,3,0],"price":3000},"12":{"id":12,"name":"Pugnale leggendario","iconIndex":1274,"desc":"Arma stage 6, Essenze 1x [FRZ +10, Dex +4]","note":"<materia slots: 0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger6>\n<weapon damage>\n571\n</weapon damage>\n<levelReq: 25>","params":[0,0,11,0,0,0,4,0],"price":4500},"13":{"id":13,"name":"Ascia di ferro","iconIndex":1312,"desc":"Arma stage 1, Essenze 1x [FRZ +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe Base>\n<weapon damage>\n95\n</weapon damage>","params":[0,0,1,0,0,0,0,0],"price":0},"14":{"id":14,"name":"Ascia di bronzo","iconIndex":1314,"desc":"Arma stage 2, Essenze 1x [FRZ +3, MAG +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe2>\n<weapon damage>\n143\n</weapon damage>\n<levelReq: 5>","params":[0,0,3,0,1,0,0,0],"price":450},"15":{"id":15,"name":"Ascia d'acciaio","iconIndex":1319,"desc":"Arma stage 3, Essenze 1x [FRZ +5, MAG +1]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe3>\n<weapon damage>\n203\n</weapon damage>\n<levelReq: 10>","params":[0,0,5,0,1,0,0,0],"price":1200},"16":{"id":16,"name":"Ascia di smeraldo","iconIndex":1317,"desc":"Arma stage 4, Essenze 1x [FRZ +7, MAG +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe4>\n<weapon damage>\n265\n</weapon damage>\n<levelReq: 15>","params":[0,0,7,0,2,0,0,0],"price":2000},"17":{"id":17,"name":"Ascia d'oro","iconIndex":1315,"desc":"Arma stage 5, Essenze 1x [FRZ +9, MAG +2]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe5>\n<weapon damage>\n370\n</weapon damage>\n<levelReq: 20>","params":[0,0,9,0,2,0,0,0],"price":3000},"18":{"id":18,"name":"Ascia leggendaria","iconIndex":1322,"desc":"Arma stage 6, Essenze 1x [FRZ +10, MAG +4]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe6>\n<weapon damage>\n550\n</weapon damage>\n<levelReq: 25>","params":[0,0,10,0,4,0,0,0],"price":4500},"19":{"id":19,"name":"Bastone di legno","iconIndex":1344,"desc":"Arma stage 1, Essenze 1x [MAG +3]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane Base>\n<weapon damage>\n70\n</weapon damage>","params":[0,0,0,0,3,0,0,0],"price":0},"20":{"id":20,"name":"Bastone di bronzo","iconIndex":1346,"desc":"Arma stage 2, Essenze 1x [FRZ +2, MAG +4]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane2>\n<weapon damage>\n100\n</weapon damage>\n<levelReq: 5>","params":[0,0,2,0,4,0,0,0],"price":450},"21":{"id":21,"name":"Bastone d'acciaio","iconIndex":1351,"desc":"Arma stage 3, Essenze 1x [FRZ +3, MAG +6]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane3>\n<weapon damage>\n142\n</weapon damage>\n<levelReq: 10>","params":[0,0,3,0,6,0,0,0],"price":1200},"22":{"id":22,"name":"Bastone di smeraldo","iconIndex":1349,"desc":"Arma stage 4, Essenze 1x [FRZ +4, MAG +7]","note":"<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane4>\n<weapon damage>\n202\n</weapon damage>\n<levelReq: 15>","params":[0,0,4,0,7,0,0,0],"price":2000},"23":{"id":23,"name":"Bastone d'oro","iconIndex":1347,"desc":"Arma stage 5, Essenze 1x [FRZ +6, MAG +8]","note":"<materia slots: 0=0, type weapon, growth 1, icon icon 1803, 1804>\n<Weapon Image: Cane5>\n<weapon damage>\n287\n</weapon damage>\n<levelReq: 20>","params":[0,0,6,0,8,0,0,0],"price":3000},"24":{"id":24,"name":"Bastone leggendario","iconIndex":1354,"desc":"Arma stage 6, Essenze 1x [FRZ +8, MAG +12]","note":"<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane6>\n<weapon damage>\n408\n</weapon damage>\n<levelReq: 25>","params":[0,0,8,0,12,0,0,0],"price":4500},"38":{"id":38,"name":"Mani Nude","iconIndex":77,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0},"39":{"id":39,"name":"Colossus","iconIndex":730,"desc":"Un blocco d'acciaio enorme, ma maneggevole, Materia 0x. [Atk 35, Cos +32, Mag +40, Dex -2%, Luk +10, Hit 107%]","note":"<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 0, icon 161, 162>\n<Weapon Image: 2handed1>\n<weapon damage>\n350\n</weapon damage>\n\n","params":[0,0,0,30,40,0,0,10],"price":0},"40":{"id":40,"name":"Nova","iconIndex":1733,"desc":"Spada di origine sconosciuta. Ignora la riduzione danno Morph [Frz +10, Dex +2, Hit 98%] Materia 0.5x","note":"<materia slots: 0=0:0=0:0=0:0, type weapon, growth 0.5, icon 160, 161, 162>\n<Weapon Image: Futuristic Sword Green>\n<Conformer>","params":[0,0,45,0,0,0,10,0],"price":0}};
 const DB_ARMORS = {"1":{"id":1,"name":"Essenze Magiche","etypeId":2,"iconIndex":1805,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"2":{"id":2,"name":"Fuoco","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ardenti, elemento Fuoco.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 2\naddedcut\nskills: 1:6, 2:7, 3:8\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"3":{"id":3,"name":"Ghiaccio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Gelanti, elemento Ghiaccio.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 3\naddedcut\nskills: 1:9, 2:10, 3:11\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"4":{"id":4,"name":"Tuono","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Folgoranti, elemento Tuono.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 4\naddedcut\nskills: 1:12, 2:13, 3:14\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"5":{"id":5,"name":"Terra","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Sismiche, elemento Terra.","note":"<materia>\nap: 4300, 7200, 19000, 7500\nprice: 52500\nelements: 6\naddedcut\nskills: 1:41, 2:42, 3:43\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"6":{"id":6,"name":"Veleno","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Tossiche, elemento Veleno.","note":"<materia>\nap: 4500, 8000, 19000, 6500\nprice: 48500\nelements: 11\nstates: 4\naddedcut\nskills: 1:27, 2:28, 3:29\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"7":{"id":7,"name":"Cura","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ristorative.","note":"<materia>\nap: 3900, 6600, 16500, 7800\nprice: 42000\nskills: 1:15, 2:16, 3:17\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mdf +2>","params":[0,0,-1,0,1,0,0,0],"price":800,"isMateria":true},"8":{"id":8,"name":"Tempo","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Temporali,  aumento/diminuzione Destrezza.","note":"<materia>\nap: 7500, 18000, 25000 ,40000\nprice: 46500\nskills: 1:18, 2:19, 3:20\nstates: 11,13\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"9":{"id":9,"name":"Oblio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Oblio, ad area, non elementale.","note":"<materia>\nap: 10300, 51700\nprice: 150000\nskills: 1:40, 2:39\naddedcut\n</materia>\n<bonus lv3:mat +4>","params":[0,0,-4,-2,4,2,0,0],"price":0,"isMateria":true},"10":{"id":10,"name":"Drain","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Drain.","note":"<materia>\nap: 40000\nprice: 52500\nskills: 1:21\naddedcut\n</materia>","params":[0,0,-2,0,2,0,0,0],"price":0,"isMateria":true},"11":{"id":11,"name":"Rinascita","etypeId":3,"iconIndex":1805,"desc":"Essenza di Magie di Resurrezione.","note":"<materia>\nap: 45000, 55000\nprice: 60000\nskills: 1:44, 2:45\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"12":{"id":12,"name":"Pietra","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:34\nstates: 17\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"13":{"id":13,"name":"Morte","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:47\nstates: 20\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"15":{"id":15,"name":"Essenze Fisiche","etypeId":2,"iconIndex":1821,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"16":{"id":16,"name":"Sabotaggio","etypeId":3,"iconIndex":1821,"desc":"Essenza di sabotaggio. Permette di debilitare i nemici.","note":"<materia>\ntype: command\nap: 3700, 24500\nprice: 50000\nskills: 1:57, 2:58\naddedcut\n</materia>\n<bonus lv3:atk +2, luk+2>","params":[0,0,0,0,0,0,0,0],"price":600,"isMateria":true},"17":{"id":17,"name":"Assalto","etypeId":3,"iconIndex":1821,"desc":"Essenza d'assalto. Permette di sferrare potenti pugnalate alle spalle.","note":"<materia>\ntype: command\nap: 34500\nprice: 50000\nskills: 1:59\naddedcut\n</materia>\n<bonus lv2:atk+ 3, luk +3>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"18":{"id":18,"name":"Bombardiere","etypeId":3,"iconIndex":1821,"desc":"Essenza che permette di lanciare bombe ai nemici. Munizioni limitate.","note":"<materia>\ntype: command\nap: 2800, 4700, 12500, 12000\nprice: 50000\nskills: 1:64\naddedcut\nbombAmmo\n</materia>\n<bonus lv4:atk +1, agi +1>\n<bonus lv5:atk +2, agi +2>","params":[0,0,0,0,0,0,1,0],"price":800,"isMateria":true},"21":{"id":21,"name":"Essenze Support","etypeId":2,"iconIndex":1807,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"22":{"id":22,"name":"Omni","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette a una Essenza collegata di poter essere usata su obbiettivi multipli.","note":"<materia>\ntype: support\nap: 7200, 10800, 16200, 22300\nprice: 55000\npaired: all\nlimited\n</materia>\n<bonus lv4:mp +25>\n<bonus lv5:mp +50>","params":[0,0,0,0,0,0,0,0],"price":1000,"isMateria":true},"23":{"id":23,"name":"Elemento","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare l' elemento dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 20000, 40000, 60000, 80000\nprice: 90000\npaired: elemental +30%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"24":{"id":24,"name":"Stato","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare lo stato alterato dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 100000\nprice: 90000\npaired: added effect +15%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"25":{"id":25,"name":"Assorbi HP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in Hp dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nhpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"26":{"id":26,"name":"Assorbi MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in MP dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nmpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"27":{"id":27,"name":"Turbo MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che aumenta il danno dell' Essenza  collegata in %, ma ne aumenta il consumo di Mp.","note":"<materia>\ntype: support\nap: 10000, 30000, 60000, 120000\nprice: 105000\npaired: damage +10%\npaired: mp cost +10%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"28":{"id":28,"name":"Final Attack","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 20000, 40000, 80000, 160000\nprice: 200000\npaired: final +100%\nlimited\n</materia>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"29":{"id":29,"name":"Extra","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette un attacco extra dopo aver utilizzato l' Essenza collegata.","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: addedcut\n</materia>\n<bonus lv2:agi +3>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"30":{"id":30,"name":"Quadra","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: quadra\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"31":{"id":31,"name":"Costo Hp","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 100000\nprice: 95000\npaired: hpcost\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"35":{"id":35,"name":"Essenze Summon","etypeId":2,"iconIndex":1806,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"41":{"id":41,"name":"Essenze Independent","etypeId":2,"iconIndex":1822,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"42":{"id":42,"name":"Vita Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Hp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: hp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"43":{"id":43,"name":"Mana Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Mp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: mp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"44":{"id":44,"name":"Destrezza Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Destrezza in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: agi +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"45":{"id":45,"name":"Fortuna Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Fortuna in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: luk +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"46":{"id":46,"name":"Magia Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Magia in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: mat +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"47":{"id":47,"name":"Nemesi","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di contrattaccare gli attacchi fisici.","note":"<materia>\nap: 5800, 5200, 17800, 13200\nprice: 71000\neffect: cnt +20%\nindependent\n</materia>\n<bonus lv4:atk+ 1>\n<bonus lv5:atk+ 1, luk +1>","params":[0,0,0,0,0,0,1,0],"price":1500,"isMateria":true},"48":{"id":48,"name":"Egida","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di intercettare gli attacchi fisici verso gli alleati.","note":"<materia>\ntype: independent\nap: 4400, 4200, 16900, 14500\nprice: 100000\ncover\n</materia>\n<bonus lv4:def +1, mdf +1>\n<bonus lv5:def +1, hp +150>","params":[0,0,0,1,0,0,0,0],"price":600,"isMateria":true},"61":{"id":61,"name":"Armature e accessori","etypeId":2,"iconIndex":128,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"62":{"id":62,"name":"Anello Arcano","etypeId":3,"iconIndex":3682,"desc":"Anello con potere magico. [+3 MAG, +25 MP]","note":"","params":[0,25,0,0,3,0,0,0],"price":2500,"isMateria":""},"63":{"id":63,"name":"Anello Agile","etypeId":3,"iconIndex":3680,"desc":"Anello che aumentà la Destrezza e la Fortuna. [+3 DEX, +3 LUK]","note":"","params":[0,0,0,0,0,0,3,3],"price":2500,"isMateria":""},"64":{"id":64,"name":"Collana Resiliente","etypeId":3,"iconIndex":4535,"desc":"Collana che rende più resistente il portatore. [+3 COS, +3 RES]","note":"","params":[0,0,0,3,0,3,0,0],"price":2500,"isMateria":""},"65":{"id":65,"name":"Corazza di cuoio","etypeId":2,"iconIndex":4192,"desc":"Semplice, ma resistente, Essenze 1x, [+2 Cos, +2 Res].","note":"<materia slots: 0=0, type armor, growth 1, icon 161, 162>\n","params":[0,0,0,2,0,2,0,0],"price":0,"isMateria":false},"66":{"id":66,"name":"Anello Robusto","etypeId":3,"iconIndex":4537,"desc":"Sempre pronto a combattere! [+3 FRZ, +100 HP].","note":"","params":[100,0,3,0,0,0,0,0],"price":2500,"isMateria":""},"67":{"id":67,"name":"Guanti del Potere","etypeId":3,"iconIndex":4040,"desc":"Cambia l' attacco base in Doppio Attacco.","note":"<doubleAttack>","params":[0,0,4,0,0,0,2,0],"price":0,"isMateria":false},"68":{"id":68,"name":"Cappuccio Sdoppiante","etypeId":3,"iconIndex":4857,"desc":"Fornisce l' abilità Doppia Magia.","note":"\n\n","params":[0,0,0,0,4,2,0,0],"price":0,"isMateria":false},"69":{"id":69,"name":"Guanti Plasmanti","etypeId":3,"iconIndex":4072,"desc":"Fornisce l'abilità Trasforma.","note":"","params":[0,0,3,0,0,0,1,0],"price":0,"isMateria":""},"70":{"id":70,"name":"Scouter","etypeId":3,"iconIndex":699,"desc":"Strano congegno di provenienza sconosciuta. Fornisce l' abilità Esamina.","note":"","params":[0,0,1,0,1,0,0,0],"price":2000,"isMateria":""},"71":{"id":71,"name":"Bracciali del Titano","etypeId":3,"iconIndex":4991,"desc":"Enormi bracciali che appartenevano a un gigante. [Frz + 33%]","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"72":{"id":72,"name":"Anello della Fenice","etypeId":3,"iconIndex":4736,"desc":"Fornisce Autoresurrezione una volta per battaglia.","note":"attenzione a spostarli , controllare\nAutolife.js","params":[0,0,0,2,0,5,0,0],"price":0,"isMateria":false},"73":{"id":73,"name":"Orecchino di Smeraldo","etypeId":3,"iconIndex":4602,"desc":"Aumenta i danni magici del 33%.","note":"attenzione a spostarli , controllare\nmagicalaccessorio.js","params":[0,0,0,0,20,0,0,0],"price":0,"isMateria":false},"74":{"id":74,"name":"Guanti del Ladro","etypeId":3,"iconIndex":142,"desc":"Fornisce l'abilità Furto.","note":"","params":[0,0,0,0,0,0,2,0],"price":0,"isMateria":""},"75":{"id":75,"name":"Vestiti","etypeId":2,"iconIndex":2218,"desc":"Vestiti base del personaggio [COS 0, RES 0]","note":"<materia slots: 0=0:0, type armor, growth 1, icon 1803, 1804>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":false},"76":{"id":76,"name":"Giacca in pelle","etypeId":2,"iconIndex":2217,"desc":"Una semplice giacca in pelle [COS +1, RES +1]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 5>","params":[0,0,0,1,0,1,0,0],"price":300,"isMateria":false},"77":{"id":77,"name":"Armatura in pelle","etypeId":2,"iconIndex":2216,"desc":"Armatura in pelle di decente fattura [COS +3, RES +2]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 10>","params":[0,0,0,3,0,2,0,0],"price":800,"isMateria":false},"78":{"id":78,"name":"Cotta di maglia","etypeId":2,"iconIndex":2215,"desc":"Una cotta di maglia ben fatta [COS +6, RES +4]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 15>","params":[0,0,0,6,0,4,0,0],"price":1500,"isMateria":false},"79":{"id":79,"name":"Armatura in ferro","etypeId":2,"iconIndex":2214,"desc":"Un'armatura di ferro forgiata da un fabbro competente [COS +9, RES +6]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 20>","params":[0,0,0,9,0,6,0,0],"price":2200,"isMateria":false},"80":{"id":80,"name":"Armatura pesante","etypeId":2,"iconIndex":2213,"desc":"Un'armatura pesante di pregiata fattura  [COS +14, RES +9]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 25>","params":[0,0,0,14,0,9,0,0],"price":3000,"isMateria":false}};
-let DB_OWNERS = {"test_bomb":{"slot":100,"class":"guerriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_altro":{"slot":101,"class":"mago","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_ladro":{"slot":102,"class":"ladro","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_avventuriero":{"slot":103,"class":"avventuriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"ashen84":{"slot":10,"class":"ladro","sprite":"pg_mora_2","face":"pg_mora_2_face","sv":"pg_mora_2_sv","level":1,"exp":23,"equips":[{"slotIndex":0,"etypeId":1,"itemId":7},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"captainlover92":{"slot":11,"class":"avventuriero","sprite":"pg_biondo_2","face":"pg_biondo_2_face","sv":"pg_biondo_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":13},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"kenz088":{"slot":12,"class":"guerriero","sprite":"pg_bionda_2","face":"pg_bionda_2_face","sv":"pg_bionda_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":1},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]}};
-let DB_INVENTORY = {"test_altro":{"equip":[],"essenze":[]},"test_ladro":{"equip":[],"essenze":[]},"test_avventuriero":{"equip":[],"essenze":[]},"test_guerriero":{"equip":[],"essenze":[]},"test_bomb":{"equip":[],"essenze":[]},"ashen84":{"equip":[{"uid":"g_011","type":"weapon","itemId":7,"equippedSlot":0},{"uid":"g_012","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_005","armorId":17,"ap":20,"level":1,"equippedSlot":{"set":0,"slot":0},"owner":"ashen84"}]},"captainlover92":{"equip":[{"uid":"g_013","type":"weapon","itemId":13,"equippedSlot":0},{"uid":"g_014","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[]},"kenz088":{"equip":[{"uid":"g_015","type":"weapon","itemId":1,"equippedSlot":0},{"uid":"g_016","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_004","armorId":48,"ap":20,"level":1,"equippedSlot":{"set":0,"slot":0},"owner":"kenz088"}]}};
+const FALLBACK_OWNERS = {"test_bomb":{"slot":100,"class":"guerriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_altro":{"slot":101,"class":"mago","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_ladro":{"slot":102,"class":"ladro","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_avventuriero":{"slot":103,"class":"avventuriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"ashen84":{"slot":10,"class":"ladro","sprite":"pg_mora_2","face":"pg_mora_2_face","sv":"pg_mora_2_sv","level":1,"exp":23,"equips":[{"slotIndex":0,"etypeId":1,"itemId":7},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"captainlover92":{"slot":11,"class":"avventuriero","sprite":"pg_biondo_2","face":"pg_biondo_2_face","sv":"pg_biondo_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":13},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"kenz088":{"slot":12,"class":"guerriero","sprite":"pg_bionda_2","face":"pg_bionda_2_face","sv":"pg_bionda_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":1},{"slotIndex":1,"etypeId":2,"itemId":75},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]}};
+const FALLBACK_INVENTORY = {"test_altro":{"equip":[],"essenze":[]},"test_ladro":{"equip":[],"essenze":[]},"test_avventuriero":{"equip":[],"essenze":[]},"test_guerriero":{"equip":[],"essenze":[]},"test_bomb":{"equip":[],"essenze":[]},"ashen84":{"equip":[{"uid":"g_011","type":"weapon","itemId":7,"equippedSlot":0},{"uid":"g_012","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_005","armorId":17,"ap":20,"level":1,"equippedSlot":{"set":0,"slot":0},"owner":"ashen84"}]},"captainlover92":{"equip":[{"uid":"g_013","type":"weapon","itemId":13,"equippedSlot":0},{"uid":"g_014","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[]},"kenz088":{"equip":[{"uid":"g_015","type":"weapon","itemId":1,"equippedSlot":0},{"uid":"g_016","type":"armor","itemId":75,"equippedSlot":1}],"essenze":[{"uid":"e_004","armorId":48,"ap":20,"level":1,"equippedSlot":{"set":1,"slot":2},"owner":"kenz088"}]}};
+const FALLBACK_CURRENCY = {"test_altro":1322,"test_ladro":1322,"test_avventuriero":1322,"test_guerriero":111,"test_bomb":1127,"ashen84":84,"captainlover92":634,"kenz088":434};
 
-let DB_ACTORS = {};
-const DB_CLASSES = {"avventuriero":{"id":3,"name":"Avventuriero","params":[[1,100,122,143,165,187,208,230,252,275,295,334,374,415,460,490,545,595,655,710,740,875,1010,1145,1275,1355,1485,1605,1730,1850,1975,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,25,32,40,47,54,62,69,76,84,91,100,106,113,120,128,136,144,153,163,174,178,192,207,223,240,258,277,297,320,350,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,9,11,14,18,18,21,24,27,29,29,35,38,42,44,44,45,49,53,57,57,58,59,63,67,67,67,67,68,70,71,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,8,10,11,12,14,15,17,18,19,21,23,24,26,28,30,33,35,36,38,40,42,44,46,48,50,52,54,56,58,60,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,33,36,39,42,45,48,51,54,57,60,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,32,34,36,38,40,42,44,46,47,48,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,10,12,13,15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,40,42,44,46,48,50,52,54,56,58,60,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,11,11,12,12,13,15,15,16,16,17,18,19,20,21,22,25,26,27,28,30,31,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"guerriero":{"id":4,"name":"Guerriero","params":[[1,115,144,173,202,231,259,288,317,346,375,427,478,530,581,633,684,736,787,839,890,1031,1172,1313,1454,1595,1736,1877,2018,2159,2300,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,20,26,31,37,42,48,53,59,64,70,75,81,86,92,97,103,108,114,119,125,132,140,147,155,162,170,177,185,192,200,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,12,15,18,21,24,27,30,33,36,39,43,46,49,52,55,58,61,64,67,70,73,75,78,80,83,85,88,90,93,95,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,10,11,12,13,15,15,17,18,20,22,23,25,28,30,33,36,39,42,46,50,53,56,60,63,67,70,73,76,78,80,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,8,9,10,11,12,12,13,14,15,16,16,17,18,19,20,21,22,24,25,26,27,28,29,31,32,33,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,9,9,10,11,12,13,14,14,15,16,17,18,19,20,21,22,23,24,26,27,28,30,31,33,34,35,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,32,34,36,37,39,41,43,45,47,48,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,10,10,11,11,12,13,13,14,14,15,15,16,17,18,19,20,21,22,23,23,24,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"mago":{"id":5,"name":"Mago","params":[[1,70,97,115,135,148,173,192,212,231,250,283,316,350,383,416,450,483,516,549,583,675,766,858,949,1041,1132,1224,1315,1407,1499,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,35,39,44,50,56,63,71,79,89,100,111,122,135,149,165,183,202,223,247,273,302,334,369,408,451,499,551,610,674,750,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,6,7,8,9,10,12,13,14,15,16,17,18,20,21,22,23,24,25,27,28,30,31,33,35,36,38,40,42,43,45,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,9,9,10,11,12,13,14,14,15,16,17,18,19,20,21,22,24,26,29,32,34,36,38,40,42,45,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,12,14,17,20,23,26,28,29,30,32,34,36,36,40,44,48,52,55,60,60,63,66,69,72,75,79,85,91,97,103,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,12,13,14,15,16,17,18,20,21,23,24,26,28,30,32,34,37,39,42,45,50,55,61,67,74,81,88,95,100,105,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,9,10,12,13,14,16,17,19,20,21,23,24,25,27,28,30,31,32,34,35,37,39,41,43,45,47,49,51,53,55,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,10,10,11,11,12,13,13,14,14,15,15,16,17,18,19,20,21,22,23,23,24,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"ladro":{"id":6,"name":"Ladro","params":[[1,85,104,124,143,163,182,202,221,241,260,294,328,362,396,430,464,498,532,566,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,25,31,38,44,50,57,63,69,76,82,88,95,101,107,114,120,126,133,139,145,155,165,175,185,194,203,213,222,232,240,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,10,13,15,18,23,25,27,30,32,36,38,41,43,46,50,52,54,57,60,63,65,67,69,71,73,75,77,79,80,81,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,38,39,40,42,43,45,47,48,50,52,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,6,7,8,9,10,11,12,12,13,14,15,16,17,18,19,20,20,21,22,24,25,27,28,30,31,33,34,36,37,38,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,30,31,33,34,36,37,39,40,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,14,15,16,18,19,20,22,24,26,28,30,32,35,38,41,44,47,51,55,60,63,65,68,70,73,75,78,80,83,85,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,6,7,7,8,9,9,10,11,12,13,14,15,17,18,20,21,23,25,28,30,32,34,36,38,40,42,44,46,48,50,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]}};
-let DB_CURRENCY = {"test_altro":1322,"test_ladro":1322,"test_avventuriero":1322,"test_guerriero":111,"test_bomb":1127,"ashen84":84,"captainlover92":634,"kenz088":434};
+let DB_OWNERS = (typeof window !== 'undefined' && window.__TWITCH_OWNERS) ? window.__TWITCH_OWNERS : ((typeof window !== 'undefined' && window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.owners) ? window.__LIVE_GAME_DATA.owners : FALLBACK_OWNERS);
+let DB_INVENTORY = (typeof window !== 'undefined' && window.__TWITCH_INVENTORY_OWNERS) ? window.__TWITCH_INVENTORY_OWNERS : ((typeof window !== 'undefined' && window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.inventory) ? window.__LIVE_GAME_DATA.inventory : FALLBACK_INVENTORY);
+let DB_CURRENCY = (typeof window !== 'undefined' && window.__TWITCH_CURRENCY) ? window.__TWITCH_CURRENCY : ((typeof window !== 'undefined' && window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.currency) ? window.__LIVE_GAME_DATA.currency : FALLBACK_CURRENCY);
+let DB_ACTORS = (typeof window !== 'undefined' && window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.actors) ? window.__LIVE_GAME_DATA.actors : {};
+const DB_CLASSES = {"debug":{"id":2,"name":"debug","params":[[1,190,237,285,333,382,433,484,536,590,644,699,755,812,870,929,988,1049,1111,1173,1237,1301,1367,1433,1500,1569,1638,1708,1779,1851,1924,1998,2073,2149,2225,2303,2382,2461,2542,2623,2705,2789,2873,2958,3044,3131,3219,3308,3398,3489,3581,3674,3767,3862,3957,4054,4151,4250,4349,4449,4550,4653,4756,4860,4965,5071,5177,5285,5394,5504,5614,5726,5838,5952,6066,6181,6298,6415,6533,6652,6772,6893,7015,7138,7262,7386,7512,7639,7766,7895,8024,8155,8286,8418,8551,8686,8821,8957,9094,9231],[0,22,31,40,49,57,66,75,83,92,101,109,118,127,135,144,153,161,170,179,187,196,205,213,222,231,239,248,257,265,274,283,291,300,309,317,326,335,343,352,361,369,378,387,395,404,413,421,430,439,447,456,465,474,482,491,500,508,517,526,534,543,552,560,569,578,586,595,604,612,621,630,638,647,656,664,673,682,690,699,708,716,725,734,742,751,760,768,777,786,794,803,812,820,829,838,846,855,864,872],[1,18,20,21,23,24,26,27,29,30,32,33,34,36,37,38,40,41,42,43,45,46,47,48,50,51,52,53,54,55,56,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,72,73,74,75,76,77,78,78,79,80,81,81,82,83,84,84,85,86,86,87,88,88,89,89,90,90,91,92,92,93,93,94,94,94,95,95,96,96,96,97,97,98,98,98,98,99,99,99,99,100,100,100,100,100],[1,15,26,36,46,56,66,76,86,96,106,116,126,136,146,156,166,176,186,196,206,216,226,236,246,256,267,277,287,297,307,317,327,337,347,357,367,377,387,397,407,417,427,437,447,457,467,477,487,497,507,518,528,538,548,558,568,578,588,598,608,618,628,638,648,658,668,678,688,698,708,718,728,738,748,759,769,779,789,799,809,819,829,839,849,859,869,879,889,899,909,919,929,939,949,959,969,979,989,999],[1,16,18,19,21,22,24,25,26,28,29,30,32,33,34,35,37,38,39,40,42,43,44,45,46,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,73,73,74,75,76,77,77,78,79,80,80,81,82,83,83,84,85,85,86,86,87,88,88,89,89,90,90,91,91,92,92,93,93,94,94,95,95,96,96,96,97,97,97,98,98,98,99,99,99,99],[1,14,16,17,19,20,21,23,24,25,27,28,29,30,32,33,34,35,36,38,39,40,41,42,43,44,46,47,48,49,50,51,52,53,54,55,56,57,58,59,60,61,62,62,63,64,65,66,67,68,68,69,70,71,72,72,73,74,75,75,76,77,77,78,79,79,80,81,81,82,82,83,84,84,85,85,86,86,87,87,88,88,89,89,90,90,90,91,91,91,92,92,92,93,93,93,94,94,94,94],[1,5,6,7,8,9,10,11,12,13,14,15,15,16,17,18,19,20,21,22,22,23,24,25,26,27,27,28,29,30,31,31,32,33,34,35,35,36,37,38,38,39,40,41,41,42,43,44,44,45,46,46,47,48,49,49,50,51,51,52,53,53,54,55,55,56,57,57,58,59,59,60,60,61,62,62,63,63,64,65,65,66,66,67,68,68,69,69,70,70,71,71,72,72,73,73,74,74,75,75],[1,12,13,13,13,13,13,14,14,14,14,14,14,15,15,15,15,15,16,16,16,16,16,16,17,17,17,17,17,17,18,18,18,18,18,18,19,19,19,19,19,19,20,20,20,20,20,20,21,21,21,21,21,21,22,22,22,22,22,22,23,23,23,23,23,23,23,24,24,24,24,24,24,25,25,25,25,25,25,25,26,26,26,26,26,26,27,27,27,27,27,27,27,28,28,28,28,28,28,28]]},"avventuriero":{"id":3,"name":"Avventuriero","params":[[1,100,122,143,165,187,208,230,252,275,295,334,374,415,460,490,545,595,655,710,740,875,1010,1145,1275,1355,1485,1605,1730,1850,1975,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,25,32,40,47,54,62,69,76,84,91,100,106,113,120,128,136,144,153,163,174,178,192,207,223,240,258,277,297,320,350,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,9,11,14,18,18,21,24,27,29,29,35,38,42,44,44,45,49,53,57,57,58,59,63,67,67,67,67,68,70,71,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,8,10,11,12,14,15,17,18,19,21,23,24,26,28,30,33,35,36,38,40,42,44,46,48,50,52,54,56,58,60,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,33,36,39,42,45,48,51,54,57,60,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,32,34,36,38,40,42,44,46,47,48,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,10,12,13,15,16,18,19,21,22,24,25,27,28,30,31,33,34,36,37,40,42,44,46,48,50,52,54,56,58,60,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,11,11,12,12,13,15,15,16,16,17,18,19,20,21,22,25,26,27,28,30,31,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"guerriero":{"id":4,"name":"Guerriero","params":[[1,115,144,173,202,231,259,288,317,346,375,427,478,530,581,633,684,736,787,839,890,1031,1172,1313,1454,1595,1736,1877,2018,2159,2300,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,20,26,31,37,42,48,53,59,64,70,75,81,86,92,97,103,108,114,119,125,132,140,147,155,162,170,177,185,192,200,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,12,15,18,21,24,27,30,33,36,39,43,46,49,52,55,58,61,64,67,70,73,75,78,80,83,85,88,90,93,95,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,10,11,12,13,15,15,17,18,20,22,23,25,28,30,33,36,39,42,46,50,53,56,60,63,67,70,73,76,78,80,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,8,9,10,11,12,12,13,14,15,16,16,17,18,19,20,21,22,24,25,26,27,28,29,31,32,33,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,9,9,10,11,12,13,14,14,15,16,17,18,19,20,21,22,23,24,26,27,28,30,31,33,34,35,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,8,9,10,11,13,14,15,16,17,19,20,21,22,24,25,26,27,28,29,30,32,34,36,37,39,41,43,45,47,48,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,10,10,11,11,12,13,13,14,14,15,15,16,17,18,19,20,21,22,23,23,24,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"mago":{"id":5,"name":"Mago","params":[[1,70,97,115,135,148,173,192,212,231,250,283,316,350,383,416,450,483,516,549,583,675,766,858,949,1041,1132,1224,1315,1407,1499,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,35,39,44,50,56,63,71,79,89,100,111,122,135,149,165,183,202,223,247,273,302,334,369,408,451,499,551,610,674,750,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,6,7,8,9,10,12,13,14,15,16,17,18,20,21,22,23,24,25,27,28,30,31,33,35,36,38,40,42,43,45,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,5,6,7,8,9,9,10,11,12,13,14,14,15,16,17,18,19,20,21,22,24,26,29,32,34,36,38,40,42,45,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,12,14,17,20,23,26,28,29,30,32,34,36,36,40,44,48,52,55,60,60,63,66,69,72,75,79,85,91,97,103,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,12,13,14,15,16,17,18,20,21,23,24,26,28,30,32,34,37,39,42,45,50,55,61,67,74,81,88,95,100,105,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,9,10,12,13,14,16,17,19,20,21,23,24,25,27,28,30,31,32,34,35,37,39,41,43,45,47,49,51,53,55,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,4,5,5,6,7,7,8,8,9,10,10,11,11,12,13,13,14,14,15,15,16,17,18,19,20,21,22,23,23,24,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]},"ladro":{"id":6,"name":"Ladro","params":[[1,85,104,124,143,163,182,202,221,241,260,294,328,362,396,430,464,498,532,566,600,700,800,900,1000,1100,1200,1300,1400,1500,1600,1950,2000,2050,2100,2150,2200,2250,2300,2350,2400,2450,2500,2550,2600,2650,2700,2750,2800,2850,2900,2950,3000,3050,3100,3150,3200,3250,3300,3350,3400,3450,3500,3550,3600,3650,3700,3750,3800,3850,3900,3950,4000,4050,4100,4150,4200,4250,4300,4350,4400,4450,4500,4550,4600,4650,4700,4750,4800,4850,4900,4950,5000,5050,5100,5150,5200,5250,5300,5350],[0,25,31,38,44,50,57,63,69,76,82,88,95,101,107,114,120,126,133,139,145,155,165,175,185,194,203,213,222,232,240,390,400,410,420,430,440,450,460,470,480,490,500,510,520,530,540,550,560,570,580,590,600,610,620,630,640,650,660,670,680,690,700,710,720,730,740,750,760,770,780,790,800,810,820,830,840,850,860,870,880,890,900,910,920,930,940,950,960,970,980,990,1000,1010,1020,1030,1040,1050,1060,1070],[1,10,13,15,18,23,25,27,30,32,36,38,41,43,46,50,52,54,57,60,63,65,67,69,71,73,75,77,79,80,81,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[1,7,8,10,11,13,14,16,17,19,20,22,23,25,26,28,29,31,32,34,35,38,39,40,42,43,45,47,48,50,52,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,6,7,8,9,10,11,12,12,13,14,15,16,17,18,19,20,20,21,22,24,25,27,28,30,31,33,34,36,37,38,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,27,28,30,31,33,34,36,37,39,40,54,55,56,58,59,60,61,63,64,65,66,68,69,70,71,73,74,75,76,77,79,80,81,82,84,85,86,87,89,90,91,92,94,95,96,97,99,100,101,102,104,105,106,107,109,110,111,112,114,115,116,117,119,120,121,122,124,125,126,127,129,130,131,132,134,135,136,137,138],[0,14,15,16,18,19,20,22,24,26,28,30,32,35,38,41,44,47,51,55,60,63,65,68,70,73,75,78,80,83,85,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277],[1,6,7,7,8,9,9,10,11,12,13,14,15,17,18,20,21,23,25,28,30,32,34,36,38,40,42,44,46,48,50,107,110,112,115,117,120,122,125,127,130,132,135,137,140,142,145,147,150,152,155,157,160,162,165,167,170,172,175,177,180,182,185,187,190,192,195,197,200,202,205,207,210,212,215,217,220,222,225,227,230,232,235,237,240,242,245,247,250,252,255,257,260,262,265,267,270,272,275,277]]}};
 
 const MATERIA_COLORS = {
   "Magiche": "#10b981",
@@ -2510,6 +2533,7 @@ function buildCharStateFromUser(username) {
   const mpVal = liveActor ? liveActor.mp : baseStats.mmp;
   const maxMpVal = liveActor ? liveActor.maxMp : baseStats.mmp;
   const faceFile = (liveActor && liveActor.face) ? liveActor.face : (ownerEntry.face || "Actor1");
+  const faceIdx = (liveActor && liveActor.faceIndex !== undefined) ? liveActor.faceIndex : (ownerEntry.faceIndex !== undefined ? ownerEntry.faceIndex : 0);
 
   const state = {
     hasCharacter: hasCharacter,
@@ -2523,6 +2547,7 @@ function buildCharStateFromUser(username) {
     mp: mpVal, maxMp: maxMpVal,
     exp: expVal, maxExp: maxExpVal,
     face: faceFile,
+    faceIndex: faceIdx,
     baseStats: baseStats,
     liveParams: liveActor ? liveActor.params : null,
     equipped: {
@@ -2619,6 +2644,34 @@ function buildCharStateFromUser(username) {
     }
 
     state.backpack.essenze.push(essObj);
+  });
+
+  // 3. Prevenzione assoluta duplicazioni: rimuovi dallo zaino essenze già equipaggiate
+  const equippedMatUids = new Set();
+  ['arma', 'armatura', 'acc1', 'acc2'].forEach(slotKey => {
+    const eq = state.equipped[slotKey];
+    if (eq && eq.sockets) {
+      eq.sockets.forEach(sock => {
+        if (sock.materia && sock.materia.uid) {
+          equippedMatUids.add(sock.materia.uid);
+        }
+      });
+    }
+  });
+  state.backpack.essenze = state.backpack.essenze.filter(e => !equippedMatUids.has(e.uid));
+
+  // Deduplica zaino per uid univoco
+  const seenEssUids = new Set();
+  state.backpack.essenze = state.backpack.essenze.filter(e => {
+    if (seenEssUids.has(e.uid)) return false;
+    seenEssUids.add(e.uid);
+    return true;
+  });
+  const seenGearUids = new Set();
+  state.backpack.gear = state.backpack.gear.filter(g => {
+    if (seenGearUids.has(g.uid)) return false;
+    seenGearUids.add(g.uid);
+    return true;
   });
 
   // Solo equipaggiamenti reali dal gioco (nessun oggetto fake/demo)
@@ -3198,7 +3251,7 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
     const bagIdx = charState.backpack.essenze.findIndex(e => e.uid === src.uid);
     if (bagIdx < 0) return;
     essObj = charState.backpack.essenze.splice(bagIdx, 1)[0];
-    if (displacedMateria) {
+    if (displacedMateria && !charState.backpack.essenze.some(e => e.uid === displacedMateria.uid)) {
       charState.backpack.essenze.push(displacedMateria);
     }
   }
@@ -3232,7 +3285,9 @@ function handleUnequipEssence(uid) {
         if (s.materia && s.materia.uid === uid) {
           const removed = s.materia;
           s.materia = null;
-          charState.backpack.essenze.push(removed);
+          if (!charState.backpack.essenze.some(e => e.uid === removed.uid)) {
+            charState.backpack.essenze.push(removed);
+          }
           executeChatCommand(`!essenze unequip ${uid}`);
           showToast("Essenza Smontata", `<b>${removed.name}</b> è tornata nello zaino.`);
         }
@@ -3251,7 +3306,7 @@ function handleDropGear(targetSlotKey, src) {
 
   const itemToEquip = charState.backpack.gear.splice(bagIdx, 1)[0];
   const oldItem = charState.equipped[targetSlotKey];
-  if (oldItem) {
+  if (oldItem && !charState.backpack.gear.some(g => g.uid === oldItem.uid)) {
     charState.backpack.gear.push(oldItem);
   }
 
@@ -3272,14 +3327,18 @@ function handleUnequipGear(slotKey) {
   if (item.sockets) {
     item.sockets.forEach(s => {
       if (s.materia) {
-        charState.backpack.essenze.push(s.materia);
+        if (!charState.backpack.essenze.some(e => e.uid === s.materia.uid)) {
+          charState.backpack.essenze.push(s.materia);
+        }
         s.materia = null;
       }
     });
   }
 
   charState.equipped[slotKey] = null;
-  charState.backpack.gear.push(item);
+  if (!charState.backpack.gear.some(g => g.uid === item.uid)) {
+    charState.backpack.gear.push(item);
+  }
 
   executeChatCommand(`!ungear ${slotKey}`);
   showToast("Equip Rimosso ✕", `<b>${item.name}</b> è stato riposto nello zaino.`);
@@ -3838,36 +3897,86 @@ function updateChatStatusBadge(hasOnline) {
 
 // LOADER VIA SCRIPT TAG (funziona sia in file:// che su server senza restrizioni CORS)
 function pollLiveGameScript() {
+  const isHttp = window.location.protocol.startsWith("http");
+
+  // 1. Ricarica script live game data (status_data.js)
   const old = document.getElementById("game-data-live-script");
   if (old) old.remove();
 
   const s = document.createElement("script");
   s.id = "game-data-live-script";
-  s.src = "status_data.js?t=" + Date.now();
+  // Su file:// non usiamo query param poiché su Windows blocca il file system locale
+  s.src = isHttp ? ("status_data.js?t=" + Date.now()) : "status_data.js";
   s.onload = () => {
     if (window.__LIVE_GAME_DATA) {
       applyLiveGameData(window.__LIVE_GAME_DATA);
     }
   };
   s.onerror = () => {
-    if (window.location.protocol.startsWith("http")) {
+    if (isHttp) {
       fetchGameDataHttp();
     }
   };
   document.head.appendChild(s);
+
+  // 2. Ricarica script inventari reali di gioco (twitch_inventory_owners.js)
+  const oldInv = document.getElementById("game-inv-live-script");
+  if (oldInv) oldInv.remove();
+  const sInv = document.createElement("script");
+  sInv.id = "game-inv-live-script";
+  sInv.src = isHttp ? ("twitch_inventory_owners.js?t=" + Date.now()) : "twitch_inventory_owners.js";
+  sInv.onload = () => {
+    if (window.__TWITCH_INVENTORY_OWNERS) {
+      DB_INVENTORY = window.__TWITCH_INVENTORY_OWNERS;
+      if (charState && charState.login) {
+        charState = buildCharStateFromUser(charState.login);
+        updateHeroHeader();
+        renderAll();
+      }
+    }
+  };
+  document.head.appendChild(sInv);
+
+  // 3. Ricarica script anagrafica personaggi reali (twitch_owners.js)
+  const oldOwn = document.getElementById("game-owners-live-script");
+  if (oldOwn) oldOwn.remove();
+  const sOwn = document.createElement("script");
+  sOwn.id = "game-owners-live-script";
+  sOwn.src = isHttp ? ("twitch_owners.js?t=" + Date.now()) : "twitch_owners.js";
+  sOwn.onload = () => {
+    if (window.__TWITCH_OWNERS) {
+      DB_OWNERS = window.__TWITCH_OWNERS;
+      if (charState && charState.login) {
+        charState = buildCharStateFromUser(charState.login);
+        updateHeroHeader();
+        renderAll();
+      }
+    }
+  };
+  document.head.appendChild(sOwn);
+
+  // 4. Ricarica script valuta reale (twitch_currency.js)
+  const oldCur = document.getElementById("game-cur-live-script");
+  if (oldCur) oldCur.remove();
+  const sCur = document.createElement("script");
+  sCur.id = "game-cur-live-script";
+  sCur.src = isHttp ? ("twitch_currency.js?t=" + Date.now()) : "twitch_currency.js";
+  sCur.onload = () => {
+    if (window.__TWITCH_CURRENCY) {
+      DB_CURRENCY = window.__TWITCH_CURRENCY;
+      if (charState && charState.login) {
+        charState.gold = (DB_CURRENCY[charState.login.toLowerCase()] !== undefined) ? DB_CURRENCY[charState.login.toLowerCase()] : charState.gold;
+        const goldEl = document.getElementById("userGoldAmount");
+        if (goldEl) goldEl.innerText = (charState.gold || 0).toLocaleString('it-IT');
+      }
+    }
+  };
+  document.head.appendChild(sCur);
 }
 
 // LOADER VIA FETCH HTTP (per GitHub Pages o server web)
 async function fetchGameDataHttp() {
-  try {
-    const resStatus = await fetch("status_data.json?t=" + Date.now());
-    if (resStatus.ok) {
-      const data = await resStatus.json();
-      applyLiveGameData(data);
-      return true;
-    }
-  } catch(e) {}
-
+  // Legge SEMPRE PRIMA dai file sorgente originali del gioco!
   try {
     const [oRes, iRes, cRes] = await Promise.all([
       fetch("twitch_owners.json?t=" + Date.now()),
@@ -3878,15 +3987,36 @@ async function fetchGameDataHttp() {
       const owners = await oRes.json();
       const inv = await iRes.json();
       const cur = cRes.ok ? await cRes.json() : {};
+
+      let actors = DB_ACTORS;
+      try {
+        const sRes = await fetch("status_data.json?t=" + Date.now());
+        if (sRes.ok) {
+          const sData = await sRes.json();
+          if (sData.actors) actors = sData.actors;
+        }
+      } catch(e) {}
+
       applyLiveGameData({
         timestamp: Date.now(),
         owners: owners,
         inventory: inv,
-        currency: cur
+        currency: cur,
+        actors: actors
       });
       return true;
     }
   } catch(e) {}
+
+  try {
+    const resStatus = await fetch("status_data.json?t=" + Date.now());
+    if (resStatus.ok) {
+      const data = await resStatus.json();
+      applyLiveGameData(data);
+      return true;
+    }
+  } catch(e) {}
+
   return false;
 }
 
@@ -3988,6 +4118,12 @@ function updateHeroHeader() {
   if (portraitImg) {
     const faceName = charState.face || "Actor1";
     portraitImg.src = "img/faces/" + faceName + ".png";
+    const faceIdx = (charState.faceIndex !== undefined) ? charState.faceIndex : 0;
+    const col = faceIdx % 4;
+    const row = Math.floor(faceIdx / 4);
+    const posX = (col * 144 === 0) ? "0px" : `-${col * 144}px`;
+    const posY = (row * 144 === 0) ? "0px" : `-${row * 144}px`;
+    portraitImg.style.objectPosition = `${posX} ${posY}`;
   }
 
   const noCharBanner = document.getElementById("noCharBanner");
@@ -4037,6 +4173,19 @@ function renderAll() {
 
 // AUTENTICAZIONE TWITCH OAUTH (ACCESSO STRETTAMENTE PERSONALE)
 function initAuth() {
+  // 0. Supporto parametro ?user= nell'URL per testing immediato o visualizzazione diretta
+  const urlParams = new URLSearchParams(window.location.search);
+  const qUser = urlParams.get('user');
+  if (qUser) {
+    currentUser = { login: qUser.toLowerCase(), name: qUser };
+    const lockCard = document.getElementById("authLockCard");
+    if (lockCard) lockCard.style.display = "none";
+    const sheetContainer = document.getElementById("mainHeroSheetContainer");
+    if (sheetContainer) sheetContainer.style.display = "block";
+    switchActivePlayer(qUser);
+    return;
+  }
+
   // 1. Controlla token OAuth restituito nell'hash dell'URL
   const hash = (window.location.hash || '').substring(1);
   if (hash && hash.includes('access_token=')) {
@@ -4089,7 +4238,19 @@ function initAuth() {
     }
   }
 
-  // 3. NESSUN UTENTE LOGGATO: MOSTRA SCHERMATA DI ACCESSO RISERVATO
+  // 3. SE APERTO LOCALMENTE VIA file:// MOSTRA IL PERSONAGGIO DI PROGETTO (kenz088) SENZA BLOCCO
+  if (window.location.protocol === 'file:') {
+    const defaultUser = (DB_OWNERS && DB_OWNERS["kenz088"]) ? "kenz088" : ((DB_OWNERS && Object.keys(DB_OWNERS).length > 0) ? Object.keys(DB_OWNERS)[0] : "kenz088");
+    currentUser = { login: defaultUser, name: defaultUser };
+    const lockCard = document.getElementById("authLockCard");
+    if (lockCard) lockCard.style.display = "none";
+    const sheetContainer = document.getElementById("mainHeroSheetContainer");
+    if (sheetContainer) sheetContainer.style.display = "block";
+    switchActivePlayer(defaultUser);
+    return;
+  }
+
+  // 4. NESSUN UTENTE LOGGATO: MOSTRA SCHERMATA DI ACCESSO RISERVATO
   currentUser = null;
   document.getElementById("twitchUserBox").style.display = "none";
   document.getElementById("btnLoginTwitch").style.display = "inline-flex";
