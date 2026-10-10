@@ -738,19 +738,26 @@ Guida ufficiale - Twitch Battle RPG<br>
 
   function loginWithTwitch() {
     if (window.location.protocol === 'file:') {
-      const confirmSim = confirm(
-        "Avviso Ambiente Locale:\n\n" +
-        "Sei in modalità file locale (file://). Le API di Twitch richiedono un indirizzo web HTTPS (come GitHub Pages).\n\n" +
-        "Vuoi attivare una simulazione di prova ora per testare la grafica del profilo?"
+      const curStored = localStorage.getItem(STORAGE_USER_KEY);
+      let curLogin = 'kenz088';
+      if (curStored) {
+        try { curLogin = JSON.parse(curStored).login || 'kenz088'; } catch(e) {}
+      }
+      const chosen = prompt(
+        "Modalità Locale (file://):\n\n" +
+        "Inserisci il nome utente Twitch con cui accedere (es. kenz088, ashen84, captainlover92, gianni23):",
+        curLogin
       );
-      if (confirmSim) {
+      if (chosen && chosen.trim()) {
+        const cleanLogin = chosen.trim().toLowerCase();
         const demoUser = {
           id: '12345678',
-          login: 'gianni23',
-          name: 'Gianni23',
+          login: cleanLogin,
+          name: chosen.trim(),
           avatar: '',
           loggedAt: Date.now()
         };
+        localStorage.removeItem('tbrpg_logged_out');
         localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
         renderUserBar();
       }
@@ -764,6 +771,7 @@ Guida ufficiale - Twitch Battle RPG<br>
   }
 
   function logoutTwitch() {
+    localStorage.setItem('tbrpg_logged_out', '1');
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
     renderUserBar();
@@ -833,10 +841,16 @@ Guida ufficiale - Twitch Battle RPG<br>
       text.innerText = "Offline";
     }
 
-    if (goldVal && data && data.currency) {
-      const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
-      if (u && data.currency[u] !== undefined) {
-        goldVal.innerText = data.currency[u];
+    if (goldVal) {
+      if (state !== 'live') {
+        goldVal.innerText = '--';
+      } else if (data && data.currency) {
+        const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
+        if (u && data.currency[u] !== undefined) {
+          goldVal.innerText = data.currency[u].toLocaleString('it-IT');
+        } else {
+          goldVal.innerText = '--';
+        }
       }
     }
   }
@@ -874,21 +888,24 @@ Guida ufficiale - Twitch Battle RPG<br>
         `;
 
         if (goldBox && goldVal) {
-          goldBox.style.display = 'flex';
-          try {
-            const res = await fetch("status_data.json?t=" + Date.now());
-            if (res.ok) {
-              const data = await res.json();
-              const myUser = (user.login || user.name || "").toLowerCase();
-              if (data && data.owners && data.owners[myUser]) {
-                const charName = data.owners[myUser];
-                if (data.actors && data.actors[charName] && typeof data.actors[charName].gold === "number") {
-                  goldVal.innerText = data.actors[charName].gold.toLocaleString('it-IT');
-                  return;
+          goldBox.style.display = 'inline-flex';
+          const opState = getGameOperationalState(window.__LIVE_GAME_DATA);
+          if (opState === 'live') {
+            try {
+              const res = await fetch("status_data.json?t=" + Date.now());
+              if (res.ok) {
+                const data = await res.json();
+                const myUser = (user.login || user.name || "").toLowerCase();
+                if (data && data.owners && data.owners[myUser]) {
+                  const charName = data.owners[myUser];
+                  if (data.actors && data.actors[charName] && typeof data.actors[charName].gold === "number") {
+                    goldVal.innerText = data.actors[charName].gold.toLocaleString('it-IT');
+                    return;
+                  }
                 }
               }
-            }
-          } catch(e) {}
+            } catch(e) {}
+          }
           goldVal.innerText = "--";
         }
         return;
@@ -898,6 +915,7 @@ Guida ufficiale - Twitch Battle RPG<br>
     }
 
     if (goldBox) goldBox.style.display = 'none';
+    if (goldVal) goldVal.innerText = '--';
     container.innerHTML = `
       <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -928,8 +946,25 @@ Guida ufficiale - Twitch Battle RPG<br>
       return;
     }
 
+    if (window.location.protocol === 'file:' && !savedUser && !localStorage.getItem('tbrpg_logged_out')) {
+      const defaultUser = {
+        id: '12345678',
+        login: 'kenz088',
+        name: 'kenz088',
+        avatar: '',
+        loggedAt: Date.now()
+      };
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(defaultUser));
+    }
+
     renderUserBar();
   }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
+      renderUserBar();
+    }
+  });
 
   function pollLocalGuideStatus() {
     if (window.location.protocol.startsWith("http")) return;

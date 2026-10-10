@@ -2506,7 +2506,7 @@ body.is-dragging-essence .materia-slot-meta * {
       <!-- SALDO ORO UTENTE -->
       <div class="user-gold-badge" id="userGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
         <span class="coin-icon">🪙</span>
-        <span class="gold-val" id="userGoldAmount">0</span>
+        <span class="gold-val" id="userGoldAmount">--</span>
         <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
       </div>
 
@@ -5281,6 +5281,8 @@ function updateGameStatusUI(active, liveData) {
     }
   } else if (state === 'menu') {
     isGameCurrentlyActive = false;
+    const goldEl = document.getElementById("userGoldAmount");
+    if (goldEl) goldEl.innerText = "--";
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🟡";
@@ -5297,6 +5299,8 @@ function updateGameStatusUI(active, liveData) {
     }
   } else {
     isGameCurrentlyActive = false;
+    const goldEl = document.getElementById("userGoldAmount");
+    if (goldEl) goldEl.innerText = "--";
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🔴";
@@ -5463,6 +5467,9 @@ function pollLiveGameScript() {
         charState.gold = (DB_CURRENCY[charState.login.toLowerCase()] !== undefined) ? DB_CURRENCY[charState.login.toLowerCase()] : charState.gold;
         const goldEl = document.getElementById("userGoldAmount");
         if (goldEl) goldEl.innerText = (charState.gold || 0).toLocaleString('it-IT');
+      } else {
+        const goldEl = document.getElementById("userGoldAmount");
+        if (goldEl && !isGameCurrentlyActive) goldEl.innerText = "--";
       }
     }
   };
@@ -5493,9 +5500,11 @@ function setDatabaseUnavailableUI() {
       pill.innerText = "DATABASE OFFLINE ✕";
     }
   }
+  const goldEl = document.getElementById("userGoldAmount");
+  if (goldEl) goldEl.innerText = "--";
   if (topSyncPill) {
-    topSyncPill.className = "twitch-status-pill sync-pill offline";
-    if (topSyncText) topSyncText.innerText = "Database non disponibile!";
+    topSyncPill.className = "sync-status-pill offline";
+    if (topSyncText) topSyncText.innerText = "Offline";
   }
 }
 
@@ -5695,7 +5704,7 @@ function updateHeroHeader() {
     const limitBarOff = document.getElementById("limitBar");
     if (limitLabelOff) limitLabelOff.innerText = "0%";
     if (limitBarOff) limitBarOff.style.width = "0%";
-    if (goldEl) goldEl.innerText = "0";
+    if (goldEl) goldEl.innerText = "--";
 
     if (portraitImg) {
       portraitImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%23121222'/%3E%3Ccircle cx='50' cy='40' r='18' fill='%239c9488'/%3E%3Cpath d='M25 85 C25 66 36 58 50 58 C64 58 75 66 75 85 Z' fill='%239c9488'/%3E%3C/svg%3E";
@@ -5744,7 +5753,13 @@ function updateHeroHeader() {
     else limitBarLive.classList.remove("limit-ready");
   }
 
-  if (goldEl) goldEl.innerText = (charState.gold || 0).toLocaleString('it-IT');
+  if (goldEl) {
+    if (!isGameCurrentlyActive) {
+      goldEl.innerText = "--";
+    } else {
+      goldEl.innerText = (charState.gold || 0).toLocaleString('it-IT');
+    }
+  }
 
   if (portraitImg) {
     const faceName = charState.face || "Actor1";
@@ -5845,7 +5860,9 @@ function initAuth() {
       document.getElementById("twitchUserBox").style.display = "flex";
       document.getElementById("btnLoginTwitch").style.display = "none";
       const goldBox = document.getElementById("userGoldBox");
+      const goldEl = document.getElementById("userGoldAmount");
       if (goldBox) goldBox.style.display = "inline-flex";
+      if (goldEl && !isGameCurrentlyActive) goldEl.innerText = "--";
 
       if (u.avatar) {
         const img = document.getElementById("userAvatarImg");
@@ -5873,15 +5890,32 @@ function initAuth() {
     }
   }
 
-  // 3. SE APERTO LOCALMENTE VIA file:// MOSTRA IL PERSONAGGIO DI PROGETTO (kenz088) SENZA BLOCCO
-  if (window.location.protocol === 'file:') {
-    const defaultUser = (DB_OWNERS && DB_OWNERS["kenz088"]) ? "kenz088" : ((DB_OWNERS && Object.keys(DB_OWNERS).length > 0) ? Object.keys(DB_OWNERS)[0] : "kenz088");
-    currentUser = { login: defaultUser, name: defaultUser };
+  // 3. SE APERTO LOCALMENTE VIA file:// E NON DISCONNESSO: USA kenz088 E ALLINEA LA TOP BAR
+  if (window.location.protocol === 'file:' && !localStorage.getItem('tbrpg_logged_out')) {
+    const defaultUserLogin = (DB_OWNERS && DB_OWNERS["kenz088"]) ? "kenz088" : ((DB_OWNERS && Object.keys(DB_OWNERS).length > 0) ? Object.keys(DB_OWNERS)[0] : "kenz088");
+    const demoUser = {
+      id: '12345678',
+      login: defaultUserLogin,
+      name: defaultUserLogin,
+      avatar: '',
+      loggedAt: Date.now()
+    };
+    currentUser = demoUser;
+    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
+
+    document.getElementById("userDisplayName").innerText = demoUser.name;
+    document.getElementById("twitchUserBox").style.display = "flex";
+    document.getElementById("btnLoginTwitch").style.display = "none";
+    const goldBox = document.getElementById("userGoldBox");
+    const goldEl = document.getElementById("userGoldAmount");
+    if (goldBox) goldBox.style.display = "inline-flex";
+    if (goldEl && !isGameCurrentlyActive) goldEl.innerText = "--";
+
     const lockCard = document.getElementById("authLockCard");
     if (lockCard) lockCard.style.display = "none";
     const sheetContainer = document.getElementById("mainHeroSheetContainer");
     if (sheetContainer) sheetContainer.style.display = "block";
-    switchActivePlayer(defaultUser);
+    switchActivePlayer(defaultUserLogin);
     return;
   }
 
@@ -5890,7 +5924,9 @@ function initAuth() {
   document.getElementById("twitchUserBox").style.display = "none";
   document.getElementById("btnLoginTwitch").style.display = "inline-flex";
   const goldBox = document.getElementById("userGoldBox");
+  const goldEl = document.getElementById("userGoldAmount");
   if (goldBox) goldBox.style.display = "none";
+  if (goldEl) goldEl.innerText = "--";
 
   const lockCard = document.getElementById("authLockCard");
   if (lockCard) lockCard.style.display = "flex";
@@ -5919,6 +5955,7 @@ async function fetchTwitchUserProfile(token) {
         name: u.display_name,
         avatar: u.profile_image_url
       };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userObj));
       initAuth();
     }
@@ -5930,11 +5967,11 @@ async function fetchTwitchUserProfile(token) {
 
 function loginWithTwitch() {
   if (window.location.protocol === 'file:') {
-    const userList = Object.keys(DB_OWNERS).join(", ");
+    const curLogin = (currentUser && currentUser.login) ? currentUser.login : 'kenz088';
     const chosen = prompt(
       "Modalità Locale (file://):\n\n" +
-      "Inserisci il nome utente Twitch con cui accedere (es. " + userList + "):",
-      "ashen84"
+      "Inserisci il nome utente Twitch con cui accedere (es. kenz088, ashen84, captainlover92, gianni23):",
+      curLogin
     );
     if (chosen && chosen.trim()) {
       const cleanLogin = chosen.trim().toLowerCase();
@@ -5945,6 +5982,7 @@ function loginWithTwitch() {
         avatar: '',
         loggedAt: Date.now()
       };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
       initAuth();
       showToast("Accesso Eseguito 👤", "Sei connesso come <b>" + demoUser.name + "</b>.");
@@ -5956,11 +5994,29 @@ function loginWithTwitch() {
 }
 
 function logoutTwitch() {
+  localStorage.setItem('tbrpg_logged_out', '1');
   localStorage.removeItem(STORAGE_USER_KEY);
   localStorage.removeItem(STORAGE_TOKEN_KEY);
-  initAuth();
+  currentUser = null;
+  document.getElementById("twitchUserBox").style.display = "none";
+  document.getElementById("btnLoginTwitch").style.display = "inline-flex";
+  const goldBox = document.getElementById("userGoldBox");
+  const goldEl = document.getElementById("userGoldAmount");
+  if (goldBox) goldBox.style.display = "none";
+  if (goldEl) goldEl.innerText = "--";
+
+  const lockCard = document.getElementById("authLockCard");
+  if (lockCard) lockCard.style.display = "flex";
+  const sheetContainer = document.getElementById("mainHeroSheetContainer");
+  if (sheetContainer) sheetContainer.style.display = "none";
   showToast("Disconnesso", "Account Twitch disconnesso.");
 }
+
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
+    initAuth();
+  }
+});
 
 // INIZIALIZZAZIONE ALL'AVVIO
 window.addEventListener('DOMContentLoaded', () => {

@@ -2425,16 +2425,20 @@ function isMateriaEquippedAnywhere(uid) {
 // -------------------------------------------------------------
 function loginWithTwitch() {
   if (window.location.protocol === 'file:') {
+    const curLogin = (currentUser && currentUser.login) ? currentUser.login : 'kenz088';
     const chosen = prompt(
-      "Modalità Locale (file://):\n\nInserisci il nome utente Twitch con cui accedere (es. ashen84, kenz088, captainlover92):",
-      currentUser ? currentUser.login : "ashen84"
+      "Modalità Locale (file://):\n\nInserisci il nome utente Twitch con cui accedere (es. kenz088, ashen84, captainlover92, gianni23):",
+      curLogin
     );
     if (chosen && chosen.trim()) {
       const cleanLogin = chosen.trim().toLowerCase();
-      currentUser = { id: '12345678', login: cleanLogin, name: chosen.trim(), avatar: '' };
+      currentUser = { id: '12345678', login: cleanLogin, name: chosen.trim(), avatar: '', loggedAt: Date.now() };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentUser));
       renderUserBar();
+      updateUserGoldUI();
       refreshAllViews();
+      showToast("Accesso Eseguito 👤", "Sei connesso come <b>" + currentUser.name + "</b>.");
     }
     return;
   }
@@ -2446,10 +2450,12 @@ function loginWithTwitch() {
 }
 
 function logoutTwitch() {
+  localStorage.setItem('tbrpg_logged_out', '1');
   localStorage.removeItem(STORAGE_USER_KEY);
   localStorage.removeItem(STORAGE_TOKEN_KEY);
   currentUser = null;
   renderUserBar();
+  updateUserGoldUI();
   refreshAllViews();
 }
 
@@ -2472,10 +2478,13 @@ async function fetchTwitchUserProfile(token) {
         id: u.id,
         login: u.login,
         name: u.display_name,
-        avatar: u.profile_image_url
+        avatar: u.profile_image_url,
+        loggedAt: Date.now()
       };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentUser));
       renderUserBar();
+      updateUserGoldUI();
       refreshAllViews();
     }
   } catch(e) {
@@ -2519,10 +2528,11 @@ function switchLocalUser() {
   const msg = owners.length 
     ? "Personaggi attivi nel gioco: " + owners.join(", ") + "\n\nInserisci il nome utente con cui operare nel mercatino:"
     : "Inserisci il nome utente Twitch con cui operare nel mercatino:";
-  const chosen = prompt(msg, currentUser ? currentUser.login : (owners[0] || ''));
+  const chosen = prompt(msg, currentUser ? currentUser.login : 'kenz088');
   if (chosen && chosen.trim()) {
     const c = chosen.trim().toLowerCase();
-    currentUser = { id: '00000000', login: c, name: chosen.trim(), avatar: '' };
+    currentUser = { id: '12345678', login: c, name: chosen.trim(), avatar: '', loggedAt: Date.now() };
+    localStorage.removeItem('tbrpg_logged_out');
     localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentUser));
     renderUserBar();
     updateUserGoldUI();
@@ -2616,17 +2626,24 @@ async function initAuth() {
     await fetchTwitchUserProfile(savedToken);
   }
 
-  // 3. Fallback per test locale (file://)
-  if (window.location.protocol === 'file:' && !currentUser) {
+  // 3. Fallback per test locale (file://) sincronizzato
+  if (window.location.protocol === 'file:' && !currentUser && !localStorage.getItem('tbrpg_logged_out')) {
     const owners = Object.keys(DB_OWNERS || {});
-    const def = (DB_OWNERS && DB_OWNERS["kenz088"]) ? "kenz088" : (owners[0] || "test_bomb");
-    currentUser = { id: '00000000', login: def.toLowerCase(), name: def, avatar: '' };
+    const def = (DB_OWNERS && DB_OWNERS["kenz088"]) ? "kenz088" : (owners[0] || "kenz088");
+    currentUser = { id: '12345678', login: def.toLowerCase(), name: def, avatar: '', loggedAt: Date.now() };
+    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentUser));
   }
 
   renderUserBar();
   updateUserGoldUI();
   refreshAllViews();
 }
+
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
+    initAuth();
+  }
+});
 
 // -------------------------------------------------------------
 // CHAT HELIX & INVIO COMANDI

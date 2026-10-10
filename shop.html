@@ -1798,21 +1798,25 @@ async function manualSyncGameData() {
 // LOGIN & LOGOUT TWITCH OAUTH
 function loginWithTwitch() {
   if (window.location.protocol === 'file:') {
-    const confirmSim = confirm(
-      "Avviso Ambiente Locale:\n\n" +
-      "Sei in modalità file locale (file://). Le API di Twitch richiedono un indirizzo web HTTPS (come GitHub Pages).\n\n" +
-      "Vuoi attivare una simulazione di prova ora per testare la grafica e il saldo Oro?"
+    const curLogin = (currentUser && currentUser.login) ? currentUser.login : 'kenz088';
+    const chosen = prompt(
+      "Modalità Locale (file://):\n\n" +
+      "Inserisci il nome utente Twitch con cui accedere (es. kenz088, ashen84, captainlover92, gianni23):",
+      curLogin
     );
-    if (confirmSim) {
+    if (chosen && chosen.trim()) {
+      const cleanLogin = chosen.trim().toLowerCase();
       const demoUser = {
         id: '12345678',
-        login: 'gianni23',
-        name: 'Gianni23',
+        login: cleanLogin,
+        name: chosen.trim(),
         avatar: '',
         loggedAt: Date.now()
       };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
       initAuth();
+      showToast("Accesso Eseguito 👤", "Sei connesso come <b>" + demoUser.name + "</b>.");
     }
     return;
   }
@@ -1824,12 +1828,15 @@ function loginWithTwitch() {
 }
 
 function logoutTwitch() {
+  localStorage.setItem('tbrpg_logged_out', '1');
   localStorage.removeItem(STORAGE_USER_KEY);
   localStorage.removeItem(STORAGE_TOKEN_KEY);
   currentUser = null;
   currentToken = null;
   userGold = 0;
   renderUserBar();
+  updateGoldDisplay();
+  showToast("Disconnesso", "Account Twitch disconnesso.");
 }
 
 async function fetchTwitchUserProfile(token) {
@@ -1854,6 +1861,7 @@ async function fetchTwitchUserProfile(token) {
         avatar: u.profile_image_url,
         loggedAt: Date.now()
       };
+      localStorage.removeItem('tbrpg_logged_out');
       localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(currentUser));
       userGold = getStoredGold(currentUser.login);
       renderUserBar();
@@ -1894,6 +1902,7 @@ function renderUserBar() {
     userBox.style.display = "none";
     loginBtn.style.display = "inline-flex";
     if (goldBox) goldBox.style.display = "none";
+    updateGoldDisplay(false);
   }
   renderGrid();
 }
@@ -1926,10 +1935,30 @@ async function initAuth() {
   } else if (currentToken) {
     await fetchTwitchUserProfile(currentToken);
     return;
+  } else if (window.location.protocol === 'file:' && !localStorage.getItem('tbrpg_logged_out')) {
+    // In ambiente file locale di default usa kenz088 sincronizzato con tutte le pagine
+    const defaultUser = {
+      id: '12345678',
+      login: 'kenz088',
+      name: 'kenz088',
+      avatar: '',
+      loggedAt: Date.now()
+    };
+    currentUser = defaultUser;
+    localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(defaultUser));
+    userGold = getStoredGold(defaultUser.login);
+  } else {
+    currentUser = null;
   }
 
   renderUserBar();
 }
+
+window.addEventListener('storage', (e) => {
+  if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
+    initAuth();
+  }
+});
 
 // NAVIGAZIONE SCHEDE
 function renderTabs() {

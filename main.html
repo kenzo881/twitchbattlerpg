@@ -846,10 +846,11 @@
   // AVVIA IL LOGIN TRAMITE TWITCH
   function loginWithTwitch() {
     if (window.location.protocol === 'file:') {
+      const curLogin = (currentUser && currentUser.login) ? currentUser.login : 'kenz088';
       const chosen = prompt(
         "Modalità Locale (file://):\n\n" +
-        "Inserisci il nome utente Twitch con cui accedere (es. ashen84, kenz088, captainlover92, gianni23):",
-        "kenz088"
+        "Inserisci il nome utente Twitch con cui accedere (es. kenz088, ashen84, captainlover92, gianni23):",
+        curLogin
       );
       if (chosen && chosen.trim()) {
         const cleanLogin = chosen.trim().toLowerCase();
@@ -860,6 +861,7 @@
           avatar: '',
           loggedAt: Date.now()
         };
+        localStorage.removeItem('tbrpg_logged_out');
         localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(demoUser));
         currentUser = demoUser;
         renderUserBar();
@@ -875,9 +877,14 @@
 
   // DISCONNESSIONE ACCOUNT
   function logoutTwitch() {
+    localStorage.setItem('tbrpg_logged_out', '1');
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
     currentUser = null;
+    const goldBox = document.getElementById('topUserGoldBox');
+    const goldVal = document.getElementById('topUserGold');
+    if (goldBox) goldBox.style.display = 'none';
+    if (goldVal) goldVal.innerText = '--';
     renderUserBar();
   }
 
@@ -906,6 +913,7 @@
           avatar: u.profile_image_url,
           loggedAt: Date.now()
         };
+        localStorage.removeItem('tbrpg_logged_out');
         localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(userData));
         currentUser = userData;
         renderUserBar();
@@ -920,6 +928,18 @@
   function renderUserBar() {
     const container = document.getElementById('twitchAuthContainer');
     if (!container) return;
+
+    if (window.location.protocol === 'file:' && !localStorage.getItem(STORAGE_USER_KEY) && !localStorage.getItem('tbrpg_logged_out')) {
+      const defaultUser = {
+        id: '12345678',
+        login: 'kenz088',
+        name: 'kenz088',
+        avatar: '',
+        loggedAt: Date.now()
+      };
+      localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(defaultUser));
+    }
+
     const stored = localStorage.getItem(STORAGE_USER_KEY);
 
     if (stored) {
@@ -953,6 +973,12 @@
       </button>
     `;
   }
+
+  window.addEventListener('storage', (e) => {
+    if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
+      renderUserBar();
+    }
+  });
 
   const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
   let firebaseConnected = false;
@@ -993,11 +1019,17 @@
 
     // Aggiornamento saldo Oro se presente
     const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-    if (goldBox && goldVal && d && d.currency) {
-      const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
-      if (u && d.currency[u] !== undefined) {
-        goldBox.style.display = 'inline-flex';
-        goldVal.innerText = d.currency[u].toLocaleString('it-IT');
+    if (goldBox && goldVal) {
+      if (state !== 'live') {
+        goldVal.innerText = '--';
+      } else if (d && d.currency) {
+        const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
+        if (u && d.currency[u] !== undefined) {
+          goldBox.style.display = 'inline-flex';
+          goldVal.innerText = d.currency[u].toLocaleString('it-IT');
+        } else {
+          goldVal.innerText = '--';
+        }
       }
     }
   }
