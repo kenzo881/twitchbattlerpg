@@ -738,6 +738,26 @@ h1 {
   background: rgba(16, 185, 129, 0.08) !important;
 }
 
+/* DRAG & DROP STABILITY & ANTI-FLICKER */
+body.is-dragging-gear .equip-slot-card *,
+body.is-dragging-gear #equipSlotsContainer * {
+  pointer-events: none !important;
+}
+
+body.is-dragging-essence .materia-socket *,
+body.is-dragging-essence .materia-socket-frame * {
+  pointer-events: none !important;
+}
+
+#equipSlotsContainer {
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+#equipSlotsContainer.drag-target-hover {
+  border: 1.5px dashed #34d399 !important;
+  border-radius: 12px;
+}
+
 .equip-card-top {
   display: flex;
   justify-content: space-between;
@@ -3069,6 +3089,49 @@ let currentInvTab = "all";
 let draggedItem = null;
 let selectedItem = null;
 let isDraggingActive = false;
+let pendingLiveGameData = null;
+let lastRenderFingerprint = "";
+
+// CALCOLO FINGERPRINT PER EVITARE RE-RENDER E FLICKERING QUANDO I DATI VISIVI SONO INVARIATI
+function getCharRenderFingerprint(state) {
+  if (!state || !isGameCurrentlyActive) return 'inactive_' + (isGameCurrentlyActive ? '1' : '0');
+
+  const eqParts = ['arma', 'armatura', 'acc1', 'acc2'].map(slot => {
+    const item = state.equipped ? state.equipped[slot] : null;
+    if (!item) return slot + ':empty';
+    const sockUids = (item.sockets || []).map(s => s.slotNum + ':' + (s.materia ? (s.materia.uid + ':' + (s.materia.level || 1)) : 'none')).join(';');
+    return slot + ':' + item.uid + ':' + item.itemId + '[' + sockUids + ']';
+  }).join('|');
+
+  const bagGear = (state.backpack && state.backpack.gear ? state.backpack.gear : [])
+    .map(g => g.uid + ':' + g.itemId).join(',');
+
+  const bagEss = (state.backpack && state.backpack.essenze ? state.backpack.essenze : [])
+    .map(e => e.uid + ':' + e.armorId + ':' + (e.level || 1)).join(',');
+
+  const selUid = selectedItem ? selectedItem.uid : 'none';
+  const tab = currentInvTab || 'all';
+  const login = state.login || '';
+
+  return `${login}__${tab}__${selUid}__${eqParts}__${bagGear}__${bagEss}`;
+}
+
+function endDragOperation() {
+  setTimeout(() => {
+    isDraggingActive = false;
+    document.body.classList.remove("is-dragging-gear");
+    document.body.classList.remove("is-dragging-essence");
+    draggedItem = null;
+    document.querySelectorAll(".drag-target-hover").forEach(x => x.classList.remove("drag-target-hover"));
+    document.querySelectorAll(".drag-over-socket").forEach(x => x.classList.remove("drag-over-socket"));
+
+    if (pendingLiveGameData) {
+      const dataToApply = pendingLiveGameData;
+      pendingLiveGameData = null;
+      applyLiveGameData(dataToApply);
+    }
+  }, 60);
+}
 
 // RENDERING E SCHEMATICA SLOT
 function renderSlotsSchematic(groups) {
@@ -3264,35 +3327,40 @@ function renderEquipSlots() {
 function attachDragDropListeners() {
   document.querySelectorAll(".materia-socket").forEach(el => {
     el.addEventListener("dragstart", e => {
-      isDraggingActive = true;
       const piece = el.dataset.piece;
       const slotNum = parseInt(el.dataset.slot, 10);
       const uid = el.dataset.uid;
-      if (!uid) return;
+      if (!uid) {
+        e.preventDefault();
+        return;
+      }
+      isDraggingActive = true;
+      document.body.classList.add("is-dragging-essence");
       draggedItem = { type: "essence", source: "socket", piece, slotNum, uid };
       e.dataTransfer.setData("text/plain", JSON.stringify(draggedItem));
       e.dataTransfer.effectAllowed = "move";
     });
 
     el.addEventListener("dragend", () => {
-      setTimeout(() => { isDraggingActive = false; }, 100);
-      draggedItem = null;
-      document.querySelectorAll(".drag-over-socket").forEach(x => x.classList.remove("drag-over-socket"));
+      endDragOperation();
     });
 
     el.addEventListener("dragover", e => {
       if (!draggedItem || draggedItem.type !== "essence") return;
       e.preventDefault();
+      e.stopPropagation();
       e.dataTransfer.dropEffect = "move";
       el.classList.add("drag-over-socket");
     });
 
-    el.addEventListener("dragleave", () => {
+    el.addEventListener("dragleave", e => {
+      if (el.contains(e.relatedTarget)) return;
       el.classList.remove("drag-over-socket");
     });
 
     el.addEventListener("drop", e => {
       e.preventDefault();
+      e.stopPropagation();
       el.classList.remove("drag-over-socket");
       if (!draggedItem || draggedItem.type !== "essence") return;
       const targetPiece = el.dataset.piece;
@@ -3305,21 +3373,65 @@ function attachDragDropListeners() {
     card.addEventListener("dragover", e => {
       if (!draggedItem || draggedItem.type !== "gear") return;
       e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect = "move";
       card.classList.add("drag-target-hover");
     });
 
-    card.addEventListener("dragleave", () => {
+    card.addEventListener("dragleave", e => {
+      if (card.contains(e.relatedTarget)) return;
       card.classList.remove("drag-target-hover");
     });
 
     card.addEventListener("drop", e => {
       e.preventDefault();
+      e.stopPropagation();
       card.classList.remove("drag-target-hover");
       if (!draggedItem || draggedItem.type !== "gear") return;
       const targetSlotKey = card.dataset.slotKey;
       handleDropGear(targetSlotKey, draggedItem);
     });
   });
+
+  // Dropzone generale sul contenitore Equipaggiamento (auto-routing intelligente)
+  const eqContainer = document.getElementById("equipSlotsContainer");
+  if (eqContainer && !eqContainer.__hasDropListener) {
+    eqContainer.__hasDropListener = true;
+    eqContainer.addEventListener("dragover", e => {
+      if (!draggedItem || draggedItem.type !== "gear") return;
+      e.preventDefault();
+      e.dataTransfer.dropEffect = "move";
+      eqContainer.classList.add("drag-target-hover");
+    });
+    eqContainer.addEventListener("dragleave", e => {
+      if (eqContainer.contains(e.relatedTarget)) return;
+      eqContainer.classList.remove("drag-target-hover");
+    });
+    eqContainer.addEventListener("drop", e => {
+      eqContainer.classList.remove("drag-target-hover");
+      if (!draggedItem || draggedItem.type !== "gear") return;
+      e.preventDefault();
+      handleDropGear("auto", draggedItem);
+    });
+  }
+
+  // Dropzone generale sullo zaino per smontare un'essenza trascinandola nello zaino
+  const bagGrid = document.getElementById("invGrid");
+  if (bagGrid && !bagGrid.__hasDropListener) {
+    bagGrid.__hasDropListener = true;
+    bagGrid.addEventListener("dragover", e => {
+      if (draggedItem && draggedItem.type === "essence" && draggedItem.source === "socket") {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = "move";
+      }
+    });
+    bagGrid.addEventListener("drop", e => {
+      if (draggedItem && draggedItem.type === "essence" && draggedItem.source === "socket") {
+        e.preventDefault();
+        handleUnequipEssence(draggedItem.uid);
+      }
+    });
+  }
 }
 
 function handleSocketClick(e, pieceKey, slotNum) {
@@ -3454,14 +3566,18 @@ function attachBagDragListeners() {
       isDraggingActive = true;
       const uid = card.dataset.uid;
       const type = card.dataset.type;
+      if (type === "gear") {
+        document.body.classList.add("is-dragging-gear");
+      } else {
+        document.body.classList.add("is-dragging-essence");
+      }
       draggedItem = { type: type, source: "backpack", uid: uid };
       e.dataTransfer.setData("text/plain", JSON.stringify(draggedItem));
       e.dataTransfer.effectAllowed = "move";
     });
 
     card.addEventListener("dragend", () => {
-      setTimeout(() => { isDraggingActive = false; }, 100);
-      draggedItem = null;
+      endDragOperation();
     });
   });
 }
@@ -3901,7 +4017,8 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
     return;
   }
 
-  const targetSockets = charState.equipped[targetPiece].sockets;
+  const targetSockets = charState.equipped[targetPiece] ? charState.equipped[targetPiece].sockets : null;
+  if (!targetSockets) return;
   const targetSocketObj = targetSockets.find(s => s.slotNum === targetSlotNum);
   if (!targetSocketObj) return;
 
@@ -3909,7 +4026,8 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
   let essObj = null;
 
   if (src.source === "socket") {
-    const srcSockets = charState.equipped[src.piece].sockets;
+    const srcSockets = charState.equipped[src.piece] ? charState.equipped[src.piece].sockets : null;
+    if (!srcSockets) return;
     const srcSocketObj = srcSockets.find(s => s.slotNum === src.slotNum);
     if (!srcSocketObj || !srcSocketObj.materia) return;
     essObj = srcSocketObj.materia;
@@ -3929,7 +4047,7 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
   executeChatCommand(cmd);
 
   saveLocalModifications();
-  renderAll();
+  renderAll(true);
 
   // Verifica sinergia se slot linkato
   const targetGroups = charState.equipped[targetPiece].groups || [];
@@ -3963,7 +4081,7 @@ function handleUnequipEssence(uid) {
   });
 
   saveLocalModifications();
-  renderAll();
+  renderAll(true);
 }
 
 function handleDropGear(targetSlotKey, src) {
@@ -3971,20 +4089,38 @@ function handleDropGear(targetSlotKey, src) {
   const bagIdx = charState.backpack.gear.findIndex(g => g.uid === src.uid);
   if (bagIdx < 0) return;
 
-  const itemToEquip = charState.backpack.gear.splice(bagIdx, 1)[0];
-  const oldItem = charState.equipped[targetSlotKey];
+  const itemToEquip = charState.backpack.gear[bagIdx];
+
+  // Routing intelligente: le armi vanno in 'arma', le armature in 'armatura' (o 'acc1'/'acc2')
+  let resolvedSlot = targetSlotKey;
+  if (itemToEquip.type === "weapon") {
+    resolvedSlot = "arma";
+  } else if (itemToEquip.type === "armor") {
+    if (resolvedSlot !== "acc1" && resolvedSlot !== "acc2") {
+      resolvedSlot = "armatura";
+    }
+  } else {
+    if (!resolvedSlot || resolvedSlot === "auto" || resolvedSlot === "container") {
+      resolvedSlot = (itemToEquip.type === "weapon") ? "arma" : "armatura";
+    }
+  }
+
+  // Rimuovi dallo zaino
+  charState.backpack.gear.splice(bagIdx, 1);
+
+  const oldItem = charState.equipped[resolvedSlot];
   if (oldItem && !charState.backpack.gear.some(g => g.uid === oldItem.uid)) {
     charState.backpack.gear.push(oldItem);
   }
 
-  charState.equipped[targetSlotKey] = itemToEquip;
-  const cmd = `!gear ${targetSlotKey} ${itemToEquip.uid}`;
+  charState.equipped[resolvedSlot] = itemToEquip;
+  const cmd = `!gear ${resolvedSlot} ${itemToEquip.uid}`;
   executeChatCommand(cmd);
 
-  showToast("Equip Indossato 🛡️", `Hai equipaggiato <b>${itemToEquip.name}</b> in <b>${targetSlotKey.toUpperCase()}</b>.`);
+  showToast("Equip Indossato 🛡️", `Hai equipaggiato <b>${itemToEquip.name}</b> in <b>${resolvedSlot.toUpperCase()}</b>.`);
 
   saveLocalModifications();
-  renderAll();
+  renderAll(true);
 }
 
 function handleUnequipGear(slotKey) {
@@ -4011,7 +4147,7 @@ function handleUnequipGear(slotKey) {
   showToast("Equip Rimosso ✕", `<b>${item.name}</b> è stato riposto nello zaino.`);
 
   saveLocalModifications();
-  renderAll();
+  renderAll(true);
 }
 
 function quickEquipGear(uid) {
@@ -4755,6 +4891,13 @@ function updateGameStatusUI(active, data) {
 function applyLiveGameData(data) {
   if (!data) return false;
 
+  // Se l'utente sta effettuando un'operazione di drag & drop, rimanda l'aggiornamento
+  // per evitare che la distruzione del DOM cancelli il trascinamento in corso!
+  if (isDraggingActive) {
+    pendingLiveGameData = data;
+    return false;
+  }
+
   const active = checkGameActive(data);
   const wasActive = isGameCurrentlyActive;
   updateGameStatusUI(active, data);
@@ -4762,7 +4905,7 @@ function applyLiveGameData(data) {
   if (!active) {
     // Quando il gioco è offline: non mostrare dati del PG
     updateHeroHeader();
-    renderAll();
+    renderAll(true);
     return false;
   }
 
@@ -4780,7 +4923,7 @@ function applyLiveGameData(data) {
   let activeLogin = (currentUser && currentUser.login) ? currentUser.login : null;
   if (!activeLogin && data.activeLeader) {
     activeLogin = data.activeLeader;
-    currentUser = { login: activeLogin, name: activeLogin };
+    currentUser = { login: activeLogin, name: activeLeader };
   } else if (!activeLogin) {
     activeLogin = (charState && charState.login) ? charState.login : "kenz088";
   }
@@ -4788,7 +4931,7 @@ function applyLiveGameData(data) {
   const cleanU = activeLogin.toLowerCase().trim();
   charState = buildCharStateFromUser(cleanU);
   updateHeroHeader();
-  renderAll();
+  renderAll(false); // Solo se il fingerprint visivo è cambiato!
   return true;
 }
 
@@ -5000,6 +5143,12 @@ async function fetchGameDataHttp() {
           }
         } catch(e) {}
 
+        const localSig = JSON.stringify(owners).length + '_' + JSON.stringify(inv).length + '_' + JSON.stringify(cur).length + '_' + JSON.stringify(actors).length;
+        if (localSig === window.__lastLocalDataSig && isGameCurrentlyActive) {
+          return true;
+        }
+        window.__lastLocalDataSig = localSig;
+
         applyLiveGameData({
           timestamp: Date.now(),
           owners: owners,
@@ -5203,9 +5352,13 @@ async function syncProjectFiles() {
   showToast("Dati Sincronizzati ✅", fetchedAny ? "Dati aggiornati direttamente dal repository GitHub!" : "Dati originali di progetto ricaricati con successo.");
 }
 
-function renderAll() {
-  renderEquipSlots();
-  renderInventoryGrid();
+function renderAll(force = false) {
+  const newFp = getCharRenderFingerprint(charState);
+  if (force || newFp !== lastRenderFingerprint) {
+    lastRenderFingerprint = newFp;
+    renderEquipSlots();
+    renderInventoryGrid();
+  }
   updateCalculatedStats();
   updateActiveArtsBadge();
 }
