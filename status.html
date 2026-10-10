@@ -2120,6 +2120,7 @@ body.is-dragging-essence .materia-slot-meta * {
     <div class="twitch-brand">
       <a href="main.html" class="btn-back-portal">← Portale</a>
       <a href="shop.html" class="btn-back-portal" style="border-color: rgba(212,175,55,0.4); color: var(--gold);">🛒 Bottega</a>
+      <a href="market.html" class="btn-back-portal" style="border-color: rgba(145,70,255,0.4); color: #c49eff;">🏪 Mercatino</a>
       <button class="btn-sync-live" id="btnSyncLive" onclick="manualSyncGameData()" title="Sincronizza subito con i dati del gioco">
         🔄 Sincronizza Gioco
       </button>
@@ -4914,7 +4915,7 @@ function updateGameStatusUI(active, data) {
         banner.className = "game-status-banner online";
         if (icon) icon.innerText = "🟢";
         if (title) title.innerText = "GIOCO ATTIVO & CONNESSO";
-        if (desc) desc.innerText = "Partita in corso! Sincronizzazione in tempo reale attiva con RPG Maker.";
+        if (desc) desc.innerText = "Partita in corso! Sincronizzazione con TBRPG.";
         if (pill) {
           pill.className = "banner-status-pill online";
           pill.innerText = "ONLINE LIVE ⚡";
@@ -4929,11 +4930,11 @@ function updateGameStatusUI(active, data) {
     if (banner) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🟡";
-      if (title) title.innerText = "SCHERMATA DEL TITOLO (IN ATTESA DI AVVIO PARTITA)";
+      if (title) title.innerText = "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)";
       if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi sia alla Lobby per iniziare la sincronizzazione in tempo reale!";
       if (pill) {
         pill.className = "banner-status-pill offline";
-        pill.innerText = "AL TITOLO ⏳";
+        pill.innerText = "AL MENU ⏳";
       }
     }
     if (topSyncPill) {

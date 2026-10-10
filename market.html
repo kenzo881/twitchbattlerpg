@@ -1145,6 +1145,116 @@ body {
     font-size: 1.8rem;
   }
 }
+
+/* GAME STATUS BANNER (ONLINE / OFFLINE) */
+.game-status-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.game-status-banner.offline {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(18, 18, 34, 0.9) 100%);
+  border: 1.5px solid rgba(239, 68, 68, 0.45);
+}
+
+.game-status-banner.online {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(18, 18, 34, 0.9) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+}
+
+.banner-status-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.banner-status-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.banner-status-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+}
+
+.game-status-banner.offline .banner-status-title {
+  color: #fca5a5;
+}
+
+.game-status-banner.online .banner-status-title {
+  color: #6ee7b7;
+}
+
+.banner-status-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.banner-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.banner-status-pill.offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.banner-status-pill.online {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  animation: pulseLive 2s infinite ease-in-out;
+}
+
+.btn-check-game {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-check-game:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+body.game-offline .controls-bar input,
+body.game-offline .controls-bar select,
+body.game-offline .controls-bar .filter-chip {
+  opacity: 0.35;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -1176,7 +1286,7 @@ body {
       <!-- ORO UTENTE ATTUALE -->
       <div class="user-gold-badge" title="Il tuo saldo Oro attuale in gioco">
         <span class="coin-icon">🪙</span>
-        <span class="gold-val" id="topUserGold">0</span>
+        <span class="gold-val" id="topUserGold">--</span>
         <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
       </div>
 
@@ -1190,6 +1300,21 @@ body {
       <button class="nav-pill-btn" onclick="manualSyncMarket()" title="Ricarica annunci ed inventario in tempo reale">
         🔄 Aggiorna
       </button>
+    </div>
+  </div>
+
+  <!-- BANNER STATO GIOCO ATTIVO / OFFLINE -->
+  <div id="gameStatusBanner" class="game-status-banner offline">
+    <div class="banner-status-left">
+      <div class="banner-status-icon" id="gameStatusIcon">🔴</div>
+      <div>
+        <div class="banner-status-title" id="gameStatusTitle">Gioco Non Rilevato (Offline)</div>
+        <div class="banner-status-desc" id="gameStatusDesc">TBRPG è chiuso o non attivo. Aspetta che il gioco sia avviato per sincronizzare il mercatino e il tuo zaino in tempo reale.</div>
+      </div>
+    </div>
+    <div class="banner-status-actions">
+      <span class="banner-status-pill offline" id="gameStatusPill">GIOCO CHIUSO</span>
+      <button type="button" class="btn-check-game" onclick="manualSyncMarket()">Verifica Connessione 🔄</button>
     </div>
   </div>
 
@@ -2299,7 +2424,9 @@ function readLocalWindowGlobals() {
     if (window.__LIVE_GAME_DATA.market && Array.isArray(window.__LIVE_GAME_DATA.market.listings)) {
       DB_MARKET = window.__LIVE_GAME_DATA.market;
     }
-    if (window.__LIVE_GAME_DATA.gameActive !== undefined) isGameCurrentlyActive = !!window.__LIVE_GAME_DATA.gameActive;
+    const active = checkGameActive(window.__LIVE_GAME_DATA);
+    isGameCurrentlyActive = active;
+    updateGameStatusUI(active, window.__LIVE_GAME_DATA);
   }
 
   if (window.__OVERLAY_MARKET_DATA && Array.isArray(window.__OVERLAY_MARKET_DATA.listings)) {
@@ -2442,9 +2569,14 @@ function getCurrentUserGold() {
 }
 
 function updateUserGoldUI() {
-  const gold = getCurrentUserGold();
   const el = document.getElementById("topUserGold");
-  if (el) el.innerText = gold.toLocaleString('it-IT');
+  if (!el) return;
+  if (!isGameCurrentlyActive) {
+    el.innerText = "--";
+    return;
+  }
+  const gold = getCurrentUserGold();
+  el.innerText = gold.toLocaleString('it-IT');
 }
 
 // -------------------------------------------------------------
@@ -2452,39 +2584,92 @@ function updateUserGoldUI() {
 // -------------------------------------------------------------
 const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
 
-function updateSyncStatusBadge(active) {
-  const badge = document.getElementById("syncStatusBadge");
-  const text = document.getElementById("syncStatusText");
-  if (!badge || !text) return;
+function checkGameActive(data) {
+  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  if (!d) return false;
+  if (d.gameActive === false) return false;
+  if (d.inTitle === true) return false;
+  const ts = d.heartbeat || d.timestamp || 0;
+  if (!ts) return false;
+  const diff = Date.now() - ts;
+  return diff < 35000 && diff > -10000;
+}
 
-  const nowStr = (new Date()).toLocaleTimeString('it-IT');
+function updateGameStatusUI(active, data) {
+  isGameCurrentlyActive = active;
+  const banner = document.getElementById("gameStatusBanner");
+  const icon = document.getElementById("gameStatusIcon");
+  const title = document.getElementById("gameStatusTitle");
+  const desc = document.getElementById("gameStatusDesc");
+  const pill = document.getElementById("gameStatusPill");
+  const syncBadge = document.getElementById("syncStatusBadge");
+  const syncText = document.getElementById("syncStatusText");
+  const liveData = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+
   if (active) {
-    badge.className = "sync-status-pill active";
-    text.innerText = `Mercatino Live [${nowStr}]`;
+    if (banner) {
+      banner.className = "game-status-banner online";
+      if (icon) icon.innerText = "🟢";
+      if (title) title.innerText = "GIOCO ATTIVO & MERCATINO CONNESSO";
+      if (desc) desc.innerText = "Partita in corso! Il mercatino e il tuo zaino sono sincronizzati in tempo reale con TBRPG.";
+      if (pill) {
+        pill.className = "banner-status-pill online";
+        pill.innerText = "ONLINE LIVE ⚡";
+      }
+    }
+    if (syncBadge) syncBadge.className = "sync-status-pill active";
+    if (syncText) syncText.innerText = `Mercatino Live [${new Date().toLocaleTimeString('it-IT')}]`;
+    document.body.classList.remove("game-offline");
+  } else if (liveData && liveData.inTitle) {
+    if (banner) {
+      banner.className = "game-status-banner offline";
+      if (icon) icon.innerText = "🟡";
+      if (title) title.innerText = "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)";
+      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi che la partita inizi per consultare il mercatino.";
+      if (pill) {
+        pill.className = "banner-status-pill offline";
+        pill.innerText = "AL MENU ⏳";
+      }
+    }
+    if (syncBadge) syncBadge.className = "sync-status-pill offline";
+    if (syncText) syncText.innerText = "Al Menu (In Attesa)";
+    document.body.classList.add("game-offline");
   } else {
-    badge.className = "sync-status-pill offline";
-    text.innerText = "Gioco Offline";
+    if (banner) {
+      banner.className = "game-status-banner offline";
+      if (icon) icon.innerText = "🔴";
+      if (title) title.innerText = "GIOCO NON RILEVATO (OFFLINE)";
+      if (desc) desc.innerText = "TBRPG è chiuso o non attivo. Aspetta che il gioco sia online per visualizzare inserzioni, zaino ed equipaggiamenti.";
+      if (pill) {
+        pill.className = "banner-status-pill offline";
+        pill.innerText = "GIOCO CHIUSO ✕";
+      }
+    }
+    if (syncBadge) syncBadge.className = "sync-status-pill offline";
+    if (syncText) syncText.innerText = "Gioco Chiuso (Offline)";
+    document.body.classList.add("game-offline");
   }
 }
 
 function applyIncomingGameData(data) {
   if (!data) return;
 
-  if (data.gameActive !== undefined) isGameCurrentlyActive = !!data.gameActive;
-  else isGameCurrentlyActive = true;
+  const active = checkGameActive(data);
+  const wasActive = isGameCurrentlyActive;
+  updateGameStatusUI(active, data);
 
-  updateSyncStatusBadge(isGameCurrentlyActive);
+  if (active && data.currency) DB_CURRENCY = data.currency;
+  if (active && data.inventory) DB_INVENTORY = data.inventory;
+  if (active && data.owners) DB_OWNERS = data.owners;
 
-  if (data.currency) DB_CURRENCY = data.currency;
-  if (data.inventory) DB_INVENTORY = data.inventory;
-  if (data.owners) DB_OWNERS = data.owners;
-
-  if (data.market && Array.isArray(data.market.listings)) {
+  if (active && data.market && Array.isArray(data.market.listings)) {
     DB_MARKET = data.market;
   }
 
   updateUserGoldUI();
-  refreshAllViews();
+  if (active !== wasActive) {
+    refreshAllViews();
+  }
 }
 
 function initMarketRealtimeStream() {
@@ -2514,7 +2699,7 @@ async function fetchMarketDataHttp() {
     const res = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
     if (res.ok) {
       const fbData = await res.json();
-      if (fbData) {
+      if (fbData && (fbData.timestamp || fbData.currency || fbData.heartbeat)) {
         applyIncomingGameData(fbData);
         return true;
       }
@@ -2533,32 +2718,34 @@ async function fetchMarketDataHttp() {
       const sData = await sRes.json();
       if (sData) applyIncomingGameData(sData);
     }
-    if (mRes && mRes.ok) DB_MARKET = await mRes.json();
-    if (cRes && cRes.ok) DB_CURRENCY = Object.assign({}, DB_CURRENCY, await cRes.json());
-    if (iRes && iRes.ok) DB_INVENTORY = Object.assign({}, DB_INVENTORY, await iRes.json());
-    isGameCurrentlyActive = true;
-    updateSyncStatusBadge(true);
-    updateUserGoldUI();
-    refreshAllViews();
-    return true;
+    if (isGameCurrentlyActive) {
+      if (mRes && mRes.ok) DB_MARKET = await mRes.json();
+      if (cRes && cRes.ok) DB_CURRENCY = Object.assign({}, DB_CURRENCY, await cRes.json());
+      if (iRes && iRes.ok) DB_INVENTORY = Object.assign({}, DB_INVENTORY, await iRes.json());
+      updateUserGoldUI();
+      refreshAllViews();
+      return true;
+    }
   } catch(e){}
 
   // In modalità file://, ricarica periodicamente lo script di status_data.js per bypassare CORS
   if (window.location.protocol === 'file:') {
     reloadLocalScript('status_data.js');
-    isGameCurrentlyActive = true;
-    updateSyncStatusBadge(true);
-    updateUserGoldUI();
-    refreshAllViews();
-    return true;
+    return isGameCurrentlyActive;
   }
 
   return false;
 }
 
 async function manualSyncMarket() {
-  const ok = await fetchMarketDataHttp();
-  showToast("Dati Aggiornati 🔄", ok ? "Mercatino e saldo sincronizzati con successo!" : "Nessun nuovo dato disponibile.");
+  await fetchMarketDataHttp();
+  setTimeout(() => {
+    if (isGameCurrentlyActive) {
+      showToast("🟢 Mercatino Live & Sincronizzato", "Annunci, zaino e saldo caricati in tempo reale!");
+    } else {
+      showToast("🔴 Gioco Non Rilevato", "TBRPG risulta ancora chiuso o offline. Riapri il gioco per visualizzare il mercatino.");
+    }
+  }, 500);
 }
 
 // -------------------------------------------------------------
@@ -2638,6 +2825,22 @@ function getFilteredBrowseListings() {
 function renderBrowseListings() {
   const container = document.getElementById("marketListingsGrid");
   if (!container) return;
+
+  if (!isGameCurrentlyActive) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1; background: rgba(20,20,35,0.7); border: 1.5px dashed rgba(239,68,68,0.35); border-radius: 12px; padding: 48px 24px; text-align: center;">
+        <div class="empty-state-icon">🏪💤</div>
+        <div class="empty-state-title" style="color: #fca5a5;">Mercatino Chiuso (Gioco Offline)</div>
+        <div class="empty-state-desc">TBRPG è chiuso o non attivo. Le inserzioni tra giocatori e il catalogo del mercatino sono disponibili solo quando il gioco è aperto e online.</div>
+        <button type="button" class="btn-action btn-action-buy" style="margin: 0 auto;" onclick="manualSyncMarket()">Verifica Connessione 🔄</button>
+      </div>
+    `;
+    const statTotal = document.getElementById("statTotalCount");
+    const badgeBrowse = document.getElementById("badgeBrowseCount");
+    if (statTotal) statTotal.innerText = "--";
+    if (badgeBrowse) badgeBrowse.innerText = "0";
+    return;
+  }
 
   const totalListings = (DB_MARKET && Array.isArray(DB_MARKET.listings)) ? DB_MARKET.listings.length : 0;
   const statTotal = document.getElementById("statTotalCount");
@@ -2775,6 +2978,26 @@ function renderBackpackForSale() {
   const countText = document.getElementById("bagCountText");
   const quotaDisplay = document.getElementById("sellQuotaDisplay");
   if (!container) return;
+
+  if (!isGameCurrentlyActive) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1; background: rgba(20,20,35,0.7); border: 1.5px dashed rgba(239,68,68,0.35); border-radius: 12px; padding: 48px 24px; text-align: center;">
+        <div class="empty-state-icon">🎒🔒</div>
+        <div class="empty-state-title" style="color: #fca5a5;">Zaino Non Disponibile (Offline)</div>
+        <div class="empty-state-desc">Non è possibile accedere al tuo equipaggiamento e agli oggetti personali quando il gioco è chiuso o offline. Avvia TBRPG per consultare lo zaino e mettere all'asta i tuoi oggetti.</div>
+        <button type="button" class="btn-action btn-action-buy" style="margin: 0 auto;" onclick="manualSyncMarket()">Verifica Connessione 🔄</button>
+      </div>
+    `;
+    if (quotaDisplay) quotaDisplay.innerText = "-- / 5";
+    const statMy = document.getElementById("statMyCount");
+    const badgeMy = document.getElementById("badgeMyCount");
+    if (statMy) statMy.innerText = "-- / 5";
+    if (badgeMy) badgeMy.innerText = "0/5";
+    const badgeBackpack = document.getElementById("badgeBackpackCount");
+    if (badgeBackpack) badgeBackpack.innerText = "0";
+    if (countText) countText.innerText = "0 Oggetti (Gioco Offline)";
+    return;
+  }
 
   const myLogin = (currentUser && currentUser.login) ? currentUser.login.toLowerCase() : '';
   const myListings = (DB_MARKET && Array.isArray(DB_MARKET.listings))
@@ -2943,6 +3166,23 @@ function renderMyListings() {
   const countTitle = document.getElementById("myListingsCountTitle");
   if (!container) return;
 
+  if (!isGameCurrentlyActive) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1; background: rgba(20,20,35,0.7); border: 1.5px dashed rgba(239,68,68,0.35); border-radius: 12px; padding: 48px 24px; text-align: center;">
+        <div class="empty-state-icon">📦🔒</div>
+        <div class="empty-state-title" style="color: #fca5a5;">Annunci Personali Non Disponibili (Offline)</div>
+        <div class="empty-state-desc">Attendi che TBRPG sia online per visualizzare lo stato delle tue inserzioni e ritirare oggetti dall'asta.</div>
+        <button type="button" class="btn-action btn-action-buy" style="margin: 0 auto;" onclick="manualSyncMarket()">Verifica Connessione 🔄</button>
+      </div>
+    `;
+    if (countTitle) countTitle.innerText = "--";
+    const statMy = document.getElementById("statMyCount");
+    const badgeMy = document.getElementById("badgeMyCount");
+    if (statMy) statMy.innerText = "-- / 5";
+    if (badgeMy) badgeMy.innerText = "0/5";
+    return;
+  }
+
   const myLogin = (currentUser && currentUser.login) ? currentUser.login.toLowerCase() : '';
   const myListings = (DB_MARKET && Array.isArray(DB_MARKET.listings))
     ? DB_MARKET.listings.filter(l => l.seller && l.seller.toLowerCase() === myLogin)
@@ -3054,6 +3294,10 @@ function refreshAllViews() {
 // MODALE ACQUISTO (BUY)
 // -------------------------------------------------------------
 function openBuyModal(uid) {
+  if (!isGameCurrentlyActive) {
+    showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Gli acquisti sono consentiti solo quando il gioco è attivo.");
+    return;
+  }
   if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
   const listing = DB_MARKET.listings.find(l => l.uid === uid);
   if (!listing) return;
@@ -3134,6 +3378,10 @@ async function executeBuyAction() {
 // MODALE VENDITA (SELL)
 // -------------------------------------------------------------
 function openSellModal(uid, isEssence) {
+  if (!isGameCurrentlyActive) {
+    showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Puoi mettere oggetti in vendita solo quando il gioco è attivo.");
+    return;
+  }
   if (!currentUser) return;
   const myLogin = currentUser.login.toLowerCase();
   const inv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
@@ -3225,6 +3473,10 @@ async function executeSellAction() {
 // MODALE RITIRO (WITHDRAW)
 // -------------------------------------------------------------
 function openWithdrawModal(uid) {
+  if (!isGameCurrentlyActive) {
+    showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Puoi ritirare inserzioni solo quando il gioco è attivo.");
+    return;
+  }
   if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
   const listing = DB_MARKET.listings.find(l => l.uid === uid);
   if (!listing) return;
@@ -3534,12 +3786,14 @@ function showToast(title, msg) {
 // -------------------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();
+  updateGameStatusUI(false);
+  refreshAllViews();
   initMarketRealtimeStream();
   fetchMarketDataHttp();
 
   setInterval(() => {
     fetchMarketDataHttp();
-  }, 2500);
+  }, 1500);
 
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {

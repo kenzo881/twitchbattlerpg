@@ -858,6 +858,185 @@ footer {
   padding-top: 24px;
   border-top: 1px solid rgba(255, 255, 255, 0.06);
 }
+
+/* GAME STATUS BANNER (ONLINE / OFFLINE) */
+.game-status-banner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding: 14px 20px;
+  border-radius: 14px;
+  margin-bottom: 24px;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.game-status-banner.offline {
+  background: linear-gradient(90deg, rgba(239, 68, 68, 0.15) 0%, rgba(18, 18, 34, 0.9) 100%);
+  border: 1.5px solid rgba(239, 68, 68, 0.45);
+}
+
+.game-status-banner.online {
+  background: linear-gradient(90deg, rgba(16, 185, 129, 0.15) 0%, rgba(18, 18, 34, 0.9) 100%);
+  border: 1.5px solid rgba(16, 185, 129, 0.5);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.2);
+}
+
+.banner-status-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.banner-status-icon {
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.banner-status-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: 0.5px;
+}
+
+.game-status-banner.offline .banner-status-title {
+  color: #fca5a5;
+}
+
+.game-status-banner.online .banner-status-title {
+  color: #6ee7b7;
+}
+
+.banner-status-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.banner-status-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.banner-status-pill {
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-family: monospace;
+  letter-spacing: 0.5px;
+}
+
+.banner-status-pill.offline {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+
+.banner-status-pill.online {
+  background: rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.5);
+  animation: pulseLive 2s infinite ease-in-out;
+}
+
+.btn-check-game {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--text-main);
+  padding: 6px 14px;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-check-game:hover {
+  background: rgba(212, 175, 55, 0.2);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* MASCHERAMENTO BOTTEGA OFFLINE */
+.shop-offline-container {
+  padding: 30px 10px 50px;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.shop-offline-card {
+  background: rgba(20, 20, 35, 0.75);
+  border: 1.5px dashed rgba(239, 68, 68, 0.45);
+  border-radius: 16px;
+  padding: 56px 28px;
+  text-align: center;
+  max-width: 640px;
+  width: 100%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+}
+
+.shop-offline-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+  line-height: 1;
+}
+
+.shop-offline-title {
+  font-family: 'Cinzel', serif;
+  font-weight: 700;
+  font-size: 1.45rem;
+  color: #fca5a5;
+  margin-bottom: 6px;
+  letter-spacing: 0.5px;
+}
+
+.shop-offline-subtitle {
+  font-size: 0.95rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.shop-offline-desc {
+  font-size: 0.9rem;
+  line-height: 1.6;
+  color: var(--text-dim);
+  max-width: 480px;
+  margin: 0 auto 24px;
+}
+
+.btn-check-game-big {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(145, 70, 255, 0.15) 100%);
+  border: 1px solid var(--gold);
+  color: var(--gold);
+  padding: 10px 22px;
+  border-radius: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.btn-check-game-big:hover {
+  background: var(--gold);
+  color: #0a0a14;
+  box-shadow: 0 0 20px var(--gold-glow);
+  transform: translateY(-2px);
+}
+
+body.game-offline .tabs,
+body.game-offline .search-wrapper {
+  opacity: 0.35;
+  pointer-events: none;
+}
 </style>
 </head>
 <body>
@@ -866,14 +1045,16 @@ footer {
   <!-- BARRA TWITCH OAUTH -->
   <div class="twitch-bar">
     <div class="twitch-brand">
-      <a href="main.html" class="btn-back-portal">← Torna al Portale</a>
+      <a href="main.html" class="btn-back-portal">← Portale</a>
+      <a href="market.html" class="btn-back-portal" style="border-color: rgba(145,70,255,0.4); color: #c49eff;">🏪 Mercatino</a>
+      <a href="status.html" class="btn-back-portal" style="border-color: rgba(212,175,55,0.4); color: var(--gold);">🛡️ Status</a>
       <span id="shopGameStatusPill" class="twitch-status-pill offline"><span class="pulse-dot"></span> <span id="shopGameStatusText">Gioco Chiuso (Offline)</span></span>
     </div>
 
     <div class="twitch-user-area">
       <!-- SALDO ORO UTENTE (Riporta specificamente 'Oro' non 'Monete') -->
       <div class="user-balance" id="userGoldBox" style="display:none;">
-        🪙 <span id="userGoldAmount">0</span> Oro
+        🪙 <span id="userGoldAmount">--</span> Oro
       </div>
 
       <!-- PROFILO UTENTE LOGGATO -->
@@ -893,6 +1074,21 @@ footer {
         </svg>
         Accedi con Twitch
       </button>
+    </div>
+  </div>
+
+  <!-- BANNER STATO GIOCO ATTIVO / OFFLINE -->
+  <div id="gameStatusBanner" class="game-status-banner offline">
+    <div class="banner-status-left">
+      <div class="banner-status-icon" id="gameStatusIcon">🔴</div>
+      <div>
+        <div class="banner-status-title" id="gameStatusTitle">Gioco Non Rilevato (Offline)</div>
+        <div class="banner-status-desc" id="gameStatusDesc">TBRPG è chiuso o non attivo. Il mercante apre le vendite solo quando il gioco è online.</div>
+      </div>
+    </div>
+    <div class="banner-status-actions">
+      <span class="banner-status-pill offline" id="gameStatusPill">GIOCO CHIUSO</span>
+      <button type="button" class="btn-check-game" onclick="manualSyncGameData()">Verifica Connessione 🔄</button>
     </div>
   </div>
 
@@ -1003,9 +1199,13 @@ function updateGoldDisplay(animate) {
   const goldEl = document.getElementById("userGoldAmount");
   const goldBox = document.getElementById("userGoldBox");
   if (goldEl) {
-    goldEl.innerText = userGold.toLocaleString('it-IT');
+    if (!isGameCurrentlyActive) {
+      goldEl.innerText = "--";
+    } else {
+      goldEl.innerText = userGold.toLocaleString('it-IT');
+    }
   }
-  if (animate && goldBox) {
+  if (animate && goldBox && isGameCurrentlyActive) {
     goldBox.classList.remove("gold-updated");
     void goldBox.offsetWidth;
     goldBox.classList.add("gold-updated");
@@ -1017,49 +1217,118 @@ var firebaseConnected = false;
 function setShopDatabaseUnavailable() {
   const pill = document.getElementById("shopGameStatusPill");
   const text = document.getElementById("shopGameStatusText");
-  if (!pill || !text) return;
-  pill.className = "twitch-status-pill offline";
-  text.innerText = "Database non disponibile!";
+  const banner = document.getElementById("gameStatusBanner");
+  const icon = document.getElementById("gameStatusIcon");
+  const title = document.getElementById("gameStatusTitle");
+  const desc = document.getElementById("gameStatusDesc");
+  const bannerPill = document.getElementById("gameStatusPill");
+
+  if (banner) {
+    banner.className = "game-status-banner offline";
+    if (icon) icon.innerText = "⚠️";
+    if (title) title.innerText = "DATABASE NON DISPONIBILE!";
+    if (desc) desc.innerText = "Impossibile collegarsi al database Cloud Firebase in tempo reale. Verifica la connessione.";
+    if (bannerPill) {
+      bannerPill.className = "banner-status-pill offline";
+      bannerPill.innerText = "DATABASE OFFLINE ✕";
+    }
+  }
+  if (pill) pill.className = "twitch-status-pill offline";
+  if (text) text.innerText = "Database non disponibile!";
+}
+
+function checkGameActive(data) {
+  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  if (!d) return false;
+  if (d.gameActive === false) return false;
+  if (d.inTitle === true) return false;
+  const ts = d.heartbeat || d.timestamp || 0;
+  if (!ts) return false;
+  const diff = Date.now() - ts;
+  return diff < 35000 && diff > -10000;
+}
+
+function updateGameStatusUI(active, data) {
+  const pill = document.getElementById("shopGameStatusPill");
+  const text = document.getElementById("shopGameStatusText");
+  const banner = document.getElementById("gameStatusBanner");
+  const icon = document.getElementById("gameStatusIcon");
+  const title = document.getElementById("gameStatusTitle");
+  const desc = document.getElementById("gameStatusDesc");
+  const bannerPill = document.getElementById("gameStatusPill");
+
+  if (active) {
+    if (banner) {
+      banner.className = "game-status-banner online";
+      if (icon) icon.innerText = "🟢";
+      if (title) title.innerText = "GIOCO ATTIVO & BOTTEGA APERTA";
+      if (desc) desc.innerText = "Partita in corso! Il catalogo della Bottega è sincronizzato in tempo reale con TBRPG.";
+      if (bannerPill) {
+        bannerPill.className = "banner-status-pill online";
+        bannerPill.innerText = "ONLINE LIVE ⚡";
+      }
+    }
+    if (pill) pill.className = "twitch-status-pill synced";
+    if (text) text.innerText = `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
+  } else if (data && data.inTitle) {
+    if (banner) {
+      banner.className = "game-status-banner offline";
+      if (icon) icon.innerText = "🟡";
+      if (title) title.innerText = "SCHERMATA MENU (IN ATTESA DI AVVIO PARTITA)";
+      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi che la partita inizi per entrare nella bottega.";
+      if (bannerPill) {
+        bannerPill.className = "banner-status-pill offline";
+        bannerPill.innerText = "AL MENU ⏳";
+      }
+    }
+    if (pill) pill.className = "twitch-status-pill title";
+    if (text) text.innerText = "Al Menu (In Attesa)";
+  } else {
+    if (banner) {
+      banner.className = "game-status-banner offline";
+      if (icon) icon.innerText = "🔴";
+      if (title) title.innerText = "GIOCO NON RILEVATO (OFFLINE)";
+      if (desc) desc.innerText = "TBRPG è chiuso o non attivo. Il mercante apre le vendite solo quando il gioco è online.";
+      if (bannerPill) {
+        bannerPill.className = "banner-status-pill offline";
+        bannerPill.innerText = "GIOCO CHIUSO ✕";
+      }
+    }
+    if (pill) pill.className = "twitch-status-pill offline";
+    if (text) text.innerText = "Gioco Chiuso (Offline)";
+  }
 }
 
 // SINCRONIZZAZIONE LIVE FIREBASE REALTIME STREAMING (0s lag)
 function applyLiveGameData(data) {
   if (!data) return;
   firebaseConnected = true;
-  const now = Date.now();
-  const hb = data.heartbeat || data.timestamp || 0;
-  const diff = now - hb;
-  const active = (data.gameActive === true) && (diff < 20000 && diff > -5000) && (!data.inTitle);
+  const active = checkGameActive(data);
+  const wasActive = isGameCurrentlyActive;
   isGameCurrentlyActive = active;
 
-  if (data.currency) {
+  if (active && data.currency) {
     DB_CURRENCY = data.currency;
     if (currentUser && currentUser.login) {
       const u = currentUser.login.toLowerCase();
       if (DB_CURRENCY[u] !== undefined) {
         userGold = DB_CURRENCY[u];
         saveStoredGold(u, userGold);
-        updateGoldDisplay(true);
       }
     }
   }
 
   updateGameStatusUI(active, data);
-}
+  updateGoldDisplay(false);
 
-function updateGameStatusUI(active, data) {
-  const pill = document.getElementById("shopGameStatusPill");
-  const text = document.getElementById("shopGameStatusText");
-  if (!pill || !text) return;
   if (active) {
-    pill.className = "twitch-status-pill synced";
-    text.innerText = `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
-  } else if (data && data.inTitle) {
-    pill.className = "twitch-status-pill title";
-    text.innerText = "Al Titolo (In Attesa)";
+    document.body.classList.remove("game-offline");
   } else {
-    pill.className = "twitch-status-pill offline";
-    text.innerText = "Gioco Chiuso (Offline)";
+    document.body.classList.add("game-offline");
+  }
+
+  if (active !== wasActive) {
+    renderGrid();
   }
 }
 
@@ -1093,39 +1362,68 @@ function initFirebaseRealtimeStream() {
   } catch(e) {}
 }
 
+function pollLiveGameScript() {
+  if (window.location.protocol.startsWith("http")) return;
+  const cacheBuster = "?t=" + Date.now();
+  const old = document.getElementById("game-data-live-script");
+  if (old) old.remove();
+
+  const s = document.createElement("script");
+  s.id = "game-data-live-script";
+  s.src = "status_data.js" + cacheBuster;
+  s.onload = () => {
+    if (window.__LIVE_GAME_DATA) {
+      applyLiveGameData(window.__LIVE_GAME_DATA);
+    }
+  };
+  document.head.appendChild(s);
+}
+
 async function fetchGameDataHttp() {
   try {
     const resFb = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
     if (resFb.ok) {
       const fbData = await resFb.json();
-      if (fbData && (fbData.timestamp || fbData.currency)) {
+      if (fbData && (fbData.timestamp || fbData.currency || fbData.heartbeat)) {
         firebaseConnected = true;
         applyLiveGameData(fbData);
-        return;
+        return true;
       }
     }
   } catch(e) {}
 
-  if (window.location.protocol.startsWith("http")) {
-    if (!firebaseConnected) {
-      setShopDatabaseUnavailable();
-    }
-  } else {
+  if (!window.location.protocol.startsWith("http")) {
     try {
-      const resCur = await fetch("twitch_currency.json?t=" + Date.now());
-      if (resCur.ok) {
-        const curData = await resCur.json();
-        DB_CURRENCY = curData;
-        if (currentUser && currentUser.login) {
-          const u = currentUser.login.toLowerCase();
-          if (DB_CURRENCY[u] !== undefined) {
-            userGold = DB_CURRENCY[u];
-            updateGoldDisplay(true);
-          }
+      const sRes = await fetch("status_data.json?t=" + Date.now());
+      if (sRes.ok) {
+        const sData = await sRes.json();
+        if (sData) {
+          applyLiveGameData(sData);
+          return true;
         }
       }
     } catch(e) {}
+    pollLiveGameScript();
+  } else {
+    if (!firebaseConnected) {
+      setShopDatabaseUnavailable();
+    }
   }
+  return false;
+}
+
+async function manualSyncGameData() {
+  await fetchGameDataHttp();
+  if (!window.location.protocol.startsWith("http")) {
+    pollLiveGameScript();
+  }
+  setTimeout(() => {
+    if (isGameCurrentlyActive) {
+      showToast("🟢 Bottega Aperta & Connessa", "Il gioco TBRPG è attivo! Le merci sono pronte all'acquisto.");
+    } else {
+      showToast("🔴 Gioco Non Rilevato", "TBRPG risulta ancora chiuso o offline. La bottega rimane chiusa.");
+    }
+  }, 600);
 }
 
 // LOGIN & LOGOUT TWITCH OAUTH
@@ -1320,6 +1618,11 @@ function changeQty(itKey, delta, basePrice) {
 
 // APRE IL MODAL DI CONFERMA (SI / NO) CON CONTROLLO ORO
 function requestBuy(itemName, basePrice, isConsumable, iconData) {
+  if (!isGameCurrentlyActive) {
+    showToast("Bottega Chiusa 🔴", "Il gioco TBRPG è offline! Gli acquisti sono consentiti solo quando il gioco è attivo.");
+    return;
+  }
+
   if (!currentUser) {
     showToast("Accesso Richiesto", "Accedi con Twitch per poter acquistare!");
     loginWithTwitch();
@@ -1596,6 +1899,22 @@ function cardHtml(it) {
 
 function renderGrid() {
   const c = document.getElementById("content");
+  if (!isGameCurrentlyActive) {
+    c.innerHTML = '<div class="shop-offline-container">' +
+      '<div class="shop-offline-card">' +
+        '<div class="shop-offline-icon">🏪💤</div>' +
+        '<div class="shop-offline-title">Bottega del Mercante Chiusa</div>' +
+        '<div class="shop-offline-subtitle">Il gioco TBRPG è attualmente offline</div>' +
+        '<p class="shop-offline-desc">' +
+          'Il mercante apre le porte della bottega solo quando <b>Twitch Battle RPG</b> è avviato e attivo su Twitch.<br>' +
+          'Tutti gli articoli in vendita, le scorte e i prezzi verranno mostrati automaticamente non appena il gioco sarà online.' +
+        '</p>' +
+        '<button type="button" class="btn-check-game-big" onclick="manualSyncGameData()">Verifica Connessione 🔄</button>' +
+      '</div>' +
+    '</div>';
+    return;
+  }
+
   let items = DATA[currentTab] || [];
   if (searchQuery) items = items.filter(function(it) { return it.name.toLowerCase().includes(searchQuery); });
   if (items.length === 0) { c.innerHTML = '<div class="empty">Nessun oggetto trovato.</div>'; return; }
@@ -1630,11 +1949,15 @@ renderTabs();
 renderGrid();
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();
+  updateGameStatusUI(false);
   initFirebaseRealtimeStream();
   fetchGameDataHttp();
+  if (!window.location.protocol.startsWith("http")) {
+    pollLiveGameScript();
+  }
   setInterval(() => {
     fetchGameDataHttp();
-  }, 2000);
+  }, 1500);
 });
 </script>
 </body>
