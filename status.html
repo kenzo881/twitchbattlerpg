@@ -4247,7 +4247,7 @@ function checkGameActive(data) {
   const ts = d.heartbeat || d.timestamp || 0;
   if (!ts) return false;
   const diff = Date.now() - ts;
-  return diff < 20000 && diff > -5000;
+  return diff < 35000 && diff > -10000;
 }
 
 function updateGameStatusUI(active, data) {
@@ -4929,11 +4929,11 @@ window.addEventListener('DOMContentLoaded', () => {
   initAuth();
   initFirebaseRealtimeStream();
 
-  if (window.location.protocol.startsWith("http")) {
-    fetchGameDataHttp();
-  } else {
+  // Sincronizza subito da Firebase (funziona sia su web che in locale se c'è connessione)
+  fetchGameDataHttp();
+
+  if (!window.location.protocol.startsWith("http")) {
     pollLiveGameScript();
-    // Verifica immediata stato gioco all'avvio (in modalità file locale)
     const initActive = checkGameActive();
     updateGameStatusUI(initActive, window.__LIVE_GAME_DATA);
     if (initActive && window.__LIVE_GAME_DATA) {
@@ -4946,9 +4946,8 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Polling rapido ogni 1.2 secondi per sincronizzazione costante
   setInterval(() => {
-    if (window.location.protocol.startsWith("http")) {
-      fetchGameDataHttp();
-    } else {
+    fetchGameDataHttp();
+    if (!window.location.protocol.startsWith("http")) {
       pollLiveGameScript();
       const nowActive = checkGameActive();
       if (nowActive !== isGameCurrentlyActive) {
