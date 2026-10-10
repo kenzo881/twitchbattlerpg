@@ -630,6 +630,16 @@ h1 {
 .fill-hp { background: linear-gradient(90deg, #ef4444, #f87171); }
 .fill-mp { background: linear-gradient(90deg, #3b82f6, #60a5fa); }
 .fill-exp { background: linear-gradient(90deg, #d4af37, #fef08a); }
+.fill-limit { background: linear-gradient(90deg, #ea580c, #f97316); }
+.fill-limit.limit-ready {
+  background: linear-gradient(90deg, #ef4444, #f59e0b, #ef4444);
+  animation: limitFlame 1s infinite linear;
+}
+@keyframes limitFlame {
+  0% { filter: brightness(1); }
+  50% { filter: brightness(1.4); }
+  100% { filter: brightness(1); }
+}
 
 /* STATS GRID */
 .hero-stats-grid {
@@ -2110,61 +2120,246 @@ body.is-dragging-essence .materia-slot-meta * {
   color: #fff;
   line-height: 1.35;
 }
+
+/* TOP NAV UNIFICATA TBRPG */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: rgba(18, 18, 32, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nav-brand-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gold-light, #ffd700);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.nav-brand-title:hover {
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+}
+
+.sync-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+.sync-status-pill.active,
+.sync-status-pill.synced {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #34d399;
+}
+.sync-status-pill.offline {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
+}
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.nav-links-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nav-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-pill-btn:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  color: #fef08a;
+  transform: translateY(-1px);
+}
+.nav-pill-btn.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(201, 162, 39, 0.1) 100%);
+  border-color: #d4af37;
+  color: #fff;
+  font-weight: 600;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.user-gold-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 5px 14px;
+  border-radius: 20px;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+.user-gold-badge .coin-icon {
+  font-size: 1.1rem;
+}
+.user-gold-badge .gold-val {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--gold-light, #ffd700);
+}
+
+.twitch-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(145, 70, 255, 0.14);
+  border: 1px solid rgba(145, 70, 255, 0.4);
+  padding: 4px 12px 4px 6px;
+  border-radius: 20px;
+}
+.twitch-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #9146ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+}
+.twitch-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.twitch-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+}
+.btn-logout {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.btn-logout:hover { color: #ff6b6b; }
+
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- TOP TWITCH BAR -->
-  <div class="twitch-bar">
-    <div class="twitch-brand">
-      <a href="main.html" class="btn-back-portal">← Portale</a>
-      <a href="shop.html" class="btn-back-portal" style="border-color: rgba(212,175,55,0.4); color: var(--gold);">🛒 Bottega</a>
-      <a href="market.html" class="btn-back-portal" style="border-color: rgba(145,70,255,0.4); color: #c49eff;">🏪 Mercatino</a>
-      <a href="battle.html" class="btn-back-portal" style="border-color: rgba(239,68,68,0.4); color: #fca5a5;">⚔️ Battaglia</a>
-      <button class="btn-sync-live" id="btnSyncLive" onclick="manualSyncGameData()" title="Sincronizza subito con i dati del gioco">
-        🔄 Sincronizza Gioco
-      </button>
-      <span class="twitch-status-pill sync-pill" id="syncStatusBadge">
-        <span class="pulse-dot"></span> <span id="syncStatusText">Sincronizzato</span>
-      </span>
+  <!-- TOP NAV UNIFICATA -->
+  <div class="top-nav">
+    <div class="top-nav-left">
+      <a href="main.html" class="nav-brand-title">
+        <span>⚔️</span>
+        <span>TBRPG</span>
+      </a>
+
+      <div class="sync-status-pill offline" id="syncStatusBadge">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">Gioco Chiuso (Offline)</span>
+      </div>
+
+      <div class="nav-links-row">
+        <a href="main.html" class="nav-pill-btn">← Portale</a>
+        <a href="shop.html" class="nav-pill-btn">Bottega 💰</a>
+        <a href="market.html" class="nav-pill-btn">Mercatino 🏪</a>
+        <a href="battle.html" class="nav-pill-btn" style="border-color: rgba(239,68,68,0.4); color: #fca5a5;">Battaglia ⚔️</a>
+        <a href="guide.html" class="nav-pill-btn">Guida 📖</a>
+      </div>
     </div>
 
-    <!-- AZIONI RAPIDE PARTY (!play / !leave) -->
-    <div class="twitch-party-actions" id="twitchPartyActions">
-      <button type="button" class="btn-cmd-action btn-cmd-play" id="btnCmdPlay" onclick="triggerPlayCommand()" title="Unisciti alla battaglia o alla coda del party (!play)">
-        <span class="cmd-icon">⚔️</span>
-        <span class="cmd-label">!play</span>
-      </button>
-      <button type="button" class="btn-cmd-action btn-cmd-leave" id="btnCmdLeave" onclick="triggerLeaveCommand()" title="Esci dal party o dalla coda (!leave)">
-        <span class="cmd-icon">🚪</span>
-        <span class="cmd-label">!leave</span>
-      </button>
-    </div>
+    <div class="top-nav-right">
+      <!-- AZIONI RAPIDE PARTY (!play / !leave) -->
+      <div class="twitch-party-actions" id="twitchPartyActions">
+        <button type="button" class="btn-cmd-action btn-cmd-play" id="btnCmdPlay" onclick="triggerPlayCommand()" title="Unisciti alla battaglia o alla coda del party (!play)">
+          <span class="cmd-icon">⚔️</span>
+          <span class="cmd-label">!play</span>
+        </button>
+        <button type="button" class="btn-cmd-action btn-cmd-leave" id="btnCmdLeave" onclick="triggerLeaveCommand()" title="Esci dal party o dalla coda (!leave)">
+          <span class="cmd-icon">🚪</span>
+          <span class="cmd-label">!leave</span>
+        </button>
+      </div>
 
-    <div class="twitch-user-area">
       <!-- SALDO ORO UTENTE -->
-      <div class="user-balance" id="userGoldBox" style="display:none;">
-        🪙 <span id="userGoldAmount">0</span> Oro
+      <div class="user-gold-badge" id="userGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
+        <span class="coin-icon">🪙</span>
+        <span class="gold-val" id="userGoldAmount">0</span>
+        <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
       </div>
 
-      <!-- PROFILO UTENTE LOGGATO -->
-      <div id="twitchUserBox" class="user-profile" style="display:none;">
-        <div class="user-avatar" id="userAvatarBox">
-          <img id="userAvatarImg" src="" alt="Avatar" style="display:none;">
-          <span id="userAvatarInitials"></span>
+      <!-- BADGE UTENTE TWITCH ALL'ESTREMO MARGINE DESTRO -->
+      <div id="twitchAuthContainer">
+        <!-- PROFILO UTENTE LOGGATO -->
+        <div id="twitchUserBox" class="twitch-user-pill" style="display:none;">
+          <div class="twitch-avatar" id="userAvatarBox">
+            <img id="userAvatarImg" src="" alt="Avatar" style="display:none;">
+            <span id="userAvatarInitials"></span>
+          </div>
+          <div class="twitch-name" id="userDisplayName"></div>
+          <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
         </div>
-        <div class="user-name" id="userDisplayName"></div>
-        <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
-      </div>
 
-      <!-- BOTTONE LOGIN TWITCH (QUANDO DISCONNESSO) -->
-      <button id="btnLoginTwitch" class="btn-twitch-login" onclick="loginWithTwitch()">
-        <svg style="width:16px;height:16px;fill:#fff;" viewBox="0 0 24 24">
-          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-        </svg>
-        Accedi con Twitch
-      </button>
+        <!-- BOTTONE LOGIN TWITCH (QUANDO DISCONNESSO) -->
+        <button id="btnLoginTwitch" class="btn-twitch-login" onclick="loginWithTwitch()">
+          <svg style="width:16px;height:16px;fill:#fff;" viewBox="0 0 24 24">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+          <span>Accedi con Twitch</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2270,6 +2465,14 @@ body.is-dragging-essence .materia-slot-meta * {
             <span id="expLabel">8.450 / 12.000 (70%)</span>
           </div>
           <div class="bar-track"><div class="bar-fill fill-exp" id="expBar" style="width: 70%;"></div></div>
+        </div>
+
+        <div class="bar-row">
+          <div class="bar-label">
+            <span style="color:#f97316;">LIMIT</span>
+            <span id="limitLabel">0%</span>
+          </div>
+          <div class="bar-track"><div class="bar-fill fill-limit" id="limitBar" style="width: 0%;"></div></div>
         </div>
       </div>
     </div>
@@ -2924,6 +3127,8 @@ function buildCharStateFromUser(username) {
   const maxMpVal = liveActor ? liveActor.maxMp : baseStats.mmp;
   const faceFile = (liveActor && liveActor.face) ? liveActor.face : (ownerEntry.face || "Actor1");
   const faceIdx = (liveActor && liveActor.faceIndex !== undefined) ? liveActor.faceIndex : (ownerEntry.faceIndex !== undefined ? ownerEntry.faceIndex : 0);
+  const limitVal = (liveActor && liveActor.limit !== undefined) ? liveActor.limit : ((liveActor && liveActor.tp !== undefined) ? Math.min(100, Math.round(liveActor.tp)) : 0);
+  const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActor.isLimit : (limitVal >= 100);
 
   const state = {
     hasCharacter: hasCharacter,
@@ -2936,6 +3141,8 @@ function buildCharStateFromUser(username) {
     hp: hpVal, maxHp: maxHpVal,
     mp: mpVal, maxMp: maxMpVal,
     exp: expVal, maxExp: maxExpVal,
+    limit: limitVal,
+    isLimit: isLimitReady,
     face: faceFile,
     faceIndex: faceIdx,
     baseStats: baseStats,
@@ -4267,6 +4474,17 @@ function updateCalculatedStats() {
   if (mpLabel) mpLabel.innerText = `${charState.mp.toLocaleString('it-IT')} / ${charState.maxMp.toLocaleString('it-IT')}`;
   if (mpBar) mpBar.style.width = Math.round((charState.mp / Math.max(1, charState.maxMp)) * 100) + "%";
 
+  const limitLabel = document.getElementById("limitLabel");
+  const limitBar = document.getElementById("limitBar");
+  const limPct = Math.min(100, Math.max(0, Math.round(charState.limit || 0)));
+  const isReady = !!charState.isLimit || limPct >= 100;
+  if (limitLabel) limitLabel.innerText = isReady ? "100% (PRONTA!)" : `${limPct}%`;
+  if (limitBar) {
+    limitBar.style.width = limPct + "%";
+    if (isReady) limitBar.classList.add("limit-ready");
+    else limitBar.classList.remove("limit-ready");
+  }
+
   ['frz', 'cos', 'mag', 'res', 'dex', 'luk'].forEach(k => {
     const el = document.getElementById("stat" + k.toUpperCase());
     if (el) {
@@ -5298,6 +5516,10 @@ function updateHeroHeader() {
     if (mpBar) mpBar.style.width = "0%";
     if (expLabel) expLabel.innerText = "- / -";
     if (expBar) expBar.style.width = "0%";
+    const limitLabelOff = document.getElementById("limitLabel");
+    const limitBarOff = document.getElementById("limitBar");
+    if (limitLabelOff) limitLabelOff.innerText = "0%";
+    if (limitBarOff) limitBarOff.style.width = "0%";
     if (goldEl) goldEl.innerText = "0";
 
     if (portraitImg) {
@@ -5335,6 +5557,18 @@ function updateHeroHeader() {
     }
   }
   if (expBar) expBar.style.width = charState.isMaxLevel ? "100%" : (Math.min(100, Math.round((charState.exp / Math.max(1, charState.maxExp)) * 100)) + "%");
+  
+  const limitLabelLive = document.getElementById("limitLabel");
+  const limitBarLive = document.getElementById("limitBar");
+  const limPctLive = Math.min(100, Math.max(0, Math.round(charState.limit || 0)));
+  const isReadyLive = !!charState.isLimit || limPctLive >= 100;
+  if (limitLabelLive) limitLabelLive.innerText = isReadyLive ? "100% (PRONTA!)" : `${limPctLive}%`;
+  if (limitBarLive) {
+    limitBarLive.style.width = limPctLive + "%";
+    if (isReadyLive) limitBarLive.classList.add("limit-ready");
+    else limitBarLive.classList.remove("limit-ready");
+  }
+
   if (goldEl) goldEl.innerText = (charState.gold || 0).toLocaleString('it-IT');
 
   if (portraitImg) {
