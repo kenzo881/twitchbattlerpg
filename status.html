@@ -2395,10 +2395,7 @@ body.is-dragging-essence .materia-slot-meta * {
         <div class="modal-skills-list" id="modalMateriaSkillsList"></div>
       </div>
 
-      <div class="modal-section" id="modalMateriaSynergySection">
-        <div class="section-title">Comportamento in Sinergia (Slot Collegati)</div>
-        <div class="modal-synergy-content" id="modalMateriaSynergyText"></div>
-      </div>
+
     </div>
 
     <div class="modal-footer">
@@ -3892,26 +3889,6 @@ function openMateriaModal(uid) {
     }
   }
 
-  const synergySection = document.getElementById("modalMateriaSynergySection");
-  const synergyText = document.getElementById("modalMateriaSynergyText");
-  if (mat.category === "Sinergiche") {
-    synergySection.style.display = "block";
-    if (mat.name === "Extra") {
-      synergyText.innerHTML = "<b>Sinergia Attacco Extra:</b> Se collegata a un'essenza compatibile (es. Assalto, Sabotaggio, Magie) in slot linkato ◈═◈, permette di eseguire un attacco fisico addizionale con l'arma subito dopo l'azione.";
-    } else {
-      synergyText.innerHTML = "<b>Effetto di Supporto:</b> Modifica la magia o arte dell'essenza collegata in uno slot linkato (es. estensione a tutti i bersagli, drenaggio vitale o attacco extra).";
-    }
-  } else if (mat.category === "Magiche" || mat.category === "Fisiche" || mat.category === "Comando" || (dbData.skills && dbData.skills.length > 0)) {
-    synergySection.style.display = "block";
-    let extraNote = "";
-    if (dbData.compatibleWithAddedCut || (dbData.skills && dbData.skills.length > 0)) {
-      extraNote = '<div style="margin-top:6px; padding:6px 10px; background:rgba(59,130,246,0.12); border-left:3px solid #3b82f6; border-radius:4px; font-size:0.75rem; color:#93c5fd;">🔗 <b>Compatibile con Essenza di Supporto Extra:</b> collegandola in slot linkato ◈═◈ all\'essenza Extra, si attiva l\'effetto <i>Attacco Extra</i>.</div>';
-    }
-    synergyText.innerHTML = "<b>Compatibilità Sinergica:</b> Può essere modificata se collegata a un'essenza di Supporto (Sinergica blu) in alloggiamenti linkati." + extraNote;
-  } else {
-    synergySection.style.display = "block";
-    synergyText.innerHTML = "<b>Indipendente:</b> Agisce da sola con effetti passivi e non richiede collegamento con altre essenze.";
-  }
 
   const actionArea = document.getElementById("modalMateriaActionArea");
   if (mat.isEquipped || isMateriaEquippedAnywhere(mat.uid)) {

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mercatino tra Giocatori — Twitch Battle RPG</title>
+<title>Mercatino dei Giocatori — Twitch Battle RPG</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1321,7 +1321,7 @@ body.game-offline .controls-bar .filter-chip {
   <!-- HERO SECTION -->
   <div class="market-hero">
     <div class="market-emblem">🏪</div>
-    <h1>MERCATINO TRA GIOCATORI</h1>
+    <h1>MERCATINO DEI GIOCATORI</h1>
     <p>Bancarella della community: compra o ritira armi, armature ed essenze messe in vendita dagli spettatori, o metti all'asta i tuoi oggetti per guadagnare oro in gioco.</p>
 
     <!-- STATISTICHE VELOCI -->
@@ -1615,10 +1615,7 @@ body.game-offline .controls-bar .filter-chip {
         <div id="modalMateriaSkillsList"></div>
       </div>
 
-      <div class="modal-section" id="modalMateriaSynergySection">
-        <div class="section-title">Comportamento in Sinergia (Slot Collegati)</div>
-        <div id="modalMateriaSynergyText" style="font-size: 0.82rem; color: var(--text-muted); line-height: 1.4;"></div>
-      </div>
+
     </div>
 
     <div class="modal-footer">
@@ -3637,23 +3634,6 @@ function openMateriaModal(uid, fromMarket = true) {
 
   skillsEl.innerHTML = itemsHtml.length ? itemsHtml.join("") : '<div style="font-size:0.75rem; color:var(--text-muted);">Effetto continuo passivo.</div>';
 
-  const synergySection = document.getElementById("modalMateriaSynergySection");
-  const synergyText = document.getElementById("modalMateriaSynergyText");
-  if (mat.category === "Sinergiche") {
-    synergySection.style.display = "block";
-    if (mat.name === "Extra") {
-      synergyText.innerHTML = "<b>Sinergia Attacco Extra:</b> Se collegata a un'essenza compatibile (es. Assalto, Sabotaggio, Magie) in slot linkato ◈═◈, permette di eseguire un attacco fisico addizionale con l'arma subito dopo l'azione.";
-    } else {
-      synergyText.innerHTML = "<b>Supporto Sinergico:</b> Modifica l'essenza collegata in uno slot linkato con effetti speciali o drenaggio vitale.";
-    }
-  } else {
-    synergySection.style.display = "block";
-    let extraNote = "";
-    if (dbData.compatibleWithAddedCut || (dbData.skills && dbData.skills.length > 0)) {
-      extraNote = '<div style="margin-top:6px; padding:6px 10px; background:rgba(59,130,246,0.12); border-left:3px solid #3b82f6; border-radius:4px; font-size:0.75rem; color:#93c5fd;">🔗 <b>Compatibile con Essenza di Supporto Extra:</b> collegandola in slot linkato ◈═◈ all\'essenza Extra, si attiva l\'effetto <i>Attacco Extra</i>.</div>';
-    }
-    synergyText.innerHTML = "<b>Compatibilità:</b> Può essere modificata se collegata a un'essenza di Supporto in alloggiamenti linkati." + extraNote;
-  }
 
   overlay.classList.add("active");
 }
