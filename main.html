@@ -409,8 +409,8 @@
   <!-- TOP BAR: Canale & Stato Login Twitch -->
   <div class="top-bar">
     <div class="brand-badge">
-      <span class="live-dot"></span>
-      <span>Twitch Battle RPG Live Page</span>
+      <span class="live-dot" id="mainLiveDot"></span>
+      <span id="mainLiveText">Connessione Gioco...</span>
     </div>
 
     <div class="twitch-auth-zone" id="twitchAuthContainer">
@@ -665,7 +665,106 @@
     renderUserBar();
   }
 
-  window.addEventListener('DOMContentLoaded', initAuth);
+  const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
+  let firebaseConnected = false;
+
+  function setMainDatabaseUnavailable() {
+    const dot = document.getElementById('mainLiveDot');
+    const txt = document.getElementById('mainLiveText');
+    if (!dot || !txt) return;
+    dot.style.background = "#ef4444";
+    dot.style.boxShadow = "0 0 10px #ef4444";
+    txt.innerText = "Database non disponibile!";
+    txt.style.color = "#f87171";
+  }
+
+  function updateMainGameStatus(data) {
+    const dot = document.getElementById('mainLiveDot');
+    const txt = document.getElementById('mainLiveText');
+    if (!dot || !txt) return;
+
+    if (!data) {
+      if (!firebaseConnected && window.location.protocol.startsWith("http")) {
+        setMainDatabaseUnavailable();
+      }
+      return;
+    }
+    firebaseConnected = true;
+
+    const now = Date.now();
+    const hb = (data && (data.heartbeat || data.timestamp)) || 0;
+    const diff = now - hb;
+    const active = (data && data.gameActive === true) && (diff < 20000 && diff > -5000) && (!data.inTitle);
+
+    if (active) {
+      dot.style.background = "#10b981";
+      dot.style.boxShadow = "0 0 10px #10b981";
+      txt.innerText = "Gioco Attivo (Partita in corso)";
+      txt.style.color = "#34d399";
+    } else if (data && data.inTitle) {
+      dot.style.background = "#facc15";
+      dot.style.boxShadow = "0 0 10px #facc15";
+      txt.innerText = "Al Titolo (In attesa avvio)";
+      txt.style.color = "#facc15";
+    } else {
+      dot.style.background = "#64748b";
+      dot.style.boxShadow = "none";
+      txt.innerText = "Gioco Chiuso (Offline)";
+      txt.style.color = "var(--text-secondary)";
+    }
+  }
+
+  function initMainFirebaseStream() {
+    try {
+      if (typeof EventSource === 'undefined') return;
+      const es = new EventSource(FIREBASE_LIVE_URL);
+      es.addEventListener('put', function(e) {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload && payload.data) updateMainGameStatus(payload.data);
+        } catch(err) {}
+      });
+      es.addEventListener('patch', function(e) {
+        try {
+          const payload = JSON.parse(e.data);
+          if (payload && payload.data) updateMainGameStatus(payload.data);
+        } catch(err) {}
+      });
+      es.onerror = function() {
+        if (!firebaseConnected && window.location.protocol.startsWith("http")) {
+          setMainDatabaseUnavailable();
+        }
+      };
+    } catch(e) {}
+  }
+
+  async function fetchMainGameData() {
+    try {
+      const res = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
+      if (res.ok) {
+        const data = await res.json();
+        if (data !== null) {
+          firebaseConnected = true;
+          updateMainGameStatus(data);
+          return;
+        }
+      }
+      if (!firebaseConnected && window.location.protocol.startsWith("http")) {
+        setMainDatabaseUnavailable();
+      }
+    } catch(e) {
+      if (!firebaseConnected && window.location.protocol.startsWith("http")) {
+        setMainDatabaseUnavailable();
+      }
+    }
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    initAuth();
+    initMainFirebaseStream();
+    fetchMainGameData();
+    setInterval(fetchMainGameData, 3000);
+  });
 </script>
 
 </body>

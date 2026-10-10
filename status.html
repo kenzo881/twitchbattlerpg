@@ -7,10 +7,16 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;900&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="twitch_owners.js"></script>
-<script src="twitch_inventory_owners.js"></script>
-<script src="twitch_currency.js"></script>
-<script src="status_data.js"></script>
+<script>
+// Carica i file locali solo se aperto da disco in locale (file://)
+if (window.location.protocol === 'file:') {
+  ['twitch_owners.js', 'twitch_inventory_owners.js', 'twitch_currency.js', 'status_data.js'].forEach(function(src) {
+    var s = document.createElement('script');
+    s.src = src;
+    document.write(s.outerHTML);
+  });
+}
+</script>
 <style>
 :root {
   --bg-primary: #0a0a14;
@@ -2080,7 +2086,7 @@ h1 {
   <div class="hero-card" id="heroCard">
     <div class="hero-portrait-box">
       <div class="hero-portrait-frame" id="heroPortraitFrame">
-        <img id="heroPortraitImg" class="hero-portrait-img" src="img/faces/Actor1.png" alt="Ritratto" onerror="this.src='icon/icon.png'; this.style.transform='none'; this.style.width='100%'; this.style.height='100%';">
+        <img id="heroPortraitImg" class="hero-portrait-img" src="img/faces/Actor1.png" alt="Ritratto" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 100 100\'%3E%3Crect width=\'100\' height=\'100\' rx=\'12\' fill=\'%23121222\'/%3E%3Ccircle cx=\'50\' cy=\'40\' r=\'18\' fill=\'%239c9488\'/%3E%3Cpath d=\'M25 85 C25 66 36 58 50 58 C64 58 75 66 75 85 Z\' fill=\'%239c9488\'/%3E%3C/svg%3E'; this.style.transform='none'; this.style.width='100%'; this.style.height='100%';">
       </div>
       <span class="hero-class-pill" id="heroClass">Guerriero</span>
     </div>
@@ -4373,9 +4379,13 @@ function updateChatStatusBadge(hasOnline) {
   }
 }
 
-// LOADER VIA SCRIPT TAG (funziona sia in file:// che su server con cache-buster dinamico)
+// LOADER VIA SCRIPT TAG (funziona solo in file:// locale)
 function pollLiveGameScript() {
   const isHttp = window.location.protocol.startsWith("http");
+  if (isHttp) {
+    // Su web (GitHub Pages) non carichiamo script locali: tutti i dati arrivano da Firebase in tempo reale!
+    return;
+  }
   const cacheBuster = "?t=" + Date.now();
 
   // 1. Ricarica script live game data (status_data.js)
@@ -4388,11 +4398,6 @@ function pollLiveGameScript() {
   s.onload = () => {
     if (window.__LIVE_GAME_DATA) {
       applyLiveGameData(window.__LIVE_GAME_DATA);
-    }
-  };
-  s.onerror = () => {
-    if (isHttp) {
-      fetchGameDataHttp();
     }
   };
   document.head.appendChild(s);
@@ -4452,48 +4457,123 @@ function pollLiveGameScript() {
   document.head.appendChild(sCur);
 }
 
-// LOADER VIA FETCH HTTP (per GitHub Pages o server web)
-async function fetchGameDataHttp() {
-  // Legge SEMPRE PRIMA dai file sorgente originali del gioco!
-  try {
-    const [oRes, iRes, cRes] = await Promise.all([
-      fetch("twitch_owners.json?t=" + Date.now()),
-      fetch("twitch_inventory_owners.json?t=" + Date.now()),
-      fetch("twitch_currency.json?t=" + Date.now())
-    ]);
-    if (oRes.ok && iRes.ok) {
-      const owners = await oRes.json();
-      const inv = await iRes.json();
-      const cur = cRes.ok ? await cRes.json() : {};
+const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
+var firebaseConnected = false;
 
-      let actors = DB_ACTORS;
+// MOSTRA A SCHERMO "Database non disponibile!" SE FIREBASE NON RISPONDE SUL WEB
+function setDatabaseUnavailableUI() {
+  isGameCurrentlyActive = false;
+  const banner = document.getElementById("gameStatusBanner");
+  const icon = document.getElementById("gameStatusIcon");
+  const title = document.getElementById("gameStatusTitle");
+  const desc = document.getElementById("gameStatusDesc");
+  const pill = document.getElementById("gameStatusPill");
+  const topSyncPill = document.getElementById("syncStatusBadge");
+  const topSyncText = document.getElementById("syncStatusText");
+
+  if (banner) {
+    banner.className = "game-status-banner offline";
+    if (icon) icon.innerText = "⚠️";
+    if (title) title.innerText = "DATABASE NON DISPONIBILE!";
+    if (desc) desc.innerText = "Impossibile collegarsi al database Cloud Firebase in tempo reale. Verifica la connessione o attendi il ripristino.";
+    if (pill) {
+      pill.className = "banner-status-pill offline";
+      pill.innerText = "DATABASE OFFLINE ✕";
+    }
+  }
+  if (topSyncPill) {
+    topSyncPill.className = "twitch-status-pill sync-pill offline";
+    if (topSyncText) topSyncText.innerText = "Database non disponibile!";
+  }
+}
+
+// STREAMING SSE IN TEMPO REALE DA GOOGLE FIREBASE (Zero secondi di ritardo per spettatori su GitHub Pages)
+function initFirebaseRealtimeStream() {
+  try {
+    if (typeof EventSource === 'undefined') return;
+    const es = new EventSource(FIREBASE_LIVE_URL);
+
+    es.addEventListener('put', function(e) {
       try {
-        const sRes = await fetch("status_data.json?t=" + Date.now());
-        if (sRes.ok) {
-          const sData = await sRes.json();
-          if (sData.actors) actors = sData.actors;
+        const payload = JSON.parse(e.data);
+        if (payload && payload.data) {
+          firebaseConnected = true;
+          applyLiveGameData(payload.data);
         }
-      } catch(e) {}
+      } catch(err) {}
+    });
 
-      applyLiveGameData({
-        timestamp: Date.now(),
-        owners: owners,
-        inventory: inv,
-        currency: cur,
-        actors: actors
-      });
-      return true;
-    }
+    es.addEventListener('patch', function(e) {
+      try {
+        const payload = JSON.parse(e.data);
+        if (payload && payload.data) {
+          firebaseConnected = true;
+          applyLiveGameData(payload.data);
+        }
+      } catch(err) {}
+    });
+
+    es.onerror = function() {
+      if (!firebaseConnected && window.location.protocol.startsWith('http')) {
+        setDatabaseUnavailableUI();
+      }
+    };
   } catch(e) {}
+}
 
+// LOADER VIA FETCH HTTP (Cloud Firebase in tempo reale)
+async function fetchGameDataHttp() {
+  // 1. Connessione Cloud a Firebase
   try {
-    const resStatus = await fetch("status_data.json?t=" + Date.now());
-    if (resStatus.ok) {
-      const data = await resStatus.json();
-      applyLiveGameData(data);
-      return true;
+    const resFb = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
+    if (resFb.ok) {
+      const fbData = await resFb.json();
+      if (fbData && (fbData.timestamp || fbData.actors || fbData.currency)) {
+        firebaseConnected = true;
+        applyLiveGameData(fbData);
+        return true;
+      }
     }
   } catch(e) {}
+
+  // 2. Fallback su file locali SOLO SE aperto da disco (file://)
+  if (!window.location.protocol.startsWith("http")) {
+    try {
+      const [oRes, iRes, cRes] = await Promise.all([
+        fetch("twitch_owners.json?t=" + Date.now()),
+        fetch("twitch_inventory_owners.json?t=" + Date.now()),
+        fetch("twitch_currency.json?t=" + Date.now())
+      ]);
+      if (oRes.ok && iRes.ok) {
+        const owners = await oRes.json();
+        const inv = await iRes.json();
+        const cur = cRes.ok ? await cRes.json() : {};
+
+        let actors = DB_ACTORS;
+        try {
+          const sRes = await fetch("status_data.json?t=" + Date.now());
+          if (sRes.ok) {
+            const sData = await sRes.json();
+            if (sData.actors) actors = sData.actors;
+          }
+        } catch(e) {}
+
+        applyLiveGameData({
+          timestamp: Date.now(),
+          owners: owners,
+          inventory: inv,
+          currency: cur,
+          actors: actors
+        });
+        return true;
+      }
+    } catch(e) {}
+  } else {
+    // Sul web, se Firebase non è raggiungibile, segnala chiaramente che il Database non è disponibile
+    if (!firebaseConnected) {
+      setDatabaseUnavailableUI();
+    }
+  }
 
   return false;
 }
@@ -4503,20 +4583,17 @@ async function manualSyncGameData() {
   const btn = document.getElementById("btnSyncLive");
   if (btn) btn.classList.add("syncing");
 
-  pollLiveGameScript();
   if (window.location.protocol.startsWith("http")) {
     await fetchGameDataHttp();
   } else {
-    setTimeout(() => {
-      if (window.__LIVE_GAME_DATA) {
-        applyLiveGameData(window.__LIVE_GAME_DATA);
-      }
-    }, 150);
+    pollLiveGameScript();
   }
 
   setTimeout(() => {
     if (btn) btn.classList.remove("syncing");
-    if (isGameCurrentlyActive) {
+    if (window.location.protocol.startsWith("http") && !firebaseConnected) {
+      showToast("⚠️ Database non disponibile!", "Impossibile connettersi al database Firebase.");
+    } else if (isGameCurrentlyActive) {
       showToast("🟢 Gioco Attivo & Sincronizzato", "Personaggio, equipaggiamenti ed essenze caricati con successo!");
     } else {
       showToast("🔴 Gioco Non Rilevato", "Il gioco RPG Maker risulta ancora chiuso o offline.");
@@ -4599,7 +4676,7 @@ function updateHeroHeader() {
     if (goldEl) goldEl.innerText = "0";
 
     if (portraitImg) {
-      portraitImg.src = "icon/icon.png";
+      portraitImg.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='12' fill='%23121222'/%3E%3Ccircle cx='50' cy='40' r='18' fill='%239c9488'/%3E%3Cpath d='M25 85 C25 66 36 58 50 58 C64 58 75 66 75 85 Z' fill='%239c9488'/%3E%3C/svg%3E";
       portraitImg.style.objectPosition = "center";
       portraitImg.style.filter = "grayscale(100%) opacity(35%)";
     }
@@ -4850,27 +4927,29 @@ function logoutTwitch() {
 // INIZIALIZZAZIONE ALL'AVVIO
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();
-  pollLiveGameScript();
+  initFirebaseRealtimeStream();
+
   if (window.location.protocol.startsWith("http")) {
     fetchGameDataHttp();
-  }
-
-  // Verifica immediata stato gioco all'avvio (se non attivo mostra banner offline e azzera campi)
-  const initActive = checkGameActive();
-  updateGameStatusUI(initActive, window.__LIVE_GAME_DATA);
-  if (initActive && window.__LIVE_GAME_DATA) {
-    applyLiveGameData(window.__LIVE_GAME_DATA);
   } else {
-    updateHeroHeader();
-    renderAll();
+    pollLiveGameScript();
+    // Verifica immediata stato gioco all'avvio (in modalità file locale)
+    const initActive = checkGameActive();
+    updateGameStatusUI(initActive, window.__LIVE_GAME_DATA);
+    if (initActive && window.__LIVE_GAME_DATA) {
+      applyLiveGameData(window.__LIVE_GAME_DATA);
+    } else {
+      updateHeroHeader();
+      renderAll();
+    }
   }
 
-  // Polling rapido ogni 1.2 secondi per rilevare istantaneamente apertura e chiusura del gioco
+  // Polling rapido ogni 1.2 secondi per sincronizzazione costante
   setInterval(() => {
-    pollLiveGameScript();
     if (window.location.protocol.startsWith("http")) {
       fetchGameDataHttp();
     } else {
+      pollLiveGameScript();
       const nowActive = checkGameActive();
       if (nowActive !== isGameCurrentlyActive) {
         updateGameStatusUI(nowActive, window.__LIVE_GAME_DATA);
