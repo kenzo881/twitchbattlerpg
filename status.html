@@ -744,8 +744,16 @@ body.is-dragging-gear #equipSlotsContainer * {
   pointer-events: none !important;
 }
 
-body.is-dragging-essence .materia-socket *,
-body.is-dragging-essence .materia-socket-frame * {
+body.is-dragging-essence .materia-socket-frame,
+body.is-dragging-essence .materia-socket {
+  pointer-events: auto !important;
+}
+
+body.is-dragging-essence .materia-socket * {
+  pointer-events: none !important;
+}
+
+body.is-dragging-essence .materia-slot-meta * {
   pointer-events: none !important;
 }
 
@@ -2181,7 +2189,7 @@ body.is-dragging-essence .materia-socket-frame * {
     <!-- HEADER -->
   <header>
     <h1>⚔️ TWITCH BATTLE RPG</h1>
-    <div class="subtitle">Gestione Visuale Equipaggiamento & Alloggiamento Essenze in Tempo Reale</div>
+    <div class="subtitle">Stato del Personaggio e gestione Equipaggiamento & Essenze</div>
   </header>
 
   <!-- BANNER NESSUN PERSONAGGIO ATTIVO -->
@@ -2206,7 +2214,7 @@ body.is-dragging-essence .materia-socket-frame * {
       <div class="banner-status-icon" id="gameStatusIcon">🔴</div>
       <div>
         <div class="banner-status-title" id="gameStatusTitle">Gioco Non Rilevato (Offline)</div>
-        <div class="banner-status-desc" id="gameStatusDesc">Il gioco RPG Maker è chiuso o non attivo. Avvia il gioco per caricare e sincronizzare il personaggio in tempo reale.</div>
+        <div class="banner-status-desc" id="gameStatusDesc">TBRPG è chiuso o non attivo. Aspetta che il gioco sia attivo per sincronizzare il personaggio in tempo reale.</div>
       </div>
     </div>
     <div class="banner-status-actions">
@@ -2290,7 +2298,7 @@ body.is-dragging-essence .materia-socket-frame * {
     <!-- COLONNA DESTRA: ZAINO / INVENTARIO -->
     <div>
       <div class="panel-title">
-        <span>🎒 Zaino & Essenze</span>
+        <span>🎒 Zaino</span>
         <span class="panel-subtitle" id="bagSubtitle">0 Oggetti</span>
       </div>
       <div class="inventory-panel">
@@ -3202,14 +3210,14 @@ function renderGroupSocketsHtml(pieceKey, piece, group) {
       <div class="materia-group-wrapper">
         <div class="materia-group-content-row">
           <div class="materia-slot-col">
-            <div class="materia-socket-frame">${renderSocketDiamondHtml(pieceKey, sock1)}</div>
+            <div class="materia-socket-frame" data-piece="${pieceKey}" data-slot="${sock1.slotNum}">${renderSocketDiamondHtml(pieceKey, sock1)}</div>
             ${renderSocketMetaHtml(sock1)}
           </div>
           <div class="materia-link-bridge-wrap">
             <div class="${bridgeClass}" title="${syn.active ? syn.effectName : (sock1.materia && sock2.materia ? syn.reason : 'Slot collegati per sinergia')}"></div>
           </div>
           <div class="materia-slot-col">
-            <div class="materia-socket-frame">${renderSocketDiamondHtml(pieceKey, sock2)}</div>
+            <div class="materia-socket-frame" data-piece="${pieceKey}" data-slot="${sock2.slotNum}">${renderSocketDiamondHtml(pieceKey, sock2)}</div>
             ${renderSocketMetaHtml(sock2)}
           </div>
         </div>
@@ -3221,7 +3229,7 @@ function renderGroupSocketsHtml(pieceKey, piece, group) {
       <div class="materia-group-wrapper">
         <div class="materia-group-content-row">
           <div class="materia-slot-col">
-            <div class="materia-socket-frame">${renderSocketDiamondHtml(pieceKey, sock1)}</div>
+            <div class="materia-socket-frame" data-piece="${pieceKey}" data-slot="${sock1.slotNum}">${renderSocketDiamondHtml(pieceKey, sock1)}</div>
             ${renderSocketMetaHtml(sock1)}
           </div>
         </div>
@@ -3241,7 +3249,7 @@ function renderEquipSlots() {
         <div style="font-size:2rem; margin-bottom:10px;">🛡️</div>
         <div style="font-weight:700; color:#fca5a5; font-size:1rem; margin-bottom:6px;">Equipaggiamento non disponibile</div>
         <div style="font-size:0.8rem; line-height:1.4; max-width:360px; margin:0 auto; color:var(--text-dim);">
-          Avvia il gioco RPG Maker per caricare in tempo reale le armi, armature ed essenze equipaggiate.
+          Attendi che TBRPG sia attivo per caricare in tempo reale le armi, armature ed essenze equipaggiate.
         </div>
       </div>
     `;
@@ -3325,43 +3333,49 @@ function renderEquipSlots() {
 
 // ATTACH DRAG & DROP
 function attachDragDropListeners() {
-  document.querySelectorAll(".materia-socket").forEach(el => {
-    el.addEventListener("dragstart", e => {
-      const piece = el.dataset.piece;
-      const slotNum = parseInt(el.dataset.slot, 10);
-      const uid = el.dataset.uid;
-      if (!uid) {
-        e.preventDefault();
-        return;
-      }
-      isDraggingActive = true;
-      document.body.classList.add("is-dragging-essence");
-      draggedItem = { type: "essence", source: "socket", piece, slotNum, uid };
-      e.dataTransfer.setData("text/plain", JSON.stringify(draggedItem));
-      e.dataTransfer.effectAllowed = "move";
-    });
+  // Sockets ed alloggiamenti essenze (diamanti e cornici)
+  document.querySelectorAll(".materia-socket, .materia-socket-frame").forEach(el => {
+    if (el.classList.contains("materia-socket")) {
+      el.addEventListener("dragstart", e => {
+        const piece = el.dataset.piece;
+        const slotNum = parseInt(el.dataset.slot, 10);
+        const uid = el.dataset.uid;
+        if (!uid) {
+          e.preventDefault();
+          return;
+        }
+        isDraggingActive = true;
+        document.body.classList.add("is-dragging-essence");
+        draggedItem = { type: "essence", source: "socket", piece, slotNum, uid };
+        e.dataTransfer.setData("text/plain", JSON.stringify(draggedItem));
+        e.dataTransfer.effectAllowed = "move";
+      });
 
-    el.addEventListener("dragend", () => {
-      endDragOperation();
-    });
+      el.addEventListener("dragend", () => {
+        endDragOperation();
+      });
+    }
 
     el.addEventListener("dragover", e => {
       if (!draggedItem || draggedItem.type !== "essence") return;
       e.preventDefault();
       e.stopPropagation();
       e.dataTransfer.dropEffect = "move";
-      el.classList.add("drag-over-socket");
+      const targetDiamond = el.classList.contains("materia-socket") ? el : el.querySelector(".materia-socket");
+      if (targetDiamond) targetDiamond.classList.add("drag-over-socket");
     });
 
     el.addEventListener("dragleave", e => {
       if (el.contains(e.relatedTarget)) return;
-      el.classList.remove("drag-over-socket");
+      const targetDiamond = el.classList.contains("materia-socket") ? el : el.querySelector(".materia-socket");
+      if (targetDiamond) targetDiamond.classList.remove("drag-over-socket");
     });
 
     el.addEventListener("drop", e => {
       e.preventDefault();
       e.stopPropagation();
-      el.classList.remove("drag-over-socket");
+      const targetDiamond = el.classList.contains("materia-socket") ? el : el.querySelector(".materia-socket");
+      if (targetDiamond) targetDiamond.classList.remove("drag-over-socket");
       if (!draggedItem || draggedItem.type !== "essence") return;
       const targetPiece = el.dataset.piece;
       const targetSlotNum = parseInt(el.dataset.slot, 10);
@@ -3369,13 +3383,25 @@ function attachDragDropListeners() {
     });
   });
 
+  // Card equipaggiamento (supporta sia drag di equipaggiamenti che drop rapido essenze)
   document.querySelectorAll(".equip-slot-card").forEach(card => {
     card.addEventListener("dragover", e => {
-      if (!draggedItem || draggedItem.type !== "gear") return;
-      e.preventDefault();
-      e.stopPropagation();
-      e.dataTransfer.dropEffect = "move";
-      card.classList.add("drag-target-hover");
+      if (!draggedItem) return;
+      if (draggedItem.type === "gear") {
+        e.preventDefault();
+        e.stopPropagation();
+        e.dataTransfer.dropEffect = "move";
+        card.classList.add("drag-target-hover");
+      } else if (draggedItem.type === "essence") {
+        const slotKey = card.dataset.slotKey;
+        if (slotKey === "arma" || slotKey === "armatura") {
+          const eq = charState.equipped[slotKey];
+          if (eq && eq.sockets && eq.sockets.length > 0) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = "move";
+          }
+        }
+      }
     });
 
     card.addEventListener("dragleave", e => {
@@ -3384,12 +3410,29 @@ function attachDragDropListeners() {
     });
 
     card.addEventListener("drop", e => {
-      e.preventDefault();
-      e.stopPropagation();
-      card.classList.remove("drag-target-hover");
-      if (!draggedItem || draggedItem.type !== "gear") return;
-      const targetSlotKey = card.dataset.slotKey;
-      handleDropGear(targetSlotKey, draggedItem);
+      if (!draggedItem) return;
+      if (draggedItem.type === "gear") {
+        e.preventDefault();
+        e.stopPropagation();
+        card.classList.remove("drag-target-hover");
+        const targetSlotKey = card.dataset.slotKey;
+        handleDropGear(targetSlotKey, draggedItem);
+      } else if (draggedItem.type === "essence") {
+        const slotKey = card.dataset.slotKey;
+        if (slotKey === "arma" || slotKey === "armatura") {
+          const eq = charState.equipped[slotKey];
+          if (eq && eq.sockets && eq.sockets.length > 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            let targetSlotNum = 1;
+            const emptySock = eq.sockets.find(s => !s.materia);
+            if (emptySock) {
+              targetSlotNum = emptySock.slotNum;
+            }
+            handleDropEssence(slotKey, targetSlotNum, draggedItem);
+          }
+        }
+      }
     });
   });
 
@@ -3475,7 +3518,7 @@ function renderInventoryGrid() {
       <div style="text-align:center; padding:36px 16px; color:var(--text-muted); background:rgba(20,20,35,0.5); border-radius:12px; border:1px dashed rgba(255,255,255,0.1);">
         <div style="font-size:2rem; margin-bottom:8px;">🎒</div>
         <div style="font-weight:700; color:var(--text-muted); font-size:0.95rem; margin-bottom:4px;">Zaino Offline</div>
-        <div style="font-size:0.8rem; color:var(--text-dim);">Avvia il gioco RPG Maker per accedere all'inventario, essenze ed equipaggiamenti di scorta.</div>
+        <div style="font-size:0.8rem; color:var(--text-dim);">Attendi che TBPRG sia attivo per accedere all'inventario, essenze ed equipaggiamenti di scorta.</div>
       </div>
     `;
     return;
@@ -3590,6 +3633,19 @@ function handleBagItemClick(uid, type) {
     showToast("Oggetto Selezionato 👆", type === 'essence' ? "Clicca sullo slot romboidale in cui vuoi inserirlo." : "Clicca sullo slot equipaggiamento in cui vuoi indossarlo.");
   }
   renderInventoryGrid();
+}
+
+function isMateriaEquippedAnywhere(uid) {
+  if (!charState || !charState.equipped) return false;
+  for (const pieceKey of ['arma', 'armatura']) {
+    const p = charState.equipped[pieceKey];
+    if (p && p.sockets) {
+      for (const s of p.sockets) {
+        if (s.materia && s.materia.uid === uid) return true;
+      }
+    }
+  }
+  return false;
 }
 
 // MODAL DETTAGLI MATERIA
@@ -4031,7 +4087,19 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
     const srcSocketObj = srcSockets.find(s => s.slotNum === src.slotNum);
     if (!srcSocketObj || !srcSocketObj.materia) return;
     essObj = srcSocketObj.materia;
+
+    // Esegui lo scambio locale
     srcSocketObj.materia = displacedMateria;
+    targetSocketObj.materia = essObj;
+
+    // Esegui i comandi nel gioco RPG Maker
+    executeChatCommand(`!essenze equip ${targetPiece} ${targetSlotNum} ${essObj.uid}`);
+    if (displacedMateria) {
+      executeChatCommand(`!essenze equip ${src.piece} ${src.slotNum} ${displacedMateria.uid}`);
+      showToast("Essenze Scambiate 🔄", `<b>${essObj.name}</b> e <b>${displacedMateria.name}</b> si sono scambiate di alloggiamento.`);
+    } else {
+      showToast("Essenza Spostata 🔮", `<b>${essObj.name}</b> spostata in <b>${targetPiece.toUpperCase()}</b> (Slot ${targetSlotNum}).`);
+    }
   } else if (src.source === "backpack") {
     const bagIdx = charState.backpack.essenze.findIndex(e => e.uid === src.uid);
     if (bagIdx < 0) return;
@@ -4039,12 +4107,14 @@ function handleDropEssence(targetPiece, targetSlotNum, src) {
     if (displacedMateria && !charState.backpack.essenze.some(e => e.uid === displacedMateria.uid)) {
       charState.backpack.essenze.push(displacedMateria);
     }
+    targetSocketObj.materia = essObj;
+    executeChatCommand(`!essenze equip ${targetPiece} ${targetSlotNum} ${essObj.uid}`);
+    if (displacedMateria) {
+      showToast("Essenza Incastonata 🔮", `<b>${essObj.name}</b> inserita in Slot ${targetSlotNum} (<b>${displacedMateria.name}</b> riposta nello zaino).`);
+    } else {
+      showToast("Essenza Equipaggiata 🔮", `<b>${essObj.name}</b> incastonata in <b>${targetPiece.toUpperCase()}</b> (Slot ${targetSlotNum}).`);
+    }
   }
-
-  targetSocketObj.materia = essObj;
-
-  const cmd = `!essenze equip ${targetPiece} ${targetSlotNum} ${essObj.uid}`;
-  executeChatCommand(cmd);
 
   saveLocalModifications();
   renderAll(true);
@@ -4860,7 +4930,7 @@ function updateGameStatusUI(active, data) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🟡";
       if (title) title.innerText = "SCHERMATA DEL TITOLO (IN ATTESA DI AVVIO PARTITA)";
-      if (desc) desc.innerText = "Il gioco è aperto al Titolo. Seleziona Nuova Partita o Continua per iniziare la sincronizzazione in tempo reale!";
+      if (desc) desc.innerText = "Il gioco è aperto al Menu. Attendi sia alla Lobby per iniziare la sincronizzazione in tempo reale!";
       if (pill) {
         pill.className = "banner-status-pill offline";
         pill.innerText = "AL TITOLO ⏳";
@@ -4875,7 +4945,7 @@ function updateGameStatusUI(active, data) {
       banner.className = "game-status-banner offline";
       if (icon) icon.innerText = "🔴";
       if (title) title.innerText = "GIOCO NON RILEVATO (OFFLINE)";
-      if (desc) desc.innerText = "Il gioco RPG Maker è chiuso o non attivo. Avvia il gioco e supera la schermata del titolo per sincronizzare il personaggio in tempo reale.";
+      if (desc) desc.innerText = "TBRPG è chiuso o non attivo. Attendi che il gioco sia avviato per sincronizzare il personaggio in tempo reale.";
       if (pill) {
         pill.className = "banner-status-pill offline";
         pill.innerText = "GIOCO CHIUSO ✕";
@@ -5187,7 +5257,7 @@ async function manualSyncGameData() {
     } else if (isGameCurrentlyActive) {
       showToast("🟢 Gioco Attivo & Sincronizzato", "Personaggio, equipaggiamenti ed essenze caricati con successo!");
     } else {
-      showToast("🔴 Gioco Non Rilevato", "Il gioco RPG Maker risulta ancora chiuso o offline.");
+      showToast("🔴 Gioco Non Rilevato", "TBRPG risulta ancora chiuso o offline.");
     }
   }, 600);
 }
