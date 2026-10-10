@@ -1753,7 +1753,9 @@
         return;
       }
 
-      const redirectUri = encodeURIComponent(window.location.origin + window.location.pathname);
+      sessionStorage.setItem('tbrpg_auth_return_url', window.location.href);
+      const basePath = window.location.pathname.substring(0, window.location.pathname.lastIndexOf('/') + 1);
+      const redirectUri = encodeURIComponent(window.location.origin + basePath + 'main.html');
       const scopes = encodeURIComponent("chat:read chat:edit user:read:chat user:write:chat");
       window.location.href = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scopes}`;
     }
