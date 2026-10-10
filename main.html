@@ -415,7 +415,7 @@
 
     <div class="twitch-auth-zone" id="twitchAuthContainer">
       <!-- Gestito via JS: mostra 'Accedi' o profilo loggato -->
-      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="toggleSimulatedLogin()">
+      <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
         </svg>
@@ -470,12 +470,12 @@
       </div>
     </a>
 
-    <!-- 3. STATUS & EQUIPAGGIAMENTO (IN ARRIVO) -->
-    <div class="portal-card disabled-card" id="cardStatus" title="Funzionalità in fase di sviluppo">
+    <!-- 3. STATUS & EQUIPAGGIAMENTO (ATTIVO) -->
+    <a href="status.html" class="portal-card active-card" id="cardStatus">
       <div>
         <div class="card-top">
           <div class="card-icon">🛡️</div>
-          <span class="status-badge soon">Prossimamente</span>
+          <span class="status-badge available">● Disponibile</span>
         </div>
         <div class="card-title">Status & Equipaggiamento</div>
         <div class="card-desc">
@@ -483,9 +483,10 @@
         </div>
       </div>
       <div class="card-btn">
-        <span>🔒 In Arrivo</span>
+        <span>⚔️ Gestisci Personaggio</span>
+        <span>→</span>
       </div>
-    </div>
+    </a>
 
     <!-- 4. MENU COMBATTIMENTO (IN ARRIVO) -->
     <div class="portal-card disabled-card" id="cardBattle" title="Funzionalità in fase di sviluppo">
@@ -528,17 +529,18 @@
   // AVVIA IL LOGIN TRAMITE TWITCH
   function loginWithTwitch() {
     if (window.location.protocol === 'file:') {
-      // Se aperto in locale (doppio click sul file), avvisa l'utente della modalità offline
-      const confirmSim = confirm(
-        "Avviso Ambiente Locale:\n\n" +
-        "Sei in modalità file locale (file://). Le API ufficiali di Twitch richiedono un indirizzo web HTTPS (come GitHub Pages) o http://localhost.\n\n" +
-        "Vuoi attivare una simulazione di prova ora per testare la grafica del profilo?"
+      // Se aperto in locale (doppio click sul file), permetti di selezionare qualsiasi utente di test
+      const chosen = prompt(
+        "Modalità Locale (file://):\n\n" +
+        "Inserisci il nome utente Twitch con cui accedere (es. ashen84, kenz088, captainlover92, gianni23):",
+        "ashen84"
       );
-      if (confirmSim) {
+      if (chosen && chosen.trim()) {
+        const cleanLogin = chosen.trim().toLowerCase();
         const demoUser = {
           id: '12345678',
-          login: 'gianni23',
-          name: 'Gianni23',
+          login: cleanLogin,
+          name: chosen.trim(),
           avatar: '',
           loggedAt: Date.now()
         };
