@@ -1210,6 +1210,120 @@ body.game-offline .search-wrapper {
 }
 .btn-logout:hover { color: #ff6b6b; }
 
+
+/* PULSANTI PRIORITARI TOP-NAV */
+.nav-pill-btn.pill-battle {
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  font-weight: 600;
+}
+.nav-pill-btn.pill-battle:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+.nav-pill-btn.pill-battle.battle-pulse {
+  animation: navBattlePulse 1.8s infinite;
+}
+@keyframes navBattlePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.8), 0 0 20px rgba(245, 158, 11, 0.5); }
+}
+
+.nav-pill-btn.pill-status {
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+}
+.nav-pill-btn.pill-status:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: #60a5fa;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.nav-pill-btn.pill-shop {
+  border-color: rgba(212, 175, 55, 0.35);
+  color: var(--gold-light, #ffd700);
+}
+.nav-pill-btn.pill-shop:hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: var(--gold, #d4af37);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+}
+
+.nav-pill-btn.pill-market {
+  border-color: rgba(145, 70, 255, 0.35);
+  color: #c49eff;
+}
+.nav-pill-btn.pill-market:hover {
+  background: rgba(145, 70, 255, 0.18);
+  border-color: #a855f7;
+  box-shadow: 0 0 12px rgba(145, 70, 255, 0.35);
+}
+
+.nav-pill-btn.pill-guide {
+  color: #94a3b8;
+  opacity: 0.85;
+}
+.nav-pill-btn.pill-guide:hover {
+  opacity: 1;
+  color: #e2e8f0;
+}
+
+/* MOBILE BOTTOM BAR COMPATTA */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(14, 14, 24, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 8px 10px;
+  z-index: 9999;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+  justify-content: space-around;
+  align-items: center;
+}
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  min-width: 50px;
+}
+.mobile-nav-item .mobile-nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.mobile-nav-item:hover, .mobile-nav-item:active {
+  color: #fff;
+  transform: translateY(-2px);
+}
+.mobile-nav-item.item-portal { color: #cbd5e1; }
+.mobile-nav-item.item-battle { color: #fca5a5; }
+.mobile-nav-item.item-battle:hover { color: #ef4444; }
+.mobile-nav-item.item-status { color: #93c5fd; }
+.mobile-nav-item.item-status:hover { color: #3b82f6; }
+.mobile-nav-item.item-shop { color: #fde047; }
+.mobile-nav-item.item-market { color: #c49eff; }
+.mobile-nav-item.item-guide { color: #94a3b8; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-bar { display: flex; }
+  body { padding-bottom: 70px !important; }
+}
+
 </style>
 </head>
 <body>
@@ -1230,10 +1344,10 @@ body.game-offline .search-wrapper {
 
       <div class="nav-links-row">
         <a href="main.html" class="nav-pill-btn">← Portale</a>
-        <a href="market.html" class="nav-pill-btn">Mercatino 🏪</a>
-        <a href="status.html" class="nav-pill-btn">Status 🛡️</a>
-        <a href="battle.html" class="nav-pill-btn" style="border-color: rgba(239,68,68,0.4); color: #fca5a5;">Battaglia ⚔️</a>
-        <a href="guide.html" class="nav-pill-btn">Guida 📖</a>
+        <a href="battle.html" class="nav-pill-btn pill-battle" id="topNavBattleLink">Battaglia ⚔️</a>
+        <a href="status.html" class="nav-pill-btn pill-status">Status 🛡️</a>
+        <a href="market.html" class="nav-pill-btn pill-market">Mercatino 🏪</a>
+        <a href="guide.html" class="nav-pill-btn pill-guide">Guida 📖</a>
       </div>
     </div>
 
@@ -2149,5 +2263,30 @@ window.addEventListener('DOMContentLoaded', () => {
   }, 1500);
 });
 </script>
+
+<!-- BARRA FISSA IN BASSO PER MOBILE & SPLIT-SCREEN -->
+<nav class="mobile-bottom-bar" id="mobileBottomBar">
+  <a href="main.html" class="mobile-nav-item item-portal">
+    <span class="mobile-nav-icon">🚪</span>
+    <span class="mobile-nav-label">Portale</span>
+  </a>
+  <a href="battle.html" class="mobile-nav-item item-battle" id="mobBattleLink">
+    <span class="mobile-nav-icon">⚔️</span>
+    <span class="mobile-nav-label">Battaglia</span>
+  </a>
+  <a href="status.html" class="mobile-nav-item item-status">
+    <span class="mobile-nav-icon">🛡️</span>
+    <span class="mobile-nav-label">Status</span>
+  </a>
+  <a href="shop.html" class="mobile-nav-item item-shop" style="color:#fde047; font-weight:bold;">
+    <span class="mobile-nav-icon">💰</span>
+    <span class="mobile-nav-label">Bottega</span>
+  </a>
+  <a href="market.html" class="mobile-nav-item item-market">
+    <span class="mobile-nav-icon">🏪</span>
+    <span class="mobile-nav-label">Mercato</span>
+  </a>
+</nav>
+
 </body>
 </html>
