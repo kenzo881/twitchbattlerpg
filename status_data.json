@@ -1,6 +1,6 @@
 {
-  "timestamp": 1791654424197,
-  "heartbeat": 1791654424197,
+  "timestamp": 1791666761294,
+  "heartbeat": 1791666761294,
   "gameActive": false,
   "inBattle": false,
   "inTitle": false,
@@ -271,6 +271,17 @@
             "slot": 0
           },
           "owner": "ashen84"
+        },
+        {
+          "uid": "e_006",
+          "armorId": 29,
+          "ap": 0,
+          "level": 1,
+          "equippedSlot": {
+            "set": 0,
+            "slot": 1
+          },
+          "owner": "ashen84"
         }
       ]
     },
@@ -327,7 +338,7 @@
     "test_avventuriero": 1322,
     "test_guerriero": 111,
     "test_bomb": 1127,
-    "ashen84": 84,
+    "ashen84": 83,
     "captainlover92": 384,
     "kenz088": 434
   },
@@ -336,7 +347,6 @@
     "Fuoco": {
       "id": 2,
       "name": "Fuoco",
-      "iconIndex": 1805,
       "description": "Essenza di magie Ardenti, elemento Fuoco.",
       "type": "magic",
       "apList": [
@@ -372,12 +382,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mat +2",
           "text": "mat +2"
         }
       ],
@@ -396,7 +404,6 @@
     "Ghiaccio": {
       "id": 3,
       "name": "Ghiaccio",
-      "iconIndex": 1805,
       "description": "Essenza di magie Gelanti, elemento Ghiaccio.",
       "type": "magic",
       "apList": [
@@ -432,12 +439,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mat +2",
           "text": "mat +2"
         }
       ],
@@ -456,7 +461,6 @@
     "Tuono": {
       "id": 4,
       "name": "Tuono",
-      "iconIndex": 1805,
       "description": "Essenza di magie Folgoranti, elemento Tuono.",
       "type": "magic",
       "apList": [
@@ -492,12 +496,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mat +2",
           "text": "mat +2"
         }
       ],
@@ -516,7 +518,6 @@
     "Terra": {
       "id": 5,
       "name": "Terra",
-      "iconIndex": 1805,
       "description": "Essenza di magie Sismiche, elemento Terra.",
       "type": "magic",
       "apList": [
@@ -552,12 +553,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mat +2",
           "text": "mat +2"
         }
       ],
@@ -576,7 +575,6 @@
     "Veleno": {
       "id": 6,
       "name": "Veleno",
-      "iconIndex": 1805,
       "description": "Essenza di magie Tossiche, elemento Veleno.",
       "type": "magic",
       "apList": [
@@ -612,12 +610,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mat +2",
           "text": "mat +2"
         }
       ],
@@ -636,7 +632,6 @@
     "Cura": {
       "id": 7,
       "name": "Cura",
-      "iconIndex": 1805,
       "description": "Essenza di magie Ristorative.",
       "type": "magic",
       "apList": [
@@ -672,12 +667,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mat +1",
           "text": "mat +1"
         },
         {
           "level": 5,
-          "raw": "mdf +2",
           "text": "mdf +2"
         }
       ],
@@ -696,7 +689,6 @@
     "Tempo": {
       "id": 8,
       "name": "Tempo",
-      "iconIndex": 1805,
       "description": "Essenza di magia Temporali, \naumento/diminuzione Destrezza.",
       "type": "magic",
       "apList": [
@@ -745,7 +737,6 @@
     "Oblio": {
       "id": 9,
       "name": "Oblio",
-      "iconIndex": 1805,
       "description": "Essenza di magia Oblio, ad area, non elementale.",
       "type": "magic",
       "apList": [
@@ -772,7 +763,6 @@
       "bonuses": [
         {
           "level": 3,
-          "raw": "mat +4",
           "text": "mat +4"
         }
       ],
@@ -791,7 +781,6 @@
     "Drain": {
       "id": 10,
       "name": "Drain",
-      "iconIndex": 1805,
       "description": "Essenza di magia Drain.",
       "type": "magic",
       "apList": [
@@ -823,7 +812,6 @@
     "Rinascita": {
       "id": 11,
       "name": "Rinascita",
-      "iconIndex": 1805,
       "description": "Essenza di Magie di Resurrezione.",
       "type": "magic",
       "apList": [
@@ -863,7 +851,6 @@
     "Pietra": {
       "id": 12,
       "name": "Pietra",
-      "iconIndex": 1805,
       "description": "",
       "type": "magic",
       "apList": [
@@ -895,7 +882,6 @@
     "Morte": {
       "id": 13,
       "name": "Morte",
-      "iconIndex": 1805,
       "description": "",
       "type": "magic",
       "apList": [
@@ -927,7 +913,6 @@
     "Sabotaggio": {
       "id": 16,
       "name": "Sabotaggio",
-      "iconIndex": 1821,
       "description": "Essenza di sabotaggio. Permette di debilitare i nemici.",
       "type": "command",
       "apList": [
@@ -954,7 +939,6 @@
       "bonuses": [
         {
           "level": 3,
-          "raw": "atk +2, luk+2",
           "text": "atk +2, luk+2"
         }
       ],
@@ -973,7 +957,6 @@
     "Assalto": {
       "id": 17,
       "name": "Assalto",
-      "iconIndex": 1821,
       "description": "Essenza d'assalto. Permette di sferrare\npotenti pugnalate alle spalle.",
       "type": "command",
       "apList": [
@@ -992,7 +975,6 @@
       "bonuses": [
         {
           "level": 2,
-          "raw": "atk+ 3, luk +3",
           "text": "atk+ 3, luk +3"
         }
       ],
@@ -1011,7 +993,6 @@
     "Bombardiere": {
       "id": 18,
       "name": "Bombardiere",
-      "iconIndex": 1821,
       "description": "Essenza che permette di lanciare bombe ai nemici.\nMunizioni limitate.",
       "type": "command",
       "apList": [
@@ -1039,12 +1020,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "atk +1, agi +1",
           "text": "atk +1, agi +1"
         },
         {
           "level": 5,
-          "raw": "atk +2, agi +2",
           "text": "atk +2, agi +2"
         }
       ],
@@ -1063,7 +1042,6 @@
     "Omni": {
       "id": 22,
       "name": "Omni",
-      "iconIndex": 1807,
       "description": "Essenza che permette a una Essenza collegata di\npoter essere usata su obbiettivi multipli.",
       "type": "support",
       "apList": [
@@ -1082,12 +1060,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "mp +25",
           "text": "mp +25"
         },
         {
           "level": 5,
-          "raw": "mp +50",
           "text": "mp +50"
         }
       ],
@@ -1106,7 +1082,6 @@
     "Elemento": {
       "id": 23,
       "name": "Elemento",
-      "iconIndex": 1807,
       "description": "Essenza che permette di associare l' elemento\ndell' Essenza collegata ad Arma o Armatura.",
       "type": "support",
       "apList": [
@@ -1138,7 +1113,6 @@
     "Stato": {
       "id": 24,
       "name": "Stato",
-      "iconIndex": 1807,
       "description": "Essenza che permette di associare lo stato alterato\ndell' Essenza collegata ad Arma o Armatura.",
       "type": "support",
       "apList": [
@@ -1167,7 +1141,6 @@
     "Assorbi HP": {
       "id": 25,
       "name": "Assorbi HP",
-      "iconIndex": 1807,
       "description": "Essenza che permette di recuperare parte del\ndanno inflitto in Hp dall' Essenza collegata.",
       "type": "support",
       "apList": [
@@ -1198,7 +1171,6 @@
     "Assorbi MP": {
       "id": 26,
       "name": "Assorbi MP",
-      "iconIndex": 1807,
       "description": "Essenza che permette di recuperare parte del\ndanno inflitto in MP dall' Essenza collegata.",
       "type": "support",
       "apList": [
@@ -1229,7 +1201,6 @@
     "Turbo MP": {
       "id": 27,
       "name": "Turbo MP",
-      "iconIndex": 1807,
       "description": "Essenza che aumenta il danno dell' Essenza \ncollegata in %, ma ne aumenta il consumo di Mp.",
       "type": "support",
       "apList": [
@@ -1265,7 +1236,6 @@
     "Final Attack": {
       "id": 28,
       "name": "Final Attack",
-      "iconIndex": 1807,
       "description": "",
       "type": "support",
       "apList": [
@@ -1297,7 +1267,6 @@
     "Extra": {
       "id": 29,
       "name": "Extra",
-      "iconIndex": 1807,
       "description": "Essenza che permette un attacco extra dopo aver\nutilizzato l' Essenza collegata.",
       "type": "support",
       "apList": [
@@ -1318,7 +1287,6 @@
       "bonuses": [
         {
           "level": 2,
-          "raw": "agi +3",
           "text": "agi +3"
         }
       ],
@@ -1337,7 +1305,6 @@
     "Quadra": {
       "id": 30,
       "name": "Quadra",
-      "iconIndex": 1807,
       "description": "",
       "type": "support",
       "apList": [
@@ -1366,7 +1333,6 @@
     "Costo Hp": {
       "id": 31,
       "name": "Costo Hp",
-      "iconIndex": 1807,
       "description": "",
       "type": "support",
       "apList": [
@@ -1395,9 +1361,8 @@
     "Vita Plus": {
       "id": 42,
       "name": "Vita Plus",
-      "iconIndex": 1822,
       "description": "Essenza che aumenta Hp massimi in %.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         10000,
         20000,
@@ -1429,9 +1394,8 @@
     "Mana Plus": {
       "id": 43,
       "name": "Mana Plus",
-      "iconIndex": 1822,
       "description": "Essenza che aumenta Mp massimi in %.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         10000,
         20000,
@@ -1463,9 +1427,8 @@
     "Destrezza Plus": {
       "id": 44,
       "name": "Destrezza Plus",
-      "iconIndex": 1822,
       "description": "Essenza che aumenta Destrezza in %.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         10000,
         20000,
@@ -1497,9 +1460,8 @@
     "Fortuna Plus": {
       "id": 45,
       "name": "Fortuna Plus",
-      "iconIndex": 1822,
       "description": "Essenza che aumenta Fortuna in %.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         15000,
         25000,
@@ -1531,9 +1493,8 @@
     "Magia Plus": {
       "id": 46,
       "name": "Magia Plus",
-      "iconIndex": 1822,
       "description": "Essenza che aumenta Magia in %.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         15000,
         25000,
@@ -1565,9 +1526,8 @@
     "Nemesi": {
       "id": 47,
       "name": "Nemesi",
-      "iconIndex": 1822,
       "description": "Essenza che permette di contrattaccare gli\nattacchi fisici.",
-      "type": "magic",
+      "type": "independent",
       "apList": [
         5800,
         5200,
@@ -1586,12 +1546,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "atk+ 1",
           "text": "atk+ 1"
         },
         {
           "level": 5,
-          "raw": "atk+ 1, luk +1",
           "text": "atk+ 1, luk +1"
         }
       ],
@@ -1610,7 +1568,6 @@
     "Egida": {
       "id": 48,
       "name": "Egida",
-      "iconIndex": 1822,
       "description": "Essenza che permette di intercettare gli\nattacchi fisici verso gli alleati.",
       "type": "independent",
       "apList": [
@@ -1632,12 +1589,10 @@
       "bonuses": [
         {
           "level": 4,
-          "raw": "def +1, mdf +1",
           "text": "def +1, mdf +1"
         },
         {
           "level": 5,
-          "raw": "def +1, hp +150",
           "text": "def +1, hp +150"
         }
       ],
