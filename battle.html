@@ -1,0 +1,1839 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>TBRPG - Campo di Battaglia</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --bg-dark: #07090e;
+      --bg-card: rgba(15, 20, 32, 0.92);
+      --bg-card-hover: rgba(22, 30, 48, 0.96);
+      --border-card: rgba(255, 255, 255, 0.08);
+      
+      --gold: #f59e0b;
+      --gold-light: #fbbf24;
+      --gold-glow: rgba(245, 158, 11, 0.35);
+      
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.4);
+      --cyan: #06b6d4;
+      
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.45);
+      --green: #10b981;
+      --purple: #8b5cf6;
+      
+      --hp-color: #10b981;
+      --mp-color: #38bdf8;
+      --tp-color: #f97316;
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.5) 0%, transparent 60%),
+        radial-gradient(circle at 10% 100%, rgba(15, 23, 42, 0.8) 0%, transparent 50%);
+      color: var(--text-main);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* TOP NAVIGATION */
+    .top-nav {
+      background: rgba(10, 14, 23, 0.95);
+      border-bottom: 1px solid var(--border-card);
+      backdrop-filter: blur(12px);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .nav-left, .nav-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--gold-light);
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 1.15rem;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 8px;
+    }
+
+    .nav-btn {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+
+    .auth-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-card);
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    .auth-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 1px solid var(--gold);
+    }
+
+    .btn-login {
+      background: #9146ff;
+      color: #fff;
+      border: none;
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: background 0.2s;
+    }
+
+    .btn-login:hover {
+      background: #772ce8;
+    }
+
+    /* MAIN BATTLE CONTAINER */
+    .battle-container {
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 14px 16px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    /* OFFLINE / WAITING BANNER */
+    .waiting-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 30px 20px;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin: auto 0;
+    }
+
+    .waiting-icon {
+      font-size: 3rem;
+      animation: pulseGlow 2s infinite ease-in-out;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); opacity: 0.8; }
+      50% { transform: scale(1.08); opacity: 1; }
+    }
+
+    .waiting-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.35rem;
+      color: var(--gold-light);
+    }
+
+    .waiting-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      max-width: 480px;
+      line-height: 1.5;
+    }
+
+    /* SECTION HEADERS */
+    .section-label {
+      font-family: 'Cinzel', serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+
+    .section-label span.highlight {
+      color: var(--gold-light);
+    }
+
+    /* 1. ENEMIES SECTION */
+    .enemies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+
+    .enemy-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 12px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      user-select: none;
+    }
+
+    .enemy-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(239, 68, 68, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .enemy-card.selected-target {
+      border-color: var(--red);
+      background: rgba(239, 68, 68, 0.12);
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    .enemy-letter-badge {
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-family: 'Cinzel', serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 6px;
+    }
+
+    .enemy-card.selected-target .enemy-letter-badge {
+      background: var(--red);
+      color: #fff;
+      box-shadow: 0 0 10px var(--red);
+    }
+
+    .enemy-name {
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .enemy-states-row {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+      min-height: 18px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .state-badge {
+      font-size: 0.65rem;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(139, 92, 246, 0.2);
+      border: 1px solid rgba(139, 92, 246, 0.4);
+      color: #c4b5fd;
+      font-weight: 600;
+    }
+
+    /* 2. PARTY SECTION */
+    .party-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 10px;
+    }
+
+    .party-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      position: relative;
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .party-card:hover {
+      border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .party-card.selected-ally-target {
+      border-color: var(--blue);
+      background: rgba(59, 130, 246, 0.12);
+      box-shadow: 0 0 14px var(--blue-glow);
+    }
+
+    .party-card.is-turn {
+      border-color: var(--gold);
+      background: rgba(245, 158, 11, 0.08);
+      box-shadow: 0 0 16px var(--gold-glow);
+      animation: turnGlow 2s infinite alternate;
+    }
+
+    @keyframes turnGlow {
+      0% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
+      100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+    }
+
+    .turn-indicator-badge {
+      position: absolute;
+      top: -8px;
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      color: #000;
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+      display: none;
+    }
+
+    .party-card.is-turn .turn-indicator-badge {
+      display: block;
+    }
+
+    .party-portrait-wrap {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      overflow: hidden;
+      border: 2px solid var(--border-card);
+      margin-bottom: 6px;
+      position: relative;
+      background: #1e293b;
+    }
+
+    .party-card.is-turn .party-portrait-wrap {
+      border-color: var(--gold);
+    }
+
+    .party-portrait-img {
+      width: 100%;
+      height: 100%;
+      background-size: 400% 200%;
+      background-repeat: no-repeat;
+    }
+
+    .party-name {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-main);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+
+    .party-owner-tag {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* TIMER PROGRESS BAR */
+    .turn-timer-container {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .timer-text {
+      font-family: 'Cinzel', serif;
+      font-weight: 700;
+      font-size: 0.85rem;
+      color: var(--gold-light);
+      white-space: nowrap;
+      min-width: 110px;
+    }
+
+    .timer-bar-track {
+      flex: 1;
+      height: 8px;
+      background: rgba(0, 0, 0, 0.4);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .timer-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
+      transition: width 1s linear;
+    }
+
+    /* 3. PLAYER ACTIVE DASHBOARD (BOTTOM) */
+    .player-dashboard {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      position: relative;
+    }
+
+    .player-dashboard.is-my-turn {
+      border-color: var(--gold);
+      box-shadow: 0 0 24px rgba(245, 158, 11, 0.15);
+    }
+
+    .dashboard-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      padding-bottom: 12px;
+    }
+
+    .dashboard-user-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .dashboard-portrait {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      border: 2px solid var(--gold);
+      overflow: hidden;
+      background: #1e293b;
+    }
+
+    .dashboard-name {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--gold-light);
+    }
+
+    .dashboard-status-tag {
+      font-size: 0.72rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+    }
+
+    .dashboard-status-tag.turn-active {
+      background: rgba(245, 158, 11, 0.2);
+      border: 1px solid var(--gold);
+      color: var(--gold-light);
+    }
+
+    .dashboard-status-tag.turn-waiting {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
+    }
+
+    /* GAUGES (HP / MP / TP) */
+    .gauges-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+    }
+
+    .gauge-card {
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .gauge-label-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.75rem;
+      font-weight: 700;
+    }
+
+    .gauge-track {
+      height: 7px;
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .gauge-fill-hp {
+      height: 100%;
+      background: linear-gradient(90deg, #059669, #10b981);
+      transition: width 0.3s ease;
+    }
+
+    .gauge-fill-mp {
+      height: 100%;
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      transition: width 0.3s ease;
+    }
+
+    .gauge-fill-tp {
+      height: 100%;
+      background: linear-gradient(90deg, #ea580c, #f97316);
+      transition: width 0.3s ease;
+    }
+
+    .gauge-fill-tp.limit-ready {
+      background: linear-gradient(90deg, #ef4444, #f59e0b, #ef4444);
+      animation: limitFlame 1s infinite linear;
+    }
+
+    @keyframes limitFlame {
+      0% { filter: brightness(1); }
+      50% { filter: brightness(1.4); }
+      100% { filter: brightness(1); }
+    }
+
+    /* ACTION COMMAND BUTTONS */
+    .actions-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    @media (max-width: 600px) {
+      .actions-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .btn-battle-cmd {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 14px 10px;
+      color: var(--text-main);
+      font-family: 'Cinzel', serif;
+      font-size: 0.95rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+      position: relative;
+      user-select: none;
+    }
+
+    .btn-battle-cmd:hover:not(:disabled) {
+      transform: translateY(-2px);
+    }
+
+    .btn-battle-cmd:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+    }
+
+    /* ATTACK */
+    .btn-cmd-attack {
+      background: rgba(59, 130, 246, 0.12);
+      border-color: rgba(59, 130, 246, 0.35);
+      color: #93c5fd;
+    }
+    .btn-cmd-attack:hover:not(:disabled) {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: var(--blue);
+      box-shadow: 0 0 14px var(--blue-glow);
+    }
+
+    /* LIMIT (QUANDO ATTIVO) */
+    .btn-cmd-limit {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(245, 158, 11, 0.3)) !important;
+      border-color: var(--gold) !important;
+      color: #fef08a !important;
+      animation: limitButtonPulse 1.2s infinite alternate;
+    }
+
+    @keyframes limitButtonPulse {
+      0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); transform: scale(1); }
+      100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); transform: scale(1.02); }
+    }
+
+    /* SKILLS */
+    .btn-cmd-skills {
+      background: rgba(139, 92, 246, 0.12);
+      border-color: rgba(139, 92, 246, 0.35);
+      color: #c4b5fd;
+    }
+    .btn-cmd-skills:hover:not(:disabled) {
+      background: rgba(139, 92, 246, 0.25);
+      border-color: var(--purple);
+      box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+    }
+
+    /* DEFEND */
+    .btn-cmd-guard {
+      background: rgba(16, 185, 129, 0.12);
+      border-color: rgba(16, 185, 129, 0.35);
+      color: #a7f3d0;
+    }
+    .btn-cmd-guard:hover:not(:disabled) {
+      background: rgba(16, 185, 129, 0.25);
+      border-color: var(--green);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+    }
+
+    /* ITEMS */
+    .btn-cmd-items {
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
+      color: #fde68a;
+    }
+    .btn-cmd-items:hover:not(:disabled) {
+      background: rgba(245, 158, 11, 0.25);
+      border-color: var(--gold);
+      box-shadow: 0 0 14px var(--gold-glow);
+    }
+
+    /* MODAL OVERLAY & DRAWERS */
+    .battle-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.78);
+      backdrop-filter: blur(8px);
+      z-index: 200;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 16px;
+    }
+
+    .battle-modal-overlay.active {
+      display: flex;
+    }
+
+    .battle-modal-card {
+      background: #0f1523;
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      max-width: 520px;
+      width: 100%;
+      max-height: 85vh;
+      overflow-y: auto;
+      box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-head {
+      padding: 14px 18px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-head h3 {
+      font-family: 'Cinzel', serif;
+      font-size: 1.15rem;
+      color: var(--gold-light);
+    }
+
+    .btn-close-modal {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.4rem;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-body {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* LIST DI SKILL O ITEM */
+    .action-choice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .choice-item-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 10px 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .choice-item-card:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: var(--gold);
+    }
+
+    .choice-item-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .choice-item-name {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .choice-item-desc {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+    }
+
+    .choice-item-meta {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      white-space: nowrap;
+    }
+
+    /* TARGET SELECTOR GRID */
+    .target-group-title {
+      font-family: 'Cinzel', serif;
+      font-size: 0.78rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-top: 6px;
+    }
+
+    .target-chips-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .target-chip {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      padding: 8px 14px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .target-chip:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--gold);
+    }
+
+    .target-chip.selected {
+      background: rgba(245, 158, 11, 0.2);
+      border-color: var(--gold);
+      color: var(--gold-light);
+      box-shadow: 0 0 10px var(--gold-glow);
+    }
+
+    .target-chip.enemy-chip {
+      border-color: rgba(239, 68, 68, 0.35);
+    }
+    .target-chip.enemy-chip:hover, .target-chip.enemy-chip.selected {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--red);
+      color: #fca5a5;
+    }
+
+    .target-chip.ally-chip {
+      border-color: rgba(59, 130, 246, 0.35);
+    }
+    .target-chip.ally-chip:hover, .target-chip.ally-chip.selected {
+      background: rgba(59, 130, 246, 0.25);
+      border-color: var(--blue);
+      color: #93c5fd;
+    }
+
+    .target-chip.default-chip {
+      border-color: rgba(16, 185, 129, 0.35);
+      width: 100%;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    .modal-footer {
+      padding: 14px 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+
+    .btn-modal-action {
+      background: linear-gradient(135deg, #d97706, #f59e0b);
+      border: none;
+      border-radius: 8px;
+      color: #000;
+      font-weight: 800;
+      font-size: 0.85rem;
+      padding: 10px 18px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-modal-action:hover {
+      box-shadow: 0 0 14px var(--gold-glow);
+      transform: translateY(-1px);
+    }
+
+    .btn-modal-cancel {
+      background: transparent;
+      border: 1px solid var(--border-card);
+      border-radius: 8px;
+      color: var(--text-muted);
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 10px 16px;
+      cursor: pointer;
+    }
+
+    /* TOAST NOTIFICATION */
+    .toast-box {
+      position: fixed;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #1e293b;
+      border: 1px solid var(--gold);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      font-size: 0.85rem;
+      font-weight: 700;
+      z-index: 999;
+      transition: transform 0.3s ease, opacity 0.3s ease;
+      opacity: 0;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .toast-box.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAVIGATION -->
+  <nav class="top-nav">
+    <div class="nav-left">
+      <a href="main.html" class="nav-brand">
+        <span>⚔️</span>
+        <span>TBRPG</span>
+      </a>
+      <div class="nav-links">
+        <a href="status.html" class="nav-btn">Status 🛡️</a>
+        <a href="market.html" class="nav-btn">Mercatino ⚖️</a>
+        <a href="shop.html" class="nav-btn">Bottega 💰</a>
+      </div>
+    </div>
+
+    <div class="nav-right">
+      <div id="twitchAuthContainer">
+        <button class="btn-login" onclick="loginWithTwitch()">Accedi con Twitch</button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- MAIN BATTLE CONTAINER -->
+  <div class="battle-container">
+
+    <!-- SCHERMATA ATTESA SE NON IN BATTAGLIA -->
+    <div id="waitingScreen" class="waiting-banner">
+      <div class="waiting-icon">⏳</div>
+      <h2 class="waiting-title">Nessuna Battaglia Attiva</h2>
+      <p class="waiting-desc">
+        Il party non è attualmente impegnato in combattimento.<br>
+        Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà istantaneamente con nemici, turni e comandi d'azione.
+      </p>
+      <button class="nav-btn" onclick="forceCheckState()" style="margin-top: 10px;">
+        🔄 Verifica Stato Gioco
+      </button>
+    </div>
+
+    <!-- SCHERMATA ATTIVA DI BATTAGLIA -->
+    <div id="activeBattleScreen" style="display: none; flex-direction: column; gap: 16px;">
+      
+      <!-- 1. I NEMICI -->
+      <div>
+        <div class="section-label">
+          <span>Nemici in Campo</span>
+          <span class="highlight" id="enemyCountLabel">-- Nemici</span>
+        </div>
+        <div class="enemies-grid" id="enemiesGrid">
+          <!-- Inseriti dinamicamente -->
+        </div>
+      </div>
+
+      <!-- 2. IL PARTY E IL TIMER TURNO -->
+      <div>
+        <div class="section-label">
+          <span>Party Alleato</span>
+          <span class="highlight" id="turnActorLabel">Turno di: --</span>
+        </div>
+        <div class="party-row" id="partyRow">
+          <!-- Inseriti dinamicamente -->
+        </div>
+      </div>
+
+      <!-- BARRA TIMER CONTO ALLA ROVESCIA -->
+      <div class="turn-timer-container">
+        <span class="timer-text" id="turnTimerText">⏱️ 20 Secondi</span>
+        <div class="timer-bar-track">
+          <div class="timer-bar-fill" id="turnTimerFill"></div>
+        </div>
+      </div>
+
+      <!-- 3. CRUSCOTTO DEL GIOCATORE CONNESSO -->
+      <div class="player-dashboard" id="playerDashboard">
+        
+        <div class="dashboard-header">
+          <div class="dashboard-user-info">
+            <div class="dashboard-portrait">
+              <div class="party-portrait-img" id="myDashboardPortrait"></div>
+            </div>
+            <div>
+              <div class="dashboard-name" id="myDashboardName">Il Tuo Personaggio</div>
+              <div style="font-size: 0.72rem; color: var(--text-muted);" id="myDashboardSub">Livello & Classe</div>
+            </div>
+          </div>
+          <span class="dashboard-status-tag turn-waiting" id="myTurnBadge">In Attesa</span>
+        </div>
+
+        <!-- BARRE PV / PM / TP (LIMIT) -->
+        <div class="gauges-grid">
+          <!-- PV -->
+          <div class="gauge-card">
+            <div class="gauge-label-row">
+              <span style="color: var(--hp-color);">Punti Vita (PV)</span>
+              <span id="myHpVal">-- / --</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill-hp" id="myHpBar" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- PM -->
+          <div class="gauge-card">
+            <div class="gauge-label-row">
+              <span style="color: var(--mp-color);">Punti Magia (PM)</span>
+              <span id="myMpVal">-- / --</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill-mp" id="myMpBar" style="width: 100%;"></div>
+            </div>
+          </div>
+
+          <!-- TP / LIMIT -->
+          <div class="gauge-card">
+            <div class="gauge-label-row">
+              <span style="color: var(--tp-color);" id="myTpLabel">Limit / TP</span>
+              <span id="myTpVal">--%</span>
+            </div>
+            <div class="gauge-track">
+              <div class="gauge-fill-tp" id="myTpBar" style="width: 0%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- STATI ALTERATI PERSONALI -->
+        <div id="myStatesRow" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
+
+        <!-- PANNELLO AZIONI -->
+        <div class="actions-grid">
+          <!-- ATTACCA / LIMIT -->
+          <button class="btn-battle-cmd btn-cmd-attack" id="btnActionAttack" onclick="openAttackModal()">
+            <span style="font-size: 1.3rem;" id="btnAttackIcon">⚔️</span>
+            <span id="btnAttackLabel">Attacca</span>
+          </button>
+
+          <!-- ARTI & MAGIE -->
+          <button class="btn-battle-cmd btn-cmd-skills" id="btnActionSkills" onclick="openSkillsModal()">
+            <span style="font-size: 1.3rem;">✨</span>
+            <span>Arti & Magie</span>
+          </button>
+
+          <!-- DIFENDI -->
+          <button class="btn-battle-cmd btn-cmd-guard" id="btnActionGuard" onclick="triggerGuardAction()">
+            <span style="font-size: 1.3rem;">🛡️</span>
+            <span>Difendi</span>
+          </button>
+
+          <!-- OGGETTI -->
+          <button class="btn-battle-cmd btn-cmd-items" id="btnActionItems" onclick="openItemsModal()">
+            <span style="font-size: 1.3rem;">🎒</span>
+            <span>Oggetti</span>
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- MODALE SCELTA BERSAGLIO ATTACCO / LIMIT -->
+  <div class="battle-modal-overlay" id="targetModalOverlay" onclick="closeTargetModal(event)">
+    <div class="battle-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3 id="targetModalTitle">Seleziona Bersaglio</h3>
+        <button class="btn-close-modal" onclick="closeTargetModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        
+        <!-- OPZIONE DEFAULT / CASUALE (SCOPE DATABASE) -->
+        <div>
+          <button class="target-chip default-chip selected" id="chipDefaultTarget" onclick="selectTargetOption('default')">
+            <span>🎲</span>
+            <span id="chipDefaultLabel">Bersaglio Naturale / Casuale</span>
+          </button>
+        </div>
+
+        <!-- BERSAGLI NEMICI -->
+        <div class="target-group-title">👾 Nemici in Campo</div>
+        <div class="target-chips-row" id="targetEnemiesChips"></div>
+
+        <!-- BERSAGLI ALLEATI -->
+        <div class="target-group-title">🛡️ Alleati del Party</div>
+        <div class="target-chips-row" id="targetAlliesChips"></div>
+
+        <!-- TUTTI I NEMICI / TUTTI GLI ALLEATI (SE APPLICABILE) -->
+        <div id="targetAreaSection" style="display: none;">
+          <div class="target-group-title">🌐 Bersagli ad Area</div>
+          <div class="target-chips-row" id="targetAreaChips"></div>
+        </div>
+
+      </div>
+      <div class="modal-footer">
+        <button class="btn-modal-cancel" onclick="closeTargetModal()">Annulla</button>
+        <button class="btn-modal-action" id="btnConfirmAction" onclick="confirmExecuteAction()">
+          <span>Conferma & Invia ⚔️</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE ARTI & MAGIE -->
+  <div class="battle-modal-overlay" id="skillsModalOverlay" onclick="closeSkillsModal(event)">
+    <div class="battle-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Arti & Magie Equipaggiate</h3>
+        <button class="btn-close-modal" onclick="closeSkillsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="action-choice-list" id="skillsChoiceList">
+          <!-- Inserite dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE SOTTOMENU BOMBE -->
+  <div class="battle-modal-overlay" id="bombsModalOverlay" onclick="closeBombsModal(event)">
+    <div class="battle-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Lancio Bombe (Munizioni)</h3>
+        <button class="btn-close-modal" onclick="closeBombsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="action-choice-list" id="bombsChoiceList">
+          <!-- Inserite dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODALE OGGETTI -->
+  <div class="battle-modal-overlay" id="itemsModalOverlay" onclick="closeItemsModal(event)">
+    <div class="battle-modal-card" onclick="event.stopPropagation()">
+      <div class="modal-head">
+        <h3>Oggetti del Party</h3>
+        <button class="btn-close-modal" onclick="closeItemsModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="action-choice-list" id="itemsChoiceList">
+          <!-- Inserite dinamicamente -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOTIFICA TOAST -->
+  <div class="toast-box" id="battleToast">
+    <span id="toastIcon">⚔️</span>
+    <span id="toastText">Comando inviato!</span>
+  </div>
+
+  <script>
+    // ============================================================
+    // STATO & CONFIGURAZIONE
+    // ============================================================
+    const TWITCH_CLIENT_ID = "gp762nuuoqcoxypju8c569th9wz7q5";
+    const STREAMER_CHANNEL = "kenz088";
+    
+    let currentUser = null;
+    let twitchToken = null;
+    let battleState = null;
+    let selectedTargetStr = "";
+    let pendingActionType = ""; // 'attack', 'limit', 'skill', 'bomb', 'item'
+    let pendingActionDetail = null;
+
+    // Rileva utente da storage o hash URL
+    function initAuth() {
+      // Token da hash
+      if (window.location.hash) {
+        const params = new URLSearchParams(window.location.hash.substring(1));
+        const token = params.get("access_token");
+        if (token) {
+          localStorage.setItem("tbrpg_twitch_token", token);
+          window.history.replaceState(null, null, window.location.pathname);
+        }
+      }
+
+      twitchToken = localStorage.getItem("tbrpg_twitch_token");
+      const storedUser = localStorage.getItem("tbrpg_user") || localStorage.getItem("tbrpg_twitch_user");
+      
+      if (storedUser) {
+        currentUser = storedUser.toLowerCase();
+      } else {
+        // Default locale di test
+        currentUser = "kenz088";
+      }
+
+      renderAuthUI();
+      if (twitchToken) {
+        fetchTwitchUser(twitchToken);
+      }
+    }
+
+    function renderAuthUI() {
+      const container = document.getElementById("twitchAuthContainer");
+      if (!container) return;
+
+      if (currentUser) {
+        container.innerHTML = `
+          <div class="auth-badge">
+            <span style="color: var(--gold-light); font-weight: 700;">@${currentUser}</span>
+            <button class="nav-btn" onclick="logoutTwitch()" style="padding: 2px 6px; font-size: 0.7rem;">Esci</button>
+          </div>
+        `;
+      } else {
+        container.innerHTML = `
+          <button class="btn-login" onclick="loginWithTwitch()">Accedi con Twitch</button>
+        `;
+      }
+    }
+
+    function loginWithTwitch() {
+      const redirectUri = window.location.origin + window.location.pathname;
+      const scope = "chat:read chat:edit";
+      const authUrl = `https://id.twitch.tv/oauth2/authorize?client_id=${TWITCH_CLIENT_ID}&redirect_uri=${encodeURIComponent(redirectUri)}&response_type=token&scope=${encodeURIComponent(scope)}`;
+      window.location.href = authUrl;
+    }
+
+    function logoutTwitch() {
+      localStorage.removeItem("tbrpg_twitch_token");
+      localStorage.removeItem("tbrpg_user");
+      localStorage.removeItem("tbrpg_twitch_user");
+      currentUser = null;
+      twitchToken = null;
+      renderAuthUI();
+      showToast("Disconnesso con successo", "ℹ️");
+    }
+
+    async function fetchTwitchUser(token) {
+      try {
+        const res = await fetch("https://api.twitch.tv/helix/users", {
+          headers: {
+            "Authorization": "Bearer " + token,
+            "Client-Id": TWITCH_CLIENT_ID
+          }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          if (data.data && data.data[0]) {
+            currentUser = data.data[0].login.toLowerCase();
+            localStorage.setItem("tbrpg_user", currentUser);
+            localStorage.setItem("tbrpg_twitch_user", currentUser);
+            renderAuthUI();
+          }
+        }
+      } catch (e) {
+        console.warn("Twitch Helix API fetch err:", e);
+      }
+    }
+
+    // ============================================================
+    // POLLING STATO BATTAGLIA
+    // ============================================================
+    async function fetchBattleState() {
+      try {
+        const res = await fetch("twitch_battle_state.json?t=" + Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          updateBattleView(data);
+        } else {
+          // File non ancora generato o battaglia offline
+          updateBattleView({ inBattle: false });
+        }
+      } catch (e) {
+        // In locale o server momentaneo
+        updateBattleView({ inBattle: false });
+      }
+    }
+
+    function forceCheckState() {
+      fetchBattleState();
+      showToast("Stato di gioco verificato", "🔄");
+    }
+
+    // ============================================================
+    // RENDERING BATTAGLIA
+    // ============================================================
+    function updateBattleView(data) {
+      battleState = data;
+      const waitingScreen = document.getElementById("waitingScreen");
+      const activeBattleScreen = document.getElementById("activeBattleScreen");
+
+      if (!data || !data.inBattle) {
+        waitingScreen.style.display = "flex";
+        activeBattleScreen.style.display = "none";
+        return;
+      }
+
+      waitingScreen.style.display = "none";
+      activeBattleScreen.style.display = "flex";
+
+      // 1. Nemici
+      renderEnemies(data.enemies || []);
+
+      // 2. Party & Turno
+      renderParty(data.party || [], data.currentTurnUser);
+
+      // 3. Timer
+      renderTimer(data.timerSeconds || 0);
+
+      // 4. Cruscotto personale del giocatore
+      renderPlayerDashboard(data.party || [], data.currentTurnUser);
+    }
+
+    function renderEnemies(enemies) {
+      const grid = document.getElementById("enemiesGrid");
+      const countLabel = document.getElementById("enemyCountLabel");
+      countLabel.innerText = `${enemies.length} Nemic${enemies.length === 1 ? 'o' : 'i'}`;
+
+      if (!enemies.length) {
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nessun nemico vivo.</div>';
+        return;
+      }
+
+      grid.innerHTML = enemies.map(e => {
+        const statesHtml = (e.states || []).map(st => `<span class="state-badge">${st.name}</span>`).join("");
+        const isSelected = (selectedTargetStr === e.letter);
+        return `
+          <div class="enemy-card ${isSelected ? 'selected-target' : ''}" onclick="quickSelectEnemyTarget('${e.letter}')">
+            <div class="enemy-letter-badge">${e.letter}</div>
+            <div class="enemy-name" title="${e.name}">${e.name}</div>
+            <div class="enemy-states-row">${statesHtml}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function quickSelectEnemyTarget(letter) {
+      selectedTargetStr = (selectedTargetStr === letter) ? "" : letter;
+      renderEnemies(battleState ? battleState.enemies : []);
+      showToast(selectedTargetStr ? `Bersaglio: Nemico ${letter}` : "Bersaglio deselezionato", "🎯");
+    }
+
+    function renderParty(party, currentTurnUser) {
+      const row = document.getElementById("partyRow");
+      const turnLabel = document.getElementById("turnActorLabel");
+      turnLabel.innerText = currentTurnUser ? `Turno di: @${currentTurnUser}` : "In attesa";
+
+      row.innerHTML = party.map(p => {
+        const isTurn = p.isTurn || (currentTurnUser && (p.owner.toLowerCase() === currentTurnUser.toLowerCase() || p.name.toLowerCase() === currentTurnUser.toLowerCase()));
+        const faceStyle = getFaceSpriteStyle(p.faceName, p.faceIndex);
+        return `
+          <div class="party-card ${isTurn ? 'is-turn' : ''}" onclick="quickSelectAllyTarget('${p.owner || p.name}')">
+            <span class="turn-indicator-badge">⚡ IN TURNO</span>
+            <div class="party-portrait-wrap">
+              <div class="party-portrait-img" style="${faceStyle}"></div>
+            </div>
+            <div class="party-name" title="${p.name}">${p.name}</div>
+            <div class="party-owner-tag">@${p.owner || p.name}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function quickSelectAllyTarget(ownerName) {
+      const clean = ownerName.replace(/^@/, '');
+      selectedTargetStr = (selectedTargetStr === '@' + clean) ? "" : '@' + clean;
+      showToast(selectedTargetStr ? `Bersaglio Alleato: ${selectedTargetStr}` : "Bersaglio deselezionato", "🛡️");
+    }
+
+    function getFaceSpriteStyle(faceName, faceIndex) {
+      const fName = faceName || "Actor1";
+      const idx = faceIndex || 0;
+      const col = idx % 4;
+      const row = Math.floor(idx / 4);
+      const posX = -(col * 100);
+      const posY = -(row * 100);
+      return `background-image: url('img/faces/${fName}.png'); background-position: ${posX}% ${posY}%;`;
+    }
+
+    function renderTimer(seconds) {
+      const text = document.getElementById("turnTimerText");
+      const fill = document.getElementById("turnTimerFill");
+      const clamped = Math.max(0, Math.min(20, seconds));
+      text.innerText = `⏱️ ${clamped} Secondi`;
+      fill.style.width = `${(clamped / 20) * 100}%`;
+    }
+
+    function renderPlayerDashboard(party, currentTurnUser) {
+      // Trova l'attore che corrisponde all'utente attuale (o il primo del party)
+      const myUserClean = (currentUser || "kenz088").toLowerCase();
+      let myActor = party.find(p => (p.owner && p.owner.toLowerCase() === myUserClean) || (p.name && p.name.toLowerCase() === myUserClean));
+      if (!myActor && party.length > 0) {
+        myActor = party[0]; // Fallback dimostrativo
+      }
+      if (!myActor) return;
+
+      const isMyTurn = myActor.isTurn || (currentTurnUser && (myActor.owner.toLowerCase() === currentTurnUser.toLowerCase()));
+
+      const dash = document.getElementById("playerDashboard");
+      const badge = document.getElementById("myTurnBadge");
+      
+      if (isMyTurn) {
+        dash.classList.add("is-my-turn");
+        badge.className = "dashboard-status-tag turn-active";
+        badge.innerText = "⚡ È IL TUO TURNO!";
+      } else {
+        dash.classList.remove("is-my-turn");
+        badge.className = "dashboard-status-tag turn-waiting";
+        badge.innerText = `In Attesa (Turno di @${currentTurnUser || '...'})`;
+      }
+
+      // Portrait & Nome
+      document.getElementById("myDashboardName").innerText = myActor.name;
+      document.getElementById("myDashboardSub").innerText = `@${myActor.owner || myActor.name}`;
+      document.getElementById("myDashboardPortrait").style.cssText = getFaceSpriteStyle(myActor.faceName, myActor.faceIndex);
+
+      // Barre PV / PM / TP
+      const hpPct = Math.max(0, Math.min(100, Math.round((myActor.hp / (myActor.maxHp || 1)) * 100)));
+      document.getElementById("myHpVal").innerText = `${myActor.hp} / ${myActor.maxHp}`;
+      document.getElementById("myHpBar").style.width = `${hpPct}%`;
+
+      const mpPct = Math.max(0, Math.min(100, Math.round((myActor.mp / (myActor.maxMp || 1)) * 100)));
+      document.getElementById("myMpVal").innerText = `${myActor.mp} / ${myActor.maxMp}`;
+      document.getElementById("myMpBar").style.width = `${mpPct}%`;
+
+      const tpVal = myActor.tp || 0;
+      const isLimit = !!myActor.isLimit || tpVal >= 100;
+      document.getElementById("myTpVal").innerText = isLimit ? "100% (PRONTA!)" : `${Math.round(tpVal)}%`;
+      const tpBar = document.getElementById("myTpBar");
+      tpBar.style.width = `${Math.min(100, tpVal)}%`;
+
+      if (isLimit) {
+        tpBar.classList.add("limit-ready");
+      } else {
+        tpBar.classList.remove("limit-ready");
+      }
+
+      // Pulsante Attacca che diventa LIMIT
+      const btnAttack = document.getElementById("btnActionAttack");
+      const attackLabel = document.getElementById("btnAttackLabel");
+      const attackIcon = document.getElementById("btnAttackIcon");
+
+      if (isLimit) {
+        btnAttack.className = "btn-battle-cmd btn-cmd-limit";
+        attackLabel.innerText = "LIMIT BREAK!";
+        attackIcon.innerText = "🔥";
+      } else {
+        btnAttack.className = "btn-battle-cmd btn-cmd-attack";
+        attackLabel.innerText = "Attacca";
+        attackIcon.innerText = "⚔️";
+      }
+
+      // Stati alterati
+      const statesRow = document.getElementById("myStatesRow");
+      if (myActor.states && myActor.states.length) {
+        statesRow.innerHTML = myActor.states.map(s => `<span class="state-badge">⚠️ ${s.name}</span>`).join("");
+      } else {
+        statesRow.innerHTML = '<span style="font-size:0.7rem; color:var(--text-muted);">Nessuna alterazione di stato attiva.</span>';
+      }
+    }
+
+    // ============================================================
+    // GESTIONE DELLE AZIONI & APERTURA MODALI
+    // ============================================================
+
+    // 1. ATTACCO O LIMIT
+    function openAttackModal() {
+      const myActor = getMyCurrentActor();
+      const isLimit = myActor && (myActor.isLimit || myActor.tp >= 100);
+      pendingActionType = isLimit ? "limit" : "attack";
+      pendingActionDetail = null;
+
+      const title = isLimit ? "🔥 Scatena Limit Break" : "⚔️ Esegui Attacco con Arma";
+      document.getElementById("targetModalTitle").innerText = title;
+      document.getElementById("chipDefaultLabel").innerText = isLimit ? "Nemico Casuale (Default Limit)" : "Nemico Casuale (Default Attacco)";
+      
+      populateTargetModal(false);
+      openTargetModal();
+    }
+
+    // 2. ARTI & MAGIE
+    function openSkillsModal() {
+      const myActor = getMyCurrentActor();
+      const list = document.getElementById("skillsChoiceList");
+      const skills = (myActor && myActor.skills) ? myActor.skills : [];
+
+      if (!skills.length) {
+        list.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:10px;">Nessuna arte o magia equipaggiata dalle essenze.</div>';
+      } else {
+        list.innerHTML = skills.map(sk => {
+          const hasMp = (myActor.mp >= sk.mpCost);
+          const isBombSkill = (sk.name.toLowerCase().includes("bomba") || sk.id === 64);
+          
+          if (isBombSkill) {
+            return `
+              <div class="choice-item-card" onclick="openBombsModal()">
+                <div class="choice-item-info">
+                  <div class="choice-item-name">💣 Lancia Bomba (Arsenale)</div>
+                  <div class="choice-item-desc">Seleziona la tipologia di munizione ed esplosivo da lanciare.</div>
+                </div>
+                <div class="choice-item-meta" style="color: #38bdf8;">Munizioni ➔</div>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="choice-item-card ${!hasMp ? 'disabled' : ''}" style="${!hasMp ? 'opacity:0.4; pointer-events:none;' : ''}" onclick="selectSkillForTargeting('${sk.name}', ${sk.scope}, ${sk.mpCost})">
+              <div class="choice-item-info">
+                <div class="choice-item-name">✨ ${sk.name}</div>
+                <div class="choice-item-desc">${sk.desc || 'Arte / Magia sbloccata da essenza'}</div>
+              </div>
+              <div class="choice-item-meta">${sk.mpCost > 0 ? (sk.mpCost + ' MP') : '0 MP'}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("skillsModalOverlay").classList.add("active");
+    }
+
+    function closeSkillsModal(e) {
+      if (e && e.target && e.target.id !== "skillsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("skillsModalOverlay").classList.remove("active");
+    }
+
+    function selectSkillForTargeting(skillName, scope, mpCost) {
+      closeSkillsModal();
+      pendingActionType = "skill";
+      pendingActionDetail = { name: skillName, scope: scope, mpCost: mpCost };
+
+      document.getElementById("targetModalTitle").innerText = `✨ Usa ${skillName}`;
+      
+      const isAllyScope = (scope >= 7 && scope <= 11);
+      document.getElementById("chipDefaultLabel").innerText = isAllyScope ? "Alleato Ferito / Self (Default)" : "Nemico Casuale (Default)";
+
+      populateTargetModal(true);
+      openTargetModal();
+    }
+
+    // 3. SOTTOMENU BOMBE
+    function openBombsModal() {
+      closeSkillsModal();
+      const myActor = getMyCurrentActor();
+      const ammo = (myActor && myActor.bombAmmo) ? myActor.bombAmmo : { normale: 0, molotov: 0, tossica: 0 };
+      const list = document.getElementById("bombsChoiceList");
+
+      const bombTypes = [
+        { type: "normale", name: "Bomba Normale", desc: "Danno esplosivo diretto ad impatto rapido.", count: ammo.normale || 0 },
+        { type: "molotov", name: "Bomba Molotov", desc: "Danno incendiario ad area prolungato.", count: ammo.molotov || 0 },
+        { type: "tossica", name: "Bomba Tossica", desc: "Danno chimico con rilascio di gas venefico.", count: ammo.tossica || 0 }
+      ];
+
+      list.innerHTML = bombTypes.map(b => {
+        const hasAmmo = b.count > 0;
+        return `
+          <div class="choice-item-card ${!hasAmmo ? 'disabled' : ''}" style="${!hasAmmo ? 'opacity:0.4; pointer-events:none;' : ''}" onclick="selectBombForTargeting('${b.type}')">
+            <div class="choice-item-info">
+              <div class="choice-item-name">💣 ${b.name}</div>
+              <div class="choice-item-desc">${b.desc}</div>
+            </div>
+            <div class="choice-item-meta" style="color:${hasAmmo ? 'var(--gold-light)' : 'var(--red)'}; font-size:0.9rem;">x${b.count}</div>
+          </div>
+        `;
+      }).join("");
+
+      document.getElementById("bombsModalOverlay").classList.add("active");
+    }
+
+    function closeBombsModal(e) {
+      if (e && e.target && e.target.id !== "bombsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("bombsModalOverlay").classList.remove("active");
+    }
+
+    function selectBombForTargeting(bombType) {
+      closeBombsModal();
+      pendingActionType = "bomb";
+      pendingActionDetail = { type: bombType };
+
+      document.getElementById("targetModalTitle").innerText = `💣 Lancia Bomba ${bombType.toUpperCase()}`;
+      document.getElementById("chipDefaultLabel").innerText = "Nemico Casuale (Default)";
+
+      populateTargetModal(false);
+      openTargetModal();
+    }
+
+    // 4. OGGETTI
+    function openItemsModal() {
+      const items = (battleState && battleState.partyItems) ? battleState.partyItems : [];
+      const list = document.getElementById("itemsChoiceList");
+
+      if (!items.length) {
+        list.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:10px;">Nessun oggetto consumabile disponibile nel party.</div>';
+      } else {
+        list.innerHTML = items.map(it => {
+          return `
+            <div class="choice-item-card" onclick="selectItemForTargeting('${it.name}', ${it.id})">
+              <div class="choice-item-info">
+                <div class="choice-item-name">🧪 ${it.name}</div>
+                <div class="choice-item-desc">${it.desc || 'Oggetto consumabile del party'}</div>
+              </div>
+              <div class="choice-item-meta">x${it.count}</div>
+            </div>
+          `;
+        }).join("");
+      }
+
+      document.getElementById("itemsModalOverlay").classList.add("active");
+    }
+
+    function closeItemsModal(e) {
+      if (e && e.target && e.target.id !== "itemsModalOverlay" && !e.target.classList.contains("btn-close-modal")) return;
+      document.getElementById("itemsModalOverlay").classList.remove("active");
+    }
+
+    function selectItemForTargeting(itemName, itemId) {
+      closeItemsModal();
+      pendingActionType = "item";
+      pendingActionDetail = { name: itemName, id: itemId };
+
+      document.getElementById("targetModalTitle").innerText = `🎒 Usa ${itemName}`;
+      document.getElementById("chipDefaultLabel").innerText = "Me Stesso / Alleato Ferito (Default)";
+
+      populateTargetModal(false, true); // true = solo alleati per oggetti!
+      openTargetModal();
+    }
+
+    // 5. DIFENDI (AZIONE IMMEDIATA)
+    function triggerGuardAction() {
+      executeSendCommand("!difendi");
+    }
+
+    // ============================================================
+    // GESTIONE DELLA MODALE BERSAGLI
+    // ============================================================
+    function populateTargetModal(allowArea = false, onlyAllies = false) {
+      selectedTargetStr = ""; // reset default
+      document.getElementById("chipDefaultTarget").classList.add("selected");
+
+      // Nemici
+      const enemyContainer = document.getElementById("targetEnemiesChips");
+      if (onlyAllies) {
+        enemyContainer.parentElement.style.display = "none";
+      } else {
+        enemyContainer.parentElement.style.display = "block";
+        const enemies = (battleState && battleState.enemies) ? battleState.enemies : [];
+        enemyContainer.innerHTML = enemies.map(e => `
+          <button class="target-chip enemy-chip" id="targetChipEnemy_${e.letter}" onclick="selectTargetOption('${e.letter}')">
+            <span>👾</span>
+            <span>Nemico ${e.letter} (${e.name})</span>
+          </button>
+        `).join("");
+      }
+
+      // Alleati
+      const allyContainer = document.getElementById("targetAlliesChips");
+      const party = (battleState && battleState.party) ? battleState.party : [];
+      allyContainer.innerHTML = party.map(p => {
+        const owner = p.owner || p.name;
+        return `
+          <button class="target-chip ally-chip" id="targetChipAlly_${owner}" onclick="selectTargetOption('@${owner}')">
+            <span>🛡️</span>
+            <span>@${owner}</span>
+          </button>
+        `;
+      }).join("");
+
+      // Bersagli ad area (Omni / Area)
+      const areaSection = document.getElementById("targetAreaSection");
+      const areaChips = document.getElementById("targetAreaChips");
+      if (allowArea) {
+        areaSection.style.display = "block";
+        areaChips.innerHTML = `
+          <button class="target-chip enemy-chip" onclick="selectTargetOption('tutti nemici')">
+            <span>💥</span>
+            <span>Tutti i Nemici (Area)</span>
+          </button>
+          <button class="target-chip ally-chip" onclick="selectTargetOption('tutti alleati')">
+            <span>✨</span>
+            <span>Tutti gli Alleati (Area)</span>
+          </button>
+        `;
+      } else {
+        areaSection.style.display = "none";
+      }
+    }
+
+    function selectTargetOption(target) {
+      selectedTargetStr = (target === "default") ? "" : target;
+
+      // Deseleziona tutti
+      document.querySelectorAll(".target-chip").forEach(c => c.classList.remove("selected"));
+
+      if (!selectedTargetStr) {
+        document.getElementById("chipDefaultTarget").classList.add("selected");
+      } else if (selectedTargetStr.startsWith("@")) {
+        const clean = selectedTargetStr.substring(1);
+        const chip = document.getElementById("targetChipAlly_" + clean);
+        if (chip) chip.classList.add("selected");
+      } else if (selectedTargetStr.length === 1) {
+        const chip = document.getElementById("targetChipEnemy_" + selectedTargetStr);
+        if (chip) chip.classList.add("selected");
+      }
+    }
+
+    function openTargetModal() {
+      document.getElementById("targetModalOverlay").classList.add("active");
+    }
+
+    function closeTargetModal(e) {
+      if (e && e.target && e.target.id !== "targetModalOverlay" && !e.target.classList.contains("btn-close-modal") && !e.target.classList.contains("btn-modal-cancel")) return;
+      document.getElementById("targetModalOverlay").classList.remove("active");
+    }
+
+    function confirmExecuteAction() {
+      closeTargetModal();
+      let cmdString = "";
+      const targetArg = selectedTargetStr ? (" " + selectedTargetStr) : "";
+
+      if (pendingActionType === "attack") {
+        cmdString = `!attacca${targetArg}`;
+      } else if (pendingActionType === "limit") {
+        cmdString = `!limit${targetArg}`;
+      } else if (pendingActionType === "skill") {
+        cmdString = `!arti ${pendingActionDetail.name}${targetArg}`;
+      } else if (pendingActionType === "bomb") {
+        cmdString = `!arti bomba ${pendingActionDetail.type}${targetArg}`;
+      } else if (pendingActionType === "item") {
+        cmdString = `!oggetti ${pendingActionDetail.name}${targetArg}`;
+      }
+
+      if (cmdString) {
+        executeSendCommand(cmdString);
+      }
+    }
+
+    // ============================================================
+    // INVIO DEL COMANDO (TWITCH CHAT + APPUNTI)
+    // ============================================================
+    async function executeSendCommand(cmd) {
+      // 1. Copia sempre negli appunti per sicurezza assoluta
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+          await navigator.clipboard.writeText(cmd);
+        } catch (e) {}
+      }
+
+      // 2. Invio tramite Helix Chat API se c'è token
+      let sentChat = false;
+      if (twitchToken && currentUser) {
+        try {
+          // Trova broadcaster_id e sender_id
+          const userRes = await fetch("https://api.twitch.tv/helix/users?login=" + STREAMER_CHANNEL, {
+            headers: {
+              "Authorization": "Bearer " + twitchToken,
+              "Client-Id": TWITCH_CLIENT_ID
+            }
+          });
+          if (userRes.ok) {
+            const uData = await userRes.json();
+            const broadcasterId = uData.data[0].id;
+            
+            const myUserRes = await fetch("https://api.twitch.tv/helix/users?login=" + currentUser, {
+              headers: {
+                "Authorization": "Bearer " + twitchToken,
+                "Client-Id": TWITCH_CLIENT_ID
+              }
+            });
+            if (myUserRes.ok) {
+              const myData = await myUserRes.json();
+              const senderId = myData.data[0].id;
+
+              const sendRes = await fetch("https://api.twitch.tv/helix/chat/messages", {
+                method: "POST",
+                headers: {
+                  "Authorization": "Bearer " + twitchToken,
+                  "Client-Id": TWITCH_CLIENT_ID,
+                  "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                  broadcaster_id: broadcasterId,
+                  sender_id: senderId,
+                  message: cmd
+                })
+              });
+              if (sendRes.ok) {
+                sentChat = true;
+              }
+            }
+          }
+        } catch (err) {
+          console.warn("Invio Helix chat fallito:", err);
+        }
+      }
+
+      if (sentChat) {
+        showToast(`Inviato in chat Twitch: ${cmd}`, "🚀");
+      } else {
+        showToast(`Comando copiato negli appunti: ${cmd}`, "📋");
+      }
+    }
+
+    function showToast(msg, icon = "⚔️") {
+      const toast = document.getElementById("battleToast");
+      document.getElementById("toastIcon").innerText = icon;
+      document.getElementById("toastText").innerText = msg;
+      toast.classList.add("show");
+      setTimeout(() => {
+        toast.classList.remove("show");
+      }, 3500);
+    }
+
+    function getMyCurrentActor() {
+      if (!battleState || !battleState.party || !battleState.party.length) return null;
+      const myUserClean = (currentUser || "kenz088").toLowerCase();
+      let found = battleState.party.find(p => (p.owner && p.owner.toLowerCase() === myUserClean) || (p.name && p.name.toLowerCase() === myUserClean));
+      return found || battleState.party[0];
+    }
+
+    // ============================================================
+    // AVVIO
+    // ============================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      initAuth();
+      fetchBattleState();
+      // Polling rapido dello stato battaglia ogni 1 secondo
+      setInterval(fetchBattleState, 1000);
+    });
+  </script>
+</body>
+</html>
