@@ -974,9 +974,34 @@
     `;
   }
 
+  async function initAuth() {
+    // 1. Controlla token OAuth restituito nell'hash dell'URL
+    const hash = (window.location.hash || '').substring(1);
+    if (hash && hash.includes('access_token=')) {
+      const params = new URLSearchParams(hash);
+      const token = params.get('access_token');
+      if (token) {
+        localStorage.setItem(STORAGE_TOKEN_KEY, token);
+        localStorage.removeItem('tbrpg_logged_out');
+        window.history.replaceState(null, null, window.location.pathname);
+        await fetchTwitchUserProfile(token);
+        return;
+      }
+    }
+
+    const savedToken = localStorage.getItem(STORAGE_TOKEN_KEY);
+    const savedUser = localStorage.getItem(STORAGE_USER_KEY);
+    if (savedToken && !savedUser) {
+      await fetchTwitchUserProfile(savedToken);
+      return;
+    }
+
+    renderUserBar();
+  }
+
   window.addEventListener('storage', (e) => {
     if (e.key === STORAGE_USER_KEY || e.key === STORAGE_TOKEN_KEY || e.key === 'tbrpg_logged_out') {
-      renderUserBar();
+      initAuth();
     }
   });
 
