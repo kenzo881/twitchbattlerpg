@@ -483,6 +483,15 @@
       opacity: 0.75;
       animation: none !important;
     }
+    .portrait-card.is-stoned .portrait-img {
+      filter: grayscale(100%) brightness(0.68) contrast(1.18);
+    }
+    .portrait-card.is-stoned .portrait-frame {
+      border-color: rgba(148, 163, 184, 0.8) !important;
+      box-shadow: 0 0 14px rgba(148, 163, 184, 0.45) !important;
+      opacity: 0.85;
+      animation: none !important;
+    }
     .portrait-dead-tag {
       position: absolute;
       top: -8px;
@@ -490,6 +499,23 @@
       transform: translateX(-50%);
       background: linear-gradient(135deg, #ef4444, #991b1b);
       color: #fff;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+      z-index: 3;
+    }
+    .portrait-stoned-tag {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #64748b, #334155);
+      color: #f1f5f9;
+      border: 1px solid rgba(255, 255, 255, 0.25);
       font-size: 0.58rem;
       font-weight: 900;
       letter-spacing: 0.5px;
@@ -1459,6 +1485,7 @@
             <div class="portrait-frame player-frame" id="playerPortraitFrame">
               <span class="portrait-turn-tag" id="playerTurnBadge">⚡ IN TURNO</span>
               <span class="portrait-dead-tag" id="playerDeadBadge" style="display:none;">💀 K.O.</span>
+              <span class="portrait-stoned-tag" id="playerStonedBadge" style="display:none;">🗿 Pietrificato</span>
               <div class="portrait-img" id="playerPortraitImg"></div>
             </div>
             <div class="portrait-label" id="playerLabel">Tu</div>
@@ -2133,11 +2160,35 @@
     }
 
     // ============================================================
-    // 1. RENDERING RITRATTI (Solo ritratti, selezionabili)
+    // 1. STATO PIETRIFICATO & RENDERING RITRATTI
     // ============================================================
+    function isActorStoned(actor) {
+      if (!actor || !actor.states || !Array.isArray(actor.states)) return false;
+      return actor.states.some(s => s && (s.id === 17 || (s.name && (s.name.toLowerCase() === 'pietra' || s.name.toLowerCase() === 'pietrificato'))));
+    }
+
+    function isStoneCureAction() {
+      if (pendingActionType === "item" && pendingActionDetail) {
+        const name = (pendingActionDetail.name || "").toLowerCase();
+        if (name.includes("resina") || name.includes("rimedio")) return true;
+        if (gameItemsDatabase && Array.isArray(gameItemsDatabase)) {
+          const it = gameItemsDatabase.find(x => x && (x.id === pendingActionDetail.id || (x.name && x.name.toLowerCase() === name)));
+          if (it && Array.isArray(it.effects)) {
+            if (it.effects.some(ef => (ef.code === 22 && ef.dataId === 17))) return true;
+          }
+        }
+      }
+      if (pendingActionType === "skill" && pendingActionDetail) {
+        const name = (pendingActionDetail.name || "").toLowerCase();
+        if (name.includes("esuna") || name.includes("panacea") || name.includes("pietra") || name.includes("rimedio")) return true;
+      }
+      return false;
+    }
+
     function renderPortraits(party, currentTurnUser) {
       const myActor = getMyCurrentActor();
       const myLogin = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
+      const isStoneCure = isStoneCureAction();
 
       // Ritratto Giocatore
       const playerCard = document.getElementById("playerPortraitCard");
@@ -2145,23 +2196,38 @@
       const playerImg = document.getElementById("playerPortraitImg");
       const playerLabel = document.getElementById("playerLabel");
       const playerDeadBadge = document.getElementById("playerDeadBadge");
+      const playerStonedBadge = document.getElementById("playerStonedBadge");
       const playerTurnBadge = document.getElementById("playerTurnBadge");
 
       const displayActor = myActor || (party.length > 0 ? party[0] : null);
       if (displayActor) {
         const isPlayerDead = (displayActor.hp !== undefined && displayActor.hp <= 0);
-        playerLabel.innerText = (myActor ? `Tu (${displayActor.name})` : displayActor.name) + (isPlayerDead ? " (K.O.)" : "");
+        const isPlayerStoned = !isPlayerDead && isActorStoned(displayActor);
+        let playerSuffix = "";
+        if (isPlayerDead) playerSuffix = " (K.O.)";
+        else if (isPlayerStoned) playerSuffix = " (Pietrificato)";
+
+        playerLabel.innerText = (myActor ? `Tu (${displayActor.name})` : displayActor.name) + playerSuffix;
         playerImg.style.cssText = getFaceSpriteStyle(displayActor.faceName, displayActor.faceIndex);
 
         if (isPlayerDead) {
           playerCard.classList.add("is-dead");
-          playerCard.classList.remove("is-turn");
+          playerCard.classList.remove("is-stoned", "is-turn");
           playerFrame.classList.remove("is-turn");
           if (playerDeadBadge) playerDeadBadge.style.display = "block";
+          if (playerStonedBadge) playerStonedBadge.style.display = "none";
+          if (playerTurnBadge) playerTurnBadge.style.display = "none";
+        } else if (isPlayerStoned) {
+          playerCard.classList.remove("is-dead", "is-turn");
+          playerCard.classList.add("is-stoned");
+          playerFrame.classList.remove("is-turn");
+          if (playerDeadBadge) playerDeadBadge.style.display = "none";
+          if (playerStonedBadge) playerStonedBadge.style.display = "block";
           if (playerTurnBadge) playerTurnBadge.style.display = "none";
         } else {
-          playerCard.classList.remove("is-dead");
+          playerCard.classList.remove("is-dead", "is-stoned");
           if (playerDeadBadge) playerDeadBadge.style.display = "none";
+          if (playerStonedBadge) playerStonedBadge.style.display = "none";
 
           const isPlayerTurn = displayActor.isTurn || (currentTurnUser && displayActor.owner && displayActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
           if (isPlayerTurn) {
@@ -2186,7 +2252,8 @@
           playerCard.classList.remove("selected-target");
         }
 
-        if (pendingActionType === 'item' && !isPlayerDead) {
+        const canTargetPlayer = (pendingActionType === 'item') && (!isPlayerDead && (!isPlayerStoned || isStoneCure));
+        if (canTargetPlayer) {
           playerCard.classList.add("targetable-ready");
         } else {
           playerCard.classList.remove("targetable-ready");
@@ -2205,19 +2272,38 @@
       alliesRow.innerHTML = allies.map(ally => {
         const allyOwner = (ally.owner || ally.name || "").replace(/^@/, '');
         const isDead = (ally.hp !== undefined && ally.hp <= 0);
-        const isTurn = !isDead && (ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase()));
+        const isStoned = !isDead && isActorStoned(ally);
+        const isTurn = !isDead && !isStoned && (ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase()));
         const isSelected = (selectedTargetStr.toLowerCase() === ('@' + allyOwner).toLowerCase());
         const faceStyle = getFaceSpriteStyle(ally.faceName, ally.faceIndex);
+        const canTargetThisAlly = (pendingActionType === 'item') && (!isDead && (!isStoned || isStoneCure));
+
+        let badgeHtml = '<span class="portrait-turn-tag">⚡ TURNO</span>';
+        let cardTitle = `Seleziona alleato @${allyOwner}`;
+        let labelExtra = '';
+        let labelStyle = '';
+
+        if (isDead) {
+          badgeHtml = '<span class="portrait-dead-tag">💀 K.O.</span>';
+          cardTitle = `@${allyOwner} è caduto in battaglia (K.O.)`;
+          labelExtra = ' (K.O.)';
+          labelStyle = 'color:#ef4444;';
+        } else if (isStoned) {
+          badgeHtml = '<span class="portrait-stoned-tag">🗿 Pietrificato</span>';
+          cardTitle = `@${allyOwner} è pietrificato! Attendi cure!`;
+          labelExtra = ' (Pietrificato)';
+          labelStyle = 'color:#94a3b8;';
+        }
 
         return `
-          <div class="portrait-card ${isDead ? 'is-dead' : ''} ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''} ${pendingActionType === 'item' && !isDead ? 'targetable-ready' : ''}" 
+          <div class="portrait-card ${isDead ? 'is-dead' : ''} ${isStoned ? 'is-stoned' : ''} ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''} ${canTargetThisAlly ? 'targetable-ready' : ''}" 
                onclick="selectAllyTarget('@${allyOwner}')" 
-               title="${isDead ? '@' + allyOwner + ' è caduto in battaglia (K.O.)' : 'Seleziona alleato @' + allyOwner}">
+               title="${cardTitle}">
             <div class="portrait-frame ally-frame ${isTurn ? 'is-turn' : ''}">
-              ${isDead ? '<span class="portrait-dead-tag">💀 K.O.</span>' : '<span class="portrait-turn-tag">⚡ TURNO</span>'}
+              ${badgeHtml}
               <div class="portrait-img" style="${faceStyle}"></div>
             </div>
-            <div class="portrait-label" style="${isDead ? 'color:#ef4444;' : ''}">@${allyOwner} ${isDead ? '(K.O.)' : ''}</div>
+            <div class="portrait-label" style="${labelStyle}">@${allyOwner}${labelExtra}</div>
           </div>
         `;
       }).join("");
@@ -2316,6 +2402,7 @@
     function renderCommandButtons() {
       const myActor = getMyCurrentActor();
       const isDead = myActor && myActor.hp !== undefined && myActor.hp <= 0;
+      const isStoned = !isDead && isActorStoned(myActor);
       const isLimit = isPlayerInLimit();
       const btnAttack = document.getElementById("btnActionAttack");
       const btnAttackIcon = document.getElementById("btnAttackIcon");
@@ -2325,6 +2412,10 @@
         btnAttack.classList.remove("is-limit");
         btnAttackIcon.innerText = "💀";
         btnAttackLabel.innerText = "K.O.";
+      } else if (isStoned) {
+        btnAttack.classList.remove("is-limit");
+        btnAttackIcon.innerText = "🗿";
+        btnAttackLabel.innerText = "Pietra";
       } else if (isLimit) {
         btnAttack.classList.add("is-limit");
         btnAttackIcon.innerText = "🔥";
@@ -2393,6 +2484,12 @@
         showToast(`💀 @${targetUser} è caduto in battaglia (K.O.) e non può essere bersagliato.`, "💀");
         return;
       }
+      if (targetedActor && isActorStoned(targetedActor)) {
+        if (!isStoneCureAction()) {
+          showToast(`🗿 @${targetUser} è pietrificato! Puoi bersagliarlo solo con Resina o Rimedio.`, "🗿");
+          return;
+        }
+      }
 
       const formatted = '@' + targetUser;
       if (selectedTargetStr.toLowerCase() === formatted.toLowerCase() || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
@@ -2442,13 +2539,16 @@
       const myActor = getMyCurrentActor();
       const myCleanName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "Tu");
       const isPlayerDead = (myActor && myActor.hp !== undefined && myActor.hp <= 0);
+      const isStoneCure = isStoneCureAction();
+      const isPlayerStoned = !isPlayerDead && isActorStoned(myActor);
+      const canSelectPlayer = !isPlayerDead && (!isPlayerStoned || isStoneCure);
 
-      const isPlayerSelected = !isPlayerDead && (selectedTargetStr === '__player__' || 
+      const isPlayerSelected = canSelectPlayer && (selectedTargetStr === '__player__' || 
                                selectedTargetStr.toLowerCase() === ('@' + myCleanName).toLowerCase() ||
                                (!selectedTargetStr && pendingActionType === 'item'));
 
       let chipsHtml = "";
-      if (!isPlayerDead) {
+      if (canSelectPlayer) {
         chipsHtml += `
           <button class="target-quick-chip ${isPlayerSelected ? 'active' : ''}" onclick="selectAllyTarget('__player__')">
             👤 Tu (${myCleanName})
@@ -2456,11 +2556,14 @@
         `;
       }
 
-      // Solo alleati vivi (chi è morto non può essere bersagliato)
+      // Alleati: esclude chi è K.O. e permette pietrificati solo se l'oggetto cura la pietra
       const allies = party.filter(p => {
         const o = (p.owner || p.name || "").replace(/^@/, '').toLowerCase().trim();
         const isDead = (p.hp !== undefined && p.hp <= 0);
-        return o !== myCleanName.toLowerCase().trim() && !isDead;
+        const isStoned = !isDead && isActorStoned(p);
+        if (isDead) return false;
+        if (isStoned && !isStoneCure) return false;
+        return o !== myCleanName.toLowerCase().trim();
       }).slice(0, 3);
 
       allies.forEach(ally => {
@@ -3243,6 +3346,10 @@
       }
       if (myAct.hp !== undefined && myAct.hp <= 0) {
         showToast("💀 Sei caduto in battaglia! (K.O.)", "💀");
+        return false;
+      }
+      if (isActorStoned(myAct)) {
+        showToast("🗿 Sei Pietrificato! Attendi cure!", "🗿");
         return false;
       }
       return true;
