@@ -2787,7 +2787,7 @@ function checkGameActive(data) {
   const ts = d.heartbeat || d.timestamp || 0;
   if (!ts) return false;
   const diff = Date.now() - ts;
-  return diff < 35000 && diff > -10000;
+  return diff < 20000 && diff > -10000;
 }
 
 function updateGameStatusUI(active, data) {
@@ -3963,31 +3963,10 @@ function getGameOperationalState(data) {
   const hb = d.heartbeat || d.timestamp || 0;
   if (!hb) return 'offline';
   const diff = now - hb;
-  if (diff > 25000 || diff < -10000) return 'offline';
+  if (diff > 20000 || diff < -10000) return 'offline';
   if (d.gameActive === true && !d.inTitle) return 'live';
   if (d.inTitle === true || d.gameActive === false) return 'menu';
   return 'offline';
-}
-
-function updateGameStatusUI(active, data) {
-  const state = getGameOperationalState(data);
-  const pill = document.getElementById("syncStatusBadge");
-  const text = document.getElementById("syncStatusText");
-  if (!pill || !text) return;
-
-  if (state === 'live') {
-    pill.className = "sync-status-pill live";
-    text.innerText = "Live";
-    isGameCurrentlyActive = true;
-  } else if (state === 'menu') {
-    pill.className = "sync-status-pill menu";
-    text.innerText = "Menu";
-    isGameCurrentlyActive = false;
-  } else {
-    pill.className = "sync-status-pill offline";
-    text.innerText = "Offline";
-    isGameCurrentlyActive = false;
-  }
 }
 
 function showToast(title, msg) {
