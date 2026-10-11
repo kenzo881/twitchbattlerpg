@@ -630,25 +630,6 @@
     border-radius: 50%;
     flex-shrink: 0;
   }
-
-  .user-gold-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
-    border: 1px solid rgba(212, 175, 55, 0.4);
-    padding: 5px 14px;
-    border-radius: 20px;
-    box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
-    font-size: 0.92rem;
-  }
-  .user-gold-badge .coin-icon { font-size: 1.1rem; }
-  .user-gold-badge .gold-val {
-    font-family: 'Cinzel', Georgia, serif;
-    font-weight: 700;
-    color: var(--gold-light, #ffd700);
-  }
-
 </style>
   <script src="status_data.js"></script>
 </head>
@@ -671,13 +652,6 @@
     </div>
 
     <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-      <!-- SALDO ORO UTENTE -->
-      <div class="user-gold-badge" id="topUserGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
-        <span class="coin-icon">🪙</span>
-        <span class="gold-val" id="topUserGold">--</span>
-        <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
-      </div>
-
       <div class="twitch-auth-zone" id="twitchAuthContainer">
         <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
@@ -882,10 +856,6 @@
     localStorage.removeItem(STORAGE_USER_KEY);
     localStorage.removeItem(STORAGE_TOKEN_KEY);
     currentUser = null;
-    const goldBox = document.getElementById('topUserGoldBox');
-    const goldVal = document.getElementById('topUserGold');
-    if (goldBox) goldBox.style.display = 'none';
-    if (goldVal) goldVal.innerText = '--';
     renderUserBar();
   }
 
@@ -1028,11 +998,9 @@
     return 'offline';
   }
 
-    function updateMainGameStatus(data) {
+  function updateMainGameStatus(data) {
     const pill = document.getElementById('mainStatusPill');
     const txt = document.getElementById('mainLiveText');
-    const goldBox = document.getElementById('topUserGoldBox');
-    const goldVal = document.getElementById('topUserGold');
 
     const state = getGameOperationalState(data);
 
@@ -1046,22 +1014,6 @@
       } else {
         pill.className = "sync-status-pill offline";
         txt.innerText = "Offline";
-      }
-    }
-
-    // Aggiornamento saldo Oro se presente
-    const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-    if (goldBox && goldVal) {
-      if (state !== 'live') {
-        goldVal.innerText = '--';
-      } else if (d && d.currency) {
-        const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
-        if (u && d.currency[u] !== undefined) {
-          goldBox.style.display = 'inline-flex';
-          goldVal.innerText = d.currency[u].toLocaleString('it-IT');
-        } else {
-          goldVal.innerText = '--';
-        }
       }
     }
   }
