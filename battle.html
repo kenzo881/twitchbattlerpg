@@ -1948,47 +1948,71 @@
     // RENDERING BATTAGLIA
     // ============================================================
     function updateBattleView(data) {
-      battleState = data;
-      const waitingScreen = document.getElementById("waitingScreen");
-      const activeBattleScreen = document.getElementById("activeBattleScreen");
+  battleState = data;
+  const waitingScreen = document.getElementById("waitingScreen");
+  const activeBattleScreen = document.getElementById("activeBattleScreen");
 
-      if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0) {
-        waitingScreen.style.display = "flex";
-        activeBattleScreen.style.display = "none";
-
-        const grid = document.getElementById("enemiesGrid");
-        if (grid) grid.innerHTML = "";
-        const row = document.getElementById("partyRow");
-        if (row) row.innerHTML = "";
-        const myStates = document.getElementById("myStatesRow");
-        if (myStates) myStates.innerHTML = "";
-
-        const waitTitle = document.querySelector(".waiting-title");
-        const waitDesc = document.querySelector(".waiting-desc");
-        if (waitTitle && waitDesc) {
-          const opState = getGameOperationalState();
-          if (opState === 'menu') {
-            waitTitle.innerText = "Gioco al Menu Iniziale";
-            waitDesc.innerHTML = "Il gioco TBRPG è attualmente aperto alla Schermata del Titolo.<br>Quando avvierai o caricherai una partita ed entrerai in battaglia, questa schermata si attiverà in tempo reale.";
-          } else if (opState === 'offline') {
-            waitTitle.innerText = "Gioco Non Rilevato (Offline)";
-            waitDesc.innerHTML = "TBRPG è attualmente chiuso o non attivo.<br>Quando il gioco verrà avviato e inizierà un combattimento, questa schermata si aggiornerà in tempo reale.";
-          } else {
-            waitTitle.innerText = "Nessuna Battaglia Attiva";
-            waitDesc.innerHTML = "Il party non è attualmente impegnato in combattimento.<br>Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà in tempo reale con nemici, turni e comandi d'azione.";
-          }
-        }
-        return;
-      }
-
-      waitingScreen.style.display = "none";
-      activeBattleScreen.style.display = "flex";
-
-      renderEnemies(data.enemies || []);
-      renderParty(data.party || [], data.currentTurnUser);
-      renderTimer(data.timerSeconds || 0);
-      renderPlayerDashboard(data.party || [], data.currentTurnUser);
+  // ⭐ FIX: se dice che c'è una battaglia, verifica che il gioco sia ANCORA vivo
+  // Se il gioco è stato chiuso con la X durante la battaglia, l'heartbeat
+  // in window.__LIVE_GAME_DATA smette di aggiornarsi → battaglia fantasma.
+  let battleIsReal = false;
+  if (data && data.inBattle && data.enemies && data.enemies.length > 0) {
+    const live = window.__LIVE_GAME_DATA;
+    if (live && live.heartbeat) {
+      const diff = Date.now() - live.heartbeat;
+      // heartbeat < 25s → gioco vivo; altrimenti è una battaglia fantasma
+      battleIsReal = (diff >= 0 && diff < 25000);
+    } else {
+      // Primi secondi di caricamento pagina: __LIVE_GAME_DATA non è ancora arrivato.
+      // In questo caso ci fidiamo del battle_state per non mostrare "offline" ingiustamente.
+      battleIsReal = true;
     }
+  }
+
+  // Nessuna battaglia O battaglia fantasma → mostra schermata di attesa
+  if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0 || !battleIsReal) {
+    waitingScreen.style.display = "flex";
+    activeBattleScreen.style.display = "none";
+
+    const grid = document.getElementById("enemiesGrid");
+    if (grid) grid.innerHTML = "";
+    const row = document.getElementById("partyRow");
+    if (row) row.innerHTML = "";
+    const myStates = document.getElementById("myStatesRow");
+    if (myStates) myStates.innerHTML = "";
+
+    const waitTitle = document.querySelector(".waiting-title");
+    const waitDesc = document.querySelector(".waiting-desc");
+    if (waitTitle && waitDesc) {
+      if (data && data.inBattle && !battleIsReal) {
+        // 🎯 Caso specifico: battaglia fantasma (gioco chiuso a metà combattimento)
+        waitTitle.innerText = "Battaglia Interrotta";
+        waitDesc.innerHTML = "Il gioco è stato chiuso durante il combattimento.<br>Attendi l'avvio di una nuova battaglia per giocare.";
+      } else {
+        const opState = getGameOperationalState();
+        if (opState === 'menu') {
+          waitTitle.innerText = "Gioco al Menu Iniziale";
+          waitDesc.innerHTML = "TBRPG è attualmente al Menu.<br>Quando avvierai o caricherai una partita ed entrerai in battaglia, questa schermata si attiverà in tempo reale.";
+        } else if (opState === 'offline') {
+          waitTitle.innerText = "Gioco Non Rilevato (Offline)";
+          waitDesc.innerHTML = "TBRPG è attualmente chiuso o non attivo.<br>Quando il gioco verrà avviato e inizierà un combattimento, questa schermata si aggiornerà in tempo reale.";
+        } else {
+          waitTitle.innerText = "Nessuna Battaglia Attiva";
+          waitDesc.innerHTML = "Il party non è attualmente impegnato in combattimento.<br>Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà in tempo reale con nemici, turni e comandi d'azione.";
+        }
+      }
+    }
+    return;
+  }
+
+  waitingScreen.style.display = "none";
+  activeBattleScreen.style.display = "flex";
+
+  renderEnemies(data.enemies || []);
+  renderParty(data.party || [], data.currentTurnUser);
+  renderTimer(data.timerSeconds || 0);
+  renderPlayerDashboard(data.party || [], data.currentTurnUser);
+}
 
     function renderEnemies(enemies) {
       const grid = document.getElementById("enemiesGrid");
