@@ -116,7 +116,6 @@
       overflow-x: hidden;
     }
 
-    /* TOP NAVIGATION UNIFICATA TBRPG */
     .top-nav {
       background: rgba(10, 14, 23, 0.95);
       border-bottom: 1px solid var(--border-card);
@@ -338,7 +337,6 @@
       background: #772ce8;
     }
 
-    /* MAIN BATTLE CONTAINER */
     .battle-container {
       max-width: 900px;
       width: 100%;
@@ -350,7 +348,6 @@
       flex: 1;
     }
 
-    /* OFFLINE / WAITING BANNER */
     .waiting-banner {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
@@ -387,7 +384,6 @@
       line-height: 1.6;
     }
 
-    /* SECTION HEADERS */
     .section-label {
       font-family: 'Cinzel', serif;
       font-size: 0.85rem;
@@ -405,7 +401,6 @@
       color: var(--gold-light);
     }
 
-    /* 1. ENEMIES SECTION */
     .enemies-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -490,7 +485,6 @@
       font-weight: 600;
     }
 
-    /* 2. PARTY SECTION */
     .party-row {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
@@ -588,7 +582,6 @@
       color: var(--text-muted);
     }
 
-    /* TIMER PROGRESS BAR */
     .turn-timer-container {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--border-card);
@@ -624,7 +617,6 @@
       transition: width 1s linear;
     }
 
-    /* 3. PLAYER ACTIVE DASHBOARD (BOTTOM) */
     .player-dashboard {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
@@ -693,7 +685,6 @@
       color: var(--text-muted);
     }
 
-    /* GAUGES (PV / PM / LIMIT) */
     .gauges-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -753,7 +744,6 @@
       100% { filter: brightness(1); }
     }
 
-    /* ACTION COMMAND BUTTONS */
     .actions-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -790,7 +780,6 @@
       transform: translateY(-2px);
     }
 
-    /* ATTACK */
     .btn-cmd-attack {
       background: rgba(59, 130, 246, 0.12);
       border-color: rgba(59, 130, 246, 0.35);
@@ -802,7 +791,6 @@
       box-shadow: 0 0 14px var(--blue-glow);
     }
 
-    /* LIMIT (QUANDO ATTIVO) */
     .btn-cmd-limit {
       background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(245, 158, 11, 0.3)) !important;
       border-color: var(--gold) !important;
@@ -815,7 +803,6 @@
       100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); transform: scale(1.02); }
     }
 
-    /* SKILLS */
     .btn-cmd-skills {
       background: rgba(139, 92, 246, 0.12);
       border-color: rgba(139, 92, 246, 0.35);
@@ -827,7 +814,6 @@
       box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
     }
 
-    /* DEFEND */
     .btn-cmd-guard {
       background: rgba(16, 185, 129, 0.12);
       border-color: rgba(16, 185, 129, 0.35);
@@ -839,7 +825,6 @@
       box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
     }
 
-    /* ITEMS */
     .btn-cmd-items {
       background: rgba(245, 158, 11, 0.12);
       border-color: rgba(245, 158, 11, 0.35);
@@ -851,7 +836,6 @@
       box-shadow: 0 0 14px var(--gold-glow);
     }
 
-    /* MODAL OVERLAY & DRAWERS */
     .battle-modal-overlay {
       position: fixed;
       inset: 0;
@@ -911,7 +895,6 @@
       gap: 14px;
     }
 
-    /* LIST DI SKILL O ITEM */
     .action-choice-list {
       display: flex;
       flex-direction: column;
@@ -959,7 +942,6 @@
       white-space: nowrap;
     }
 
-    /* TARGET SELECTOR GRID */
     .target-group-title {
       font-family: 'Cinzel', serif;
       font-size: 0.78rem;
@@ -1067,7 +1049,6 @@
       cursor: pointer;
     }
 
-    /* TOAST NOTIFICATION */
     .toast-box {
       position: fixed;
       bottom: 24px;
@@ -1095,7 +1076,6 @@
       opacity: 1;
     }
   
-    /* TOP NAV UNIFICATA TBRPG */
     .top-nav {
       display: flex;
       justify-content: space-between;
@@ -1289,8 +1269,6 @@
       transform: translateY(-1px);
     }
 
-
-    /* PULSANTI PRIORITARI TOP-NAV */
     .nav-pill-btn.pill-status {
       border-color: rgba(59, 130, 246, 0.45);
       color: #93c5fd;
@@ -1333,7 +1311,6 @@
       color: #e2e8f0;
     }
 
-    /* MOBILE BOTTOM BAR COMPATTA */
     .mobile-bottom-bar {
       display: none;
       position: fixed;
@@ -1387,7 +1364,6 @@
 </head>
 <body>
 
-  <!-- TOP NAVIGATION -->
   <nav class="top-nav">
     <div class="top-nav-left">
       <a href="main.html" class="nav-brand-title">
@@ -1410,14 +1386,12 @@
     </div>
 
     <div class="top-nav-right">
-      <!-- SALDO ORO UTENTE -->
       <div class="user-gold-badge" id="userGoldBox" title="Il tuo saldo Oro attuale in gioco">
         <span class="coin-icon">🪙</span>
         <span class="gold-val" id="topUserGold">--</span>
         <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
       </div>
 
-      <!-- BADGE UTENTE TWITCH ALL'ESTREMO MARGINE DESTRO -->
       <div id="twitchAuthContainer">
         <button class="btn-twitch-login" onclick="loginWithTwitch()">
           <svg style="width:14px;height:14px;fill:#fff;" viewBox="0 0 24 24">
@@ -1429,10 +1403,8 @@
     </div>
   </nav>
 
-  <!-- MAIN BATTLE CONTAINER -->
   <div class="battle-container">
 
-    <!-- SCHERMATA ATTESA SE NON IN BATTAGLIA -->
     <div id="waitingScreen" class="waiting-banner">
       <div class="waiting-icon">⏳</div>
       <h2 class="waiting-title">Nessuna Battaglia Attiva</h2>
@@ -1445,10 +1417,8 @@
       </button>
     </div>
 
-    <!-- SCHERMATA ATTIVA DI BATTAGLIA -->
     <div id="activeBattleScreen" style="display: none; flex-direction: column; gap: 16px;">
       
-      <!-- 1. I NEMICI -->
       <div>
         <div class="section-label">
           <span>Nemici in Campo</span>
@@ -1457,7 +1427,6 @@
         <div class="enemies-grid" id="enemiesGrid"></div>
       </div>
 
-      <!-- 2. IL PARTY E IL TIMER TURNO -->
       <div>
         <div class="section-label">
           <span>Party Alleato</span>
@@ -1466,7 +1435,6 @@
         <div class="party-row" id="partyRow"></div>
       </div>
 
-      <!-- BARRA TIMER CONTO ALLA ROVESCIA -->
       <div class="turn-timer-container">
         <span class="timer-text" id="turnTimerText">⏱️ 20 Secondi</span>
         <div class="timer-bar-track">
@@ -1474,7 +1442,6 @@
         </div>
       </div>
 
-      <!-- 3. CRUSCOTTO PERSONALE DEL TUO PERSONAGGIO -->
       <div class="player-dashboard" id="playerDashboard">
         
         <div class="dashboard-header">
@@ -1490,14 +1457,11 @@
           <span class="dashboard-status-tag turn-waiting" id="myTurnBadge">In Attesa</span>
         </div>
 
-        <!-- SE NON SEI NEL PARTY -->
         <div id="spectatorNotice" style="display: none; text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.85rem;">
           Non stai partecipando a questa battaglia (stai seguendo lo scontro da spettatore).
         </div>
 
-        <!-- BARRE PV / PM / LIMIT -->
         <div class="gauges-grid" id="myGaugesContainer">
-          <!-- PV -->
           <div class="gauge-card">
             <div class="gauge-label-row">
               <span style="color: var(--hp-color);">Punti Vita (PV)</span>
@@ -1508,7 +1472,6 @@
             </div>
           </div>
 
-          <!-- PM -->
           <div class="gauge-card">
             <div class="gauge-label-row">
               <span style="color: var(--mp-color);">Punti Magia (PM)</span>
@@ -1519,7 +1482,6 @@
             </div>
           </div>
 
-          <!-- LIMIT -->
           <div class="gauge-card">
             <div class="gauge-label-row">
               <span style="color: var(--limit-color);" id="myLimitLabel">Barra Limit</span>
@@ -1531,30 +1493,24 @@
           </div>
         </div>
 
-        <!-- STATI ALTERATI PERSONALI -->
         <div id="myStatesRow" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
 
-        <!-- PANNELLO AZIONI PERSONALI (SEMPRE UTILIZZABILI PER ACCODARE) -->
         <div class="actions-grid" id="myActionsContainer">
-          <!-- ATTACCA / LIMIT -->
           <button class="btn-battle-cmd btn-cmd-attack" id="btnActionAttack" onclick="openAttackModal()">
             <span style="font-size: 1.3rem;" id="btnAttackIcon">⚔️</span>
             <span id="btnAttackLabel">Attacca</span>
           </button>
 
-          <!-- ARTI & MAGIE -->
           <button class="btn-battle-cmd btn-cmd-skills" id="btnActionSkills" onclick="openSkillsModal()">
             <span style="font-size: 1.3rem;">✨</span>
             <span>Arti & Magie</span>
           </button>
 
-          <!-- DIFENDI -->
           <button class="btn-battle-cmd btn-cmd-guard" id="btnActionGuard" onclick="triggerGuardAction()">
             <span style="font-size: 1.3rem;">🛡️</span>
             <span>Difendi</span>
           </button>
 
-          <!-- OGGETTI -->
           <button class="btn-battle-cmd btn-cmd-items" id="btnActionItems" onclick="openItemsModal()">
             <span style="font-size: 1.3rem;">🎒</span>
             <span>Oggetti</span>
@@ -1567,7 +1523,6 @@
 
   </div>
 
-  <!-- MODALE SCELTA BERSAGLIO ATTACCO / LIMIT -->
   <div class="battle-modal-overlay" id="targetModalOverlay" onclick="closeTargetModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1576,7 +1531,6 @@
       </div>
       <div class="modal-body">
         
-        <!-- OPZIONE DEFAULT / CASUALE (SCOPE DATABASE) -->
         <div>
           <button class="target-chip default-chip selected" id="chipDefaultTarget" onclick="selectTargetOption('default')">
             <span>🎲</span>
@@ -1584,15 +1538,12 @@
           </button>
         </div>
 
-        <!-- BERSAGLI NEMICI -->
         <div class="target-group-title">👾 Nemici in Campo</div>
         <div class="target-chips-row" id="targetEnemiesChips"></div>
 
-        <!-- BERSAGLI ALLEATI -->
         <div class="target-group-title">🛡️ Alleati del Party</div>
         <div class="target-chips-row" id="targetAlliesChips"></div>
 
-        <!-- TUTTI I NEMICI / TUTTI GLI ALLEATI (SE APPLICABILE) -->
         <div id="targetAreaSection" style="display: none;">
           <div class="target-group-title">🌐 Bersagli ad Area</div>
           <div class="target-chips-row" id="targetAreaChips"></div>
@@ -1608,7 +1559,6 @@
     </div>
   </div>
 
-  <!-- MODALE ARTI & MAGIE -->
   <div class="battle-modal-overlay" id="skillsModalOverlay" onclick="closeSkillsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1621,7 +1571,6 @@
     </div>
   </div>
 
-  <!-- MODALE SOTTOMENU BOMBE -->
   <div class="battle-modal-overlay" id="bombsModalOverlay" onclick="closeBombsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1634,7 +1583,6 @@
     </div>
   </div>
 
-  <!-- MODALE OGGETTI -->
   <div class="battle-modal-overlay" id="itemsModalOverlay" onclick="closeItemsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1647,7 +1595,6 @@
     </div>
   </div>
 
-  <!-- NOTIFICA TOAST -->
   <div class="toast-box" id="battleToast">
     <span id="toastIcon">⚔️</span>
     <span id="toastText">Comando inviato!</span>
@@ -1666,25 +1613,62 @@
     let twitchToken = null;
     let battleState = null;
     let selectedTargetStr = "";
-    let pendingActionType = ""; // 'attack', 'limit', 'skill', 'bomb', 'item'
+    let pendingActionType = "";
     let pendingActionDetail = null;
     let isGameRunning = false;
 
-    // RILEVAMENTO RIGOROSO DELLE 3 CONDIZIONI: 'live' | 'menu' | 'offline'
+    // ============================================================
+    // ⭐ FIX: rileva se il gioco è ancora vivo (heartbeat < 25s)
+    // ============================================================
+    function isGameAlive() {
+      const live = window.__LIVE_GAME_DATA;
+      if (!live) return null;
+      const hb = live.heartbeat || live.timestamp || 0;
+      if (!hb || hb === 0) return false;
+      const diff = Date.now() - hb;
+      if (diff < 0) return null;
+      if (diff < 25000) return true;
+      return false;
+    }
+
+    // ============================================================
+    // ⭐ FIX: getGameOperationalState robusto con cache last state
+    // ============================================================
     function getGameOperationalState(data) {
       const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
       if (!d) return 'offline';
-      const now = Date.now();
-      const hb = d.heartbeat || d.timestamp || 0;
-      if (!hb) return 'offline';
-      const diff = now - hb;
+
+      let hb = d.heartbeat;
+      if (!hb && typeof window !== 'undefined' && window.__LIVE_GAME_DATA) {
+        hb = window.__LIVE_GAME_DATA.heartbeat || window.__LIVE_GAME_DATA.timestamp;
+      }
+      hb = hb || d.timestamp || 0;
+
+      if (!hb) {
+        if (typeof window !== 'undefined' && window.__LAST_KNOWN_STATE) {
+          return window.__LAST_KNOWN_STATE;
+        }
+        return 'offline';
+      }
+
+      const diff = Date.now() - hb;
       if (diff > 25000 || diff < -10000) return 'offline';
-      if (d.gameActive === true && !d.inTitle) return 'live';
-      if (d.inTitle === true || d.gameActive === false) return 'menu';
-      return 'offline';
+
+      const ga = (d.gameActive !== undefined) ? d.gameActive :
+                 (window.__LIVE_GAME_DATA ? window.__LIVE_GAME_DATA.gameActive : undefined);
+      const ti = (d.inTitle !== undefined) ? d.inTitle :
+                 (window.__LIVE_GAME_DATA ? window.__LIVE_GAME_DATA.inTitle : undefined);
+
+      let state = 'offline';
+      if (ga === true && !ti) state = 'live';
+      else if (ti === true || ga === false) state = 'menu';
+
+      if (typeof window !== 'undefined' && state !== 'offline') {
+        window.__LAST_KNOWN_STATE = state;
+      }
+      return state;
     }
 
-    // Inizializzazione Autenticazione Twitch
     function initAuth() {
       if (window.location.hash) {
         const params = new URLSearchParams(window.location.hash.substring(1));
@@ -1866,7 +1850,13 @@
       } catch(e) {}
     }
 
+    // ============================================================
+    // ⭐ FIX: handleLiveGameStatus memorizza __LIVE_GAME_DATA
+    // ============================================================
     function handleLiveGameStatus(data) {
+      // ⭐ FIX: memorizza i dati live per il check battaglia fantasma
+      if (data && typeof data === 'object') window.__LIVE_GAME_DATA = data;
+
       const state = getGameOperationalState(data);
       const pill = document.getElementById("syncStatusBadge");
       const text = document.getElementById("syncStatusText");
@@ -1903,7 +1893,23 @@
       }
     }
 
+    // ============================================================
+    // ⭐ FIX: fetchBattleState invertito — PRIMA live, POI battle
+    // ============================================================
     async function fetchBattleState() {
+      // 1) Prima aggiorna LIVE data (heartbeat) — così updateBattleView lo trova fresco
+      try {
+        const lRes = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
+        if (lRes.ok) {
+          const lData = await lRes.json();
+          if (lData) {
+            window.__LIVE_GAME_DATA = lData;
+            handleLiveGameStatus(lData);
+          }
+        }
+      } catch(e) {}
+
+      // 2) Poi fetch BATTLE data
       let fetchedFromFirebase = false;
       try {
         const fbRes = await fetch(FIREBASE_BATTLE_URL + "?t=" + Date.now());
@@ -1916,6 +1922,7 @@
         }
       } catch(e) {}
 
+      // 3) Fallback su file locale (solo se non su HTTP)
       if (!fetchedFromFirebase) {
         try {
           const res = await fetch("twitch_battle_state.json?t=" + Date.now());
@@ -1929,14 +1936,6 @@
           updateBattleView({ inBattle: false });
         }
       }
-
-      try {
-        const lRes = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
-        if (lRes.ok) {
-          const lData = await lRes.json();
-          if (lData) handleLiveGameStatus(lData);
-        }
-      } catch(e) {}
     }
 
     function forceCheckState() {
@@ -1948,71 +1947,66 @@
     // RENDERING BATTAGLIA
     // ============================================================
     function updateBattleView(data) {
-  battleState = data;
-  const waitingScreen = document.getElementById("waitingScreen");
-  const activeBattleScreen = document.getElementById("activeBattleScreen");
+      battleState = data;
+      window.__LAST_BATTLE_DATA = data;
+      const waitingScreen = document.getElementById("waitingScreen");
+      const activeBattleScreen = document.getElementById("activeBattleScreen");
 
-  // ⭐ FIX: se dice che c'è una battaglia, verifica che il gioco sia ANCORA vivo
-  // Se il gioco è stato chiuso con la X durante la battaglia, l'heartbeat
-  // in window.__LIVE_GAME_DATA smette di aggiornarsi → battaglia fantasma.
-  let battleIsReal = false;
-  if (data && data.inBattle && data.enemies && data.enemies.length > 0) {
-    const live = window.__LIVE_GAME_DATA;
-    if (live && live.heartbeat) {
-      const diff = Date.now() - live.heartbeat;
-      // heartbeat < 25s → gioco vivo; altrimenti è una battaglia fantasma
-      battleIsReal = (diff >= 0 && diff < 25000);
-    } else {
-      // Primi secondi di caricamento pagina: __LIVE_GAME_DATA non è ancora arrivato.
-      // In questo caso ci fidiamo del battle_state per non mostrare "offline" ingiustamente.
-      battleIsReal = true;
-    }
-  }
-
-  // Nessuna battaglia O battaglia fantasma → mostra schermata di attesa
-  if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0 || !battleIsReal) {
-    waitingScreen.style.display = "flex";
-    activeBattleScreen.style.display = "none";
-
-    const grid = document.getElementById("enemiesGrid");
-    if (grid) grid.innerHTML = "";
-    const row = document.getElementById("partyRow");
-    if (row) row.innerHTML = "";
-    const myStates = document.getElementById("myStatesRow");
-    if (myStates) myStates.innerHTML = "";
-
-    const waitTitle = document.querySelector(".waiting-title");
-    const waitDesc = document.querySelector(".waiting-desc");
-    if (waitTitle && waitDesc) {
-      if (data && data.inBattle && !battleIsReal) {
-        // 🎯 Caso specifico: battaglia fantasma (gioco chiuso a metà combattimento)
-        waitTitle.innerText = "Battaglia Interrotta";
-        waitDesc.innerHTML = "Il gioco è stato chiuso durante il combattimento.<br>Attendi l'avvio di una nuova battaglia per giocare.";
-      } else {
-        const opState = getGameOperationalState();
-        if (opState === 'menu') {
-          waitTitle.innerText = "Gioco al Menu Iniziale";
-          waitDesc.innerHTML = "TBRPG è attualmente al Menu.<br>Quando avvierai o caricherai una partita ed entrerai in battaglia, questa schermata si attiverà in tempo reale.";
-        } else if (opState === 'offline') {
-          waitTitle.innerText = "Gioco Non Rilevato (Offline)";
-          waitDesc.innerHTML = "TBRPG è attualmente chiuso o non attivo.<br>Quando il gioco verrà avviato e inizierà un combattimento, questa schermata si aggiornerà in tempo reale.";
+      // Determina se la battaglia è reale o fantasma
+      let battleIsReal = false;
+      if (data && data.inBattle && data.enemies && data.enemies.length > 0) {
+        const alive = isGameAlive();
+        if (alive === true) {
+          battleIsReal = true;
+        } else if (alive === false) {
+          battleIsReal = false;
         } else {
-          waitTitle.innerText = "Nessuna Battaglia Attiva";
-          waitDesc.innerHTML = "Il party non è attualmente impegnato in combattimento.<br>Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà in tempo reale con nemici, turni e comandi d'azione.";
+          battleIsReal = true; // sconosciuto → fallback (primi secondi)
         }
       }
+
+      if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0 || !battleIsReal) {
+        waitingScreen.style.display = "flex";
+        activeBattleScreen.style.display = "none";
+
+        const grid = document.getElementById("enemiesGrid");
+        if (grid) grid.innerHTML = "";
+        const row = document.getElementById("partyRow");
+        if (row) row.innerHTML = "";
+        const myStates = document.getElementById("myStatesRow");
+        if (myStates) myStates.innerHTML = "";
+
+        const waitTitle = document.querySelector(".waiting-title");
+        const waitDesc = document.querySelector(".waiting-desc");
+        if (waitTitle && waitDesc) {
+          if (data && data.inBattle && !battleIsReal) {
+            waitTitle.innerText = "Battaglia Interrotta";
+            waitDesc.innerHTML = "Il gioco è stato chiuso durante il combattimento.<br>Attendi l'avvio di una nuova battaglia per giocare.";
+          } else {
+            const opState = getGameOperationalState();
+            if (opState === 'menu') {
+              waitTitle.innerText = "Gioco al Menu Iniziale";
+              waitDesc.innerHTML = "TBRPG è attualmente al Menu.<br>Quando avvierai o caricherai una partita ed entrerai in battaglia, questa schermata si attiverà in tempo reale.";
+            } else if (opState === 'offline') {
+              waitTitle.innerText = "Gioco Non Rilevato (Offline)";
+              waitDesc.innerHTML = "TBRPG è attualmente chiuso o non attivo.<br>Quando il gioco verrà avviato e inizierà un combattimento, questa schermata si aggiornerà in tempo reale.";
+            } else {
+              waitTitle.innerText = "Nessuna Battaglia Attiva";
+              waitDesc.innerHTML = "Il party non è attualmente impegnato in combattimento.<br>Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà in tempo reale con nemici, turni e comandi d'azione.";
+            }
+          }
+        }
+        return;
+      }
+
+      waitingScreen.style.display = "none";
+      activeBattleScreen.style.display = "flex";
+
+      renderEnemies(data.enemies || []);
+      renderParty(data.party || [], data.currentTurnUser);
+      renderTimer(data.timerSeconds || 0);
+      renderPlayerDashboard(data.party || [], data.currentTurnUser);
     }
-    return;
-  }
-
-  waitingScreen.style.display = "none";
-  activeBattleScreen.style.display = "flex";
-
-  renderEnemies(data.enemies || []);
-  renderParty(data.party || [], data.currentTurnUser);
-  renderTimer(data.timerSeconds || 0);
-  renderPlayerDashboard(data.party || [], data.currentTurnUser);
-}
 
     function renderEnemies(enemies) {
       const grid = document.getElementById("enemiesGrid");
@@ -2184,9 +2178,6 @@
       return battleState.party.find(p => (p.owner && p.owner.toLowerCase() === myUserClean) || (p.name && p.name.toLowerCase() === myUserClean)) || null;
     }
 
-    // ============================================================
-    // AZIONI DI BATTAGLIA & BLOCCO DI SICUREZZA STATO
-    // ============================================================
     function checkCanExecuteBattleCommand() {
       const st = getGameOperationalState();
       if (st !== 'live') {
@@ -2351,9 +2342,6 @@
       executeSendCommand("!difendi");
     }
 
-    // ============================================================
-    // GESTIONE DELLA MODALE BERSAGLI
-    // ============================================================
     function populateTargetModal(allowArea = false, onlyAllies = false) {
       selectedTargetStr = "";
       document.getElementById("chipDefaultTarget").classList.add("selected");
@@ -2454,9 +2442,6 @@
       }
     }
 
-    // ============================================================
-    // INVIO DEL COMANDO (TWITCH CHAT + APPUNTI)
-    // ============================================================
     async function executeSendCommand(cmd) {
       if (!checkCanExecuteBattleCommand()) return;
 
@@ -2531,9 +2516,6 @@
       }, 3500);
     }
 
-    // ============================================================
-    // AVVIO
-    // ============================================================
     function pollLocalBattleStatus() {
       if (window.location.protocol.startsWith("http")) return;
       const old = document.getElementById("local-status-script-battle");
@@ -2557,7 +2539,6 @@
     });
   </script>
 
-<!-- BARRA FISSA IN BASSO PER MOBILE & SPLIT-SCREEN -->
 <nav class="mobile-bottom-bar" id="mobileBottomBar">
   <a href="main.html" class="mobile-nav-item item-portal">
     <span class="mobile-nav-icon">🚪</span>
