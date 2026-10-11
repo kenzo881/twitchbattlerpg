@@ -2108,7 +2108,7 @@
         lastSeenTurnCount = data.turnCount;
       }
       const curActor = getMyCurrentActor();
-      if (curActor && !curActor.isLimit && (curActor.limitPercent === undefined || curActor.limitPercent < 100) && (curActor.tp === undefined || curActor.tp < 100)) {
+      if (curActor && !curActor.isLimit && (curActor.limitPercent === undefined || curActor.limitPercent < 100) && (curActor.limit === undefined || curActor.limit < (curActor.limitMax || 255))) {
         limitConsumedLocally = false;
       }
       const waitingScreen = document.getElementById("waitingScreen");
@@ -2389,14 +2389,14 @@
       if (limitConsumedLocally) return false;
       const myActor = getMyCurrentActor();
       if (!myActor) return false;
-      let limitPct = 0;
-      if (myActor.limitPercent !== undefined) {
-        limitPct = Math.min(100, Math.max(0, Math.round(myActor.limitPercent)));
-      } else if (myActor.limit !== undefined) {
-        const max = myActor.limitMax || 255;
-        limitPct = Math.min(100, Math.max(0, Math.round((myActor.limit / max) * 100)));
-      }
-      return !!myActor.isLimit || limitPct >= 100 || (myActor.tp !== undefined && myActor.tp >= 100);
+
+      // La scritta Limit appare SOLO ED ESCLUSIVAMENTE quando la barra Limit Break del gioco è al 100% piena (255/255).
+      // I TP di RPG Maker non c'entrano nulla con la Limit Break e sono stati completamente rimossi da questo calcolo.
+      const isReady = (myActor.isLimit === true);
+      const isFullPct = (typeof myActor.limitPercent === 'number' && myActor.limitPercent >= 100);
+      const isFullRaw = (typeof myActor.limit === 'number' && myActor.limit >= (myActor.limitMax || 255));
+
+      return isReady || isFullPct || isFullRaw;
     }
 
     function renderCommandButtons() {
