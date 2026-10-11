@@ -3558,7 +3558,7 @@ function closeBuyModal(e) {
 async function executeBuyAction() {
   if (!selectedBuyListing) return;
   const uid = selectedBuyListing.uid;
-  const cmd = `!compra ${uid}`;
+  const cmd = `!marketbuy ${uid}`;
   closeBuyModal();
   await executeMarketChatCommand(cmd);
 }
@@ -3658,7 +3658,7 @@ async function executeSellAction() {
     return;
   }
 
-  const cmd = `!vendi ${selectedSellItem.uid} ${price}`;
+  const cmd = `!marketsell ${selectedSellItem.uid} ${price}`;
   closeSellModal();
   await executeMarketChatCommand(cmd);
 }
@@ -3698,7 +3698,7 @@ function closeWithdrawModal(e) {
 
 async function executeWithdrawAction() {
   if (!selectedWithdrawListing) return;
-  const cmd = `!ritira ${selectedWithdrawListing.uid}`;
+  const cmd = `!marketcancel ${selectedWithdrawListing.uid}`;
   closeWithdrawModal();
   await executeMarketChatCommand(cmd);
 }
