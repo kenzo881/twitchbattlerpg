@@ -1,6 +1,62 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <script>
+/* ─────────────────────────────────────────────────────────────
+   SSE MERGE HELPER
+   Unisce i payload PATCH parziali (Firebase) con lo stato in cache,
+   evitando che le pagine mostrino "offline/battaglia finita" quando
+   arriva un evento SSE con soli campi heartbeat/gameActive/inTitle.
+   ───────────────────────────────────────────────────────────── */
+(function() {
+  if (typeof EventSource === 'undefined') return;
+
+  var originalAddEventListener = EventSource.prototype.addEventListener;
+
+  EventSource.prototype.addEventListener = function(type, listener, options) {
+    if (type !== 'patch' && type !== 'put') {
+      return originalAddEventListener.call(this, type, listener, options);
+    }
+
+    var sourceUrl = this.url || 'default';
+    var cacheKey  = '__SSE_CACHE_' + sourceUrl;
+    var self      = this;
+
+    var wrapped = function(e) {
+      try {
+        var payload = JSON.parse(e.data);
+        if (!payload || typeof payload.data !== 'object' || payload.data === null) {
+          return listener.call(self, e);
+        }
+
+        var incoming = payload.data;
+
+        if (type === 'put') {
+          // PUT: payload completo → sostituisci interamente
+          window[cacheKey] = incoming;
+        } else {
+          // PATCH: payload parziale → merge con la cache
+          window[cacheKey] = Object.assign({}, window[cacheKey] || {}, incoming);
+        }
+
+        // Ri-emetti l'evento con il payload UNIFICATO
+        var mergedEvent = {
+          data: JSON.stringify({ data: window[cacheKey] }),
+          type: type,
+          target: self
+        };
+        return listener.call(self, mergedEvent);
+      } catch(err) {
+        return listener.call(self, e);
+      }
+    };
+
+    return originalAddEventListener.call(this, type, wrapped, options);
+  };
+
+  console.log('[SSE Merge Helper] Attivo');
+})();
+</script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>TBRPG - Campo di Battaglia</title>
