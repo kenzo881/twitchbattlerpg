@@ -2014,6 +2014,18 @@
     function updateBattleView(data) {
       battleState = data;
       window.__LAST_BATTLE_DATA = data;
+
+      // Monitoraggio turno e reset limit consumata
+      if (data && data.turnCount !== undefined) {
+        if (lastSeenTurnCount !== -1 && data.turnCount !== lastSeenTurnCount) {
+          limitConsumedLocally = false;
+        }
+        lastSeenTurnCount = data.turnCount;
+      }
+      const curActor = getMyCurrentActor();
+      if (curActor && !curActor.isLimit && (curActor.limitPercent === undefined || curActor.limitPercent < 100) && (curActor.tp === undefined || curActor.tp < 100)) {
+        limitConsumedLocally = false;
+      }
       const waitingScreen = document.getElementById("waitingScreen");
       const activeBattleScreen = document.getElementById("activeBattleScreen");
 
@@ -2210,7 +2222,11 @@
     // ============================================================
     // 4. RENDERING & STATO COMANDI AZIONE (Attacca, Limit, Arti, etc.)
     // ============================================================
+    let limitConsumedLocally = false;
+    let lastSeenTurnCount = -1;
+
     function isPlayerInLimit() {
+      if (limitConsumedLocally) return false;
       const myActor = getMyCurrentActor();
       if (!myActor) return false;
       let limitPct = 0;
@@ -2290,7 +2306,7 @@
 
       const formatted = '@' + targetUser;
       if (selectedTargetStr.toLowerCase() === formatted.toLowerCase() || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
-        // Se un'azione (es. oggetto) è in corso, non deselezioniamo a vuoto: lasciamolo selezionato!
+        // Se un'azione (es. oggetto o attacco) è in corso, lasciamolo selezionato
         if (!pendingActionType) {
           selectedTargetStr = "";
         }
@@ -2299,6 +2315,18 @@
       }
 
       refreshBattleViews();
+
+      const isSelf = (targetRaw === '__player__' || (myLogin && targetUser.toLowerCase() === myLogin));
+      const targetLabel = isSelf ? "Te stesso (Tu)" : formatted;
+      if (pendingActionType === 'item') {
+        showToast(`Bersaglio oggetto: ${targetLabel} 🛡️ Premi Conferma ⚔️`, "🎒");
+      } else if (pendingActionType === 'skill') {
+        showToast(`Bersaglio arte: ${targetLabel} 🛡️ Premi Conferma ⚔️`, "✨");
+      } else if (pendingActionType === 'attack' || pendingActionType === 'limit') {
+        showToast(`Bersaglio attacco: ${targetLabel} ⚔️ Premi Conferma ⚔️`, "🎯");
+      } else {
+        showToast(`Selezionato ${targetLabel}`, "👤");
+      }
     }
 
     function selectTargetOption(option) {
@@ -2853,18 +2881,8 @@
         return;
       }
 
-      // Membri del party per scelta rapida bersaglio (Tu e Alleati)
-      const party = (battleState && Array.isArray(battleState.party)) ? battleState.party : [];
-      const myActor = getMyCurrentActor();
-      const myCleanName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "Tu");
-      const allies = party.filter(p => {
-        const o = (p.owner || p.name || "").replace(/^@/, '').toLowerCase().trim();
-        return o !== myCleanName.toLowerCase().trim();
-      }).slice(0, 3);
-
       list.innerHTML = items.map((it, idx) => {
         const meta = getItemMetadata(it);
-        const iconStyle = getItemIconStyle(meta.iconIndex);
         const isArea = (meta.scope === 8 || meta.scope === 10);
         const isRevive = (meta.scope === 9);
         const isEnemy = (meta.scope >= 1 && meta.scope <= 6);
@@ -2877,38 +2895,6 @@
         else if (isEnemy) scopeBadge = `<span class="scope-tag scope-enemy">⚔️ Nemico</span>`;
 
         const safeItemName = (it.name || "").replace(/'/g, "\\'");
-
-        // Pulsanti bersaglio dedicati per ciascun alleato e giocatore
-        let targetButtonsHtml = "";
-        if (isEnemy) {
-          targetButtonsHtml = `
-            <button class="btn-target-pill is-all" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '')">
-              ⚔️ Usa su Nemico
-            </button>
-          `;
-        } else if (isArea) {
-          targetButtonsHtml = `
-            <button class="btn-target-pill is-all" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', 'tutti alleati')">
-              ✨ Usa su Tutto il Party
-            </button>
-          `;
-        } else {
-          // Singolo alleato o se stesso
-          targetButtonsHtml = `
-            <button class="btn-target-pill is-self" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '__player__')">
-              👤 Tu
-            </button>
-          `;
-          allies.forEach(ally => {
-            const allyClean = (ally.owner || ally.name || "").replace(/^@/, '');
-            targetButtonsHtml += `
-              <button class="btn-target-pill" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '@${allyClean.replace(/'/g, "\\'")}')">
-                🛡️ @${allyClean}
-              </button>
-            `;
-          });
-        }
-
         const defaultTarget = isArea ? 'tutti alleati' : (isEnemy ? '' : '__player__');
 
         return `
@@ -2924,10 +2910,8 @@
               </div>
               <div class="party-item-desc">${meta.desc || it.desc || ''}</div>
             </div>
-            <div class="party-item-actions">
-              <div class="target-choice-buttons">
-                ${targetButtonsHtml}
-              </div>
+            <div style="color:var(--gold); font-weight:700; font-size:0.9rem; padding-left:8px; white-space:nowrap;">
+              Usa ➔
             </div>
           </div>
         `;
@@ -2978,7 +2962,7 @@
       else if (selectedTargetStr === 'tutti alleati') targetLabel = "Tutto il Party ✨";
       else if (!selectedTargetStr) targetLabel = "Nemico Casuale 🎲";
 
-      showToast(`🎒 ${name} pronto per ${targetLabel}! Premi Conferma ⚔️`, "🎒");
+      showToast(`🎒 ${name} pronto per ${targetLabel}! Premi Conferma ⚔️ o tocca un alleato`, "🎒");
     }
 
     // ============================================================
@@ -3019,6 +3003,17 @@
         cmdString = `!oggetti ${pendingActionDetail.name}${targetArg}`;
       } else if (pendingActionType === "guard") {
         cmdString = `!difendi`;
+      }
+
+      if (pendingActionType === "limit") {
+        limitConsumedLocally = true;
+        const myActor = getMyCurrentActor();
+        if (myActor) {
+          myActor.isLimit = false;
+          myActor.limit = 0;
+          myActor.limitPercent = 0;
+          myActor.tp = 0;
+        }
       }
 
       if (cmdString) {
