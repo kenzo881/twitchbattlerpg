@@ -1652,7 +1652,7 @@ function setShopDatabaseUnavailable() {
       bannerPill.innerText = "DATABASE OFFLINE ✕";
     }
   }
-  if (pill) pill.className = "twitch-status-pill offline";
+  if (pill) pill.className = "sync-status-pill offline";
   if (text) text.innerText = "Database non disponibile!";
 }
 
@@ -1663,7 +1663,7 @@ function getGameOperationalState(data) {
   const hb = d.heartbeat || d.timestamp || 0;
   if (!hb) return 'offline';
   const diff = now - hb;
-  if (diff > 25000 || diff < -10000) return 'offline';
+  if (diff > 20000 || diff < -10000) return 'offline';
   if (d.gameActive === true && !d.inTitle) return 'live';
   if (d.inTitle === true || d.gameActive === false) return 'menu';
   return 'offline';

@@ -221,7 +221,6 @@ a.top:hover{text-decoration:underline}
   font-size: 0.78rem;
   flex-shrink: 0;
   white-space: nowrap;
-}
   box-shadow: 0 0 12px rgba(201, 162, 39, 0.2);
 }
 .user-gold-badge .coin-icon {
@@ -861,6 +860,7 @@ Guida ufficiale - Twitch Battle RPG<br>
       const res = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
       if (res.ok) {
         const d = await res.json();
+        if (d && typeof d === 'object') window.__LIVE_GAME_DATA = d;
         updateGuideGameStatus(d);
       }
     } catch(e) {}
@@ -891,21 +891,13 @@ Guida ufficiale - Twitch Battle RPG<br>
         if (goldBox && goldVal) {
           goldBox.style.display = 'inline-flex';
           const opState = getGameOperationalState(window.__LIVE_GAME_DATA);
-          if (opState === 'live') {
-            try {
-              const res = await fetch("status_data.json?t=" + Date.now());
-              if (res.ok) {
-                const data = await res.json();
-                const myUser = (user.login || user.name || "").toLowerCase();
-                if (data && data.owners && data.owners[myUser]) {
-                  const charName = data.owners[myUser];
-                  if (data.actors && data.actors[charName] && typeof data.actors[charName].gold === "number") {
-                    goldVal.innerText = data.actors[charName].gold.toLocaleString('it-IT');
-                    return;
-                  }
-                }
-              }
-            } catch(e) {}
+          const liveData = window.__LIVE_GAME_DATA;
+          if (opState === 'live' && liveData && liveData.currency) {
+            const myUser = (user.login || user.name || "").toLowerCase();
+            if (liveData.currency[myUser] !== undefined) {
+              goldVal.innerText = liveData.currency[myUser].toLocaleString('it-IT');
+              return;
+            }
           }
           goldVal.innerText = "--";
         }

@@ -37,9 +37,6 @@
           window[cacheKey] = Object.assign({}, window[cacheKey] || {}, incoming);
         }
 
-        // ⭐ FIX: popola __LIVE_GAME_DATA così getGameOperationalState()
-        // funziona anche quando viene chiamata senza argomenti
-        // (es. checkCanExecuteBattleCommand, openBuyModal, ecc.)
         if (sourceUrl.indexOf('live_data') !== -1) {
           window.__LIVE_GAME_DATA = window[cacheKey];
         }
@@ -66,34 +63,40 @@
   <title>TBRPG - Campo di Battaglia</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
   <style>
+    /* ═══════════════════════════════════════════════════════════
+       DESIGN SYSTEM UNIFICATO TBRPG (Shop / Status / Market / Guida)
+       ═══════════════════════════════════════════════════════════ */
     :root {
-      --bg-dark: #07090e;
-      --bg-card: rgba(15, 20, 32, 0.92);
-      --bg-card-hover: rgba(22, 30, 48, 0.96);
-      --border-card: rgba(255, 255, 255, 0.08);
+      --bg-primary: #0a0a14;
+      --bg-secondary: #121222;
+      --bg-card: rgba(22, 22, 38, 0.88);
+      --bg-card-hover: rgba(28, 28, 48, 0.96);
+      --border-card: rgba(201, 162, 39, 0.24);
+      --border-card-hover: #c9a227;
       
-      --gold: #f59e0b;
-      --gold-light: #fbbf24;
-      --gold-glow: rgba(245, 158, 11, 0.35);
+      --gold: #d4af37;
+      --gold-glow: rgba(212, 175, 55, 0.35);
+      --gold-light: #f4d368;
+      
+      --twitch-purple: #9146ff;
+      --twitch-hover: #772ce8;
+      --twitch-glow: rgba(145, 70, 255, 0.35);
       
       --blue: #3b82f6;
       --blue-glow: rgba(59, 130, 246, 0.4);
-      --cyan: #06b6d4;
+      --cyan: #38bdf8;
       
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.45);
-      --green: #10b981;
-      --purple: #8b5cf6;
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.5);
+      --success: #10b981;
+      --warning: #f59e0b;
       
-      --hp-color: #10b981;
-      --mp-color: #38bdf8;
-      --limit-color: #f97316;
-      
-      --text-main: #f8fafc;
-      --text-muted: #94a3b8;
+      --text-main: #f0eae1;
+      --text-muted: #9c9488;
+      --text-dim: #686054;
     }
 
     * {
@@ -104,31 +107,48 @@
     }
 
     body {
-      background: var(--bg-dark);
+      background: var(--bg-primary);
       background-image: 
-        radial-gradient(circle at 50% 0%, rgba(30, 41, 59, 0.5) 0%, transparent 60%),
-        radial-gradient(circle at 10% 100%, rgba(15, 23, 42, 0.8) 0%, transparent 50%);
+        radial-gradient(circle at 15% 15%, rgba(145, 70, 255, 0.08) 0%, transparent 40%),
+        radial-gradient(circle at 85% 80%, rgba(212, 175, 55, 0.08) 0%, transparent 45%),
+        linear-gradient(180deg, #07070e 0%, #0d0d1a 100%);
       color: var(--text-main);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      padding: 16px 16px 80px;
     }
 
+    .container {
+      max-width: 1080px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      flex: 1;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       TOP NAVIGATION BAR UNIFICATA TBRPG
+       ═══════════════════════════════════════════════════════════ */
     .top-nav {
-      background: rgba(10, 14, 23, 0.95);
-      border-bottom: 1px solid var(--border-card);
-      backdrop-filter: blur(12px);
-      padding: 8px 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 100;
       flex-wrap: nowrap;
-      gap: 10px;
+      gap: 12px;
+      background: rgba(18, 18, 32, 0.9);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 8px 14px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+      position: sticky;
+      top: 10px;
+      z-index: 100;
     }
 
     .top-nav-left {
@@ -141,70 +161,72 @@
     }
 
     .nav-brand-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 700;
+      font-size: 1.05rem;
+      color: var(--gold-light);
       display: flex;
       align-items: center;
       gap: 6px;
       text-decoration: none;
-      color: var(--gold-light);
-      font-family: 'Cinzel', serif;
-      font-weight: 800;
-      font-size: 1.05rem;
-      letter-spacing: 0.5px;
       flex-shrink: 0;
       white-space: nowrap;
     }
+    .nav-brand-title:hover {
+      filter: drop-shadow(0 0 6px var(--gold-glow));
+    }
 
     .sync-status-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  flex-shrink: 0;
-  white-space: nowrap;
-  transition: all 0.25s ease;
-}
-.sync-status-pill.active,
-.sync-status-pill.synced,
-.sync-status-pill.live {
-  background: rgba(16, 185, 129, 0.15) !important;
-  border: 1px solid rgba(16, 185, 129, 0.35) !important;
-  color: #34d399 !important;
-}
-.sync-status-pill.active .sync-dot,
-.sync-status-pill.synced .sync-dot,
-.sync-status-pill.live .sync-dot {
-  background: #34d399 !important;
-  box-shadow: 0 0 8px #34d399 !important;
-}
-.sync-status-pill.menu,
-.sync-status-pill.title {
-  background: rgba(234, 179, 8, 0.15) !important;
-  border: 1px solid rgba(234, 179, 8, 0.35) !important;
-  color: #facc15 !important;
-}
-.sync-status-pill.menu .sync-dot,
-.sync-status-pill.title .sync-dot {
-  background: #facc15 !important;
-  box-shadow: 0 0 8px #facc15 !important;
-}
-.sync-status-pill.offline {
-  background: rgba(239, 68, 68, 0.15) !important;
-  border: 1px solid rgba(239, 68, 68, 0.35) !important;
-  color: #f87171 !important;
-}
-.sync-status-pill.offline .sync-dot {
-  background: #f87171 !important;
-  box-shadow: 0 0 8px #f87171 !important;
-}
-.sync-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex-shrink: 0;
-}
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      flex-shrink: 0;
+      white-space: nowrap;
+      transition: all 0.25s ease;
+    }
+    .sync-status-pill.active,
+    .sync-status-pill.synced,
+    .sync-status-pill.live {
+      background: rgba(16, 185, 129, 0.15) !important;
+      border: 1px solid rgba(16, 185, 129, 0.35) !important;
+      color: #34d399 !important;
+    }
+    .sync-status-pill.active .sync-dot,
+    .sync-status-pill.synced .sync-dot,
+    .sync-status-pill.live .sync-dot {
+      background: #34d399 !important;
+      box-shadow: 0 0 8px #34d399 !important;
+    }
+    .sync-status-pill.menu,
+    .sync-status-pill.title {
+      background: rgba(234, 179, 8, 0.15) !important;
+      border: 1px solid rgba(234, 179, 8, 0.35) !important;
+      color: #facc15 !important;
+    }
+    .sync-status-pill.menu .sync-dot,
+    .sync-status-pill.title .sync-dot {
+      background: #facc15 !important;
+      box-shadow: 0 0 8px #facc15 !important;
+    }
+    .sync-status-pill.offline {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border: 1px solid rgba(239, 68, 68, 0.35) !important;
+      color: #f87171 !important;
+    }
+    .sync-status-pill.offline .sync-dot {
+      background: #f87171 !important;
+      box-shadow: 0 0 8px #f87171 !important;
+    }
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
 
     .nav-links-row {
       display: flex;
@@ -213,11 +235,8 @@
       flex-wrap: nowrap;
       overflow-x: auto;
       scrollbar-width: none;
-      -ms-overflow-style: none;
     }
-    .nav-links-row::-webkit-scrollbar {
-      display: none;
-    }
+    .nav-links-row::-webkit-scrollbar { display: none; }
 
     .nav-pill-btn {
       background: rgba(255, 255, 255, 0.04);
@@ -235,12 +254,15 @@
       white-space: nowrap;
       flex-shrink: 0;
     }
-
     .nav-pill-btn:hover, .nav-pill-btn.active {
-      background: rgba(245, 158, 11, 0.12);
+      background: rgba(212, 175, 55, 0.14);
       border-color: var(--gold);
       color: var(--gold-light);
     }
+    .nav-pill-btn.pill-status { color: #93c5fd; }
+    .nav-pill-btn.pill-shop { color: #fde047; }
+    .nav-pill-btn.pill-market { color: #c49eff; }
+    .nav-pill-btn.pill-guide { color: #94a3b8; }
 
     .top-nav-right {
       display: flex;
@@ -255,7 +277,7 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.16) 0%, rgba(20, 20, 35, 0.85) 100%);
       border: 1px solid rgba(212, 175, 55, 0.4);
       padding: 4px 10px;
       border-radius: 20px;
@@ -263,7 +285,6 @@
       font-weight: 700;
       font-size: 0.78rem;
       flex-shrink: 0;
-      white-space: nowrap;
     }
 
     .twitch-user-pill {
@@ -275,14 +296,12 @@
       padding: 4px 12px 4px 6px;
       border-radius: 20px;
       flex-shrink: 0;
-      white-space: nowrap;
     }
-
     .twitch-avatar {
       width: 24px;
       height: 24px;
       border-radius: 50%;
-      background: #9146ff;
+      background: var(--twitch-purple);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -292,283 +311,475 @@
       overflow: hidden;
       flex-shrink: 0;
     }
-
-    .twitch-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .twitch-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #fff;
-    }
-
+    .twitch-avatar img { width: 100%; height: 100%; object-fit: cover; }
+    .twitch-name { font-size: 0.82rem; font-weight: 600; color: #fff; }
     .btn-logout {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 0.72rem;
-      cursor: pointer;
-      text-decoration: underline;
-      transition: color 0.2s;
+      background: none; border: none; color: var(--text-muted); font-size: 0.72rem; cursor: pointer; text-decoration: underline;
     }
     .btn-logout:hover { color: #ff6b6b; }
-
-    .btn-twitch-login, .btn-login {
-      background: #9146ff;
-      color: #fff;
-      border: none;
-      font-size: 0.78rem;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      transition: background 0.2s;
-      flex-shrink: 0;
-      white-space: nowrap;
+    .btn-twitch-login {
+      background: linear-gradient(135deg, var(--twitch-purple) 0%, var(--twitch-hover) 100%);
+      color: #fff; border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 0.78rem; font-weight: 700; padding: 5px 12px; border-radius: 6px; cursor: pointer;
+      display: inline-flex; align-items: center; gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-twitch-login:hover {
+      box-shadow: 0 0 12px var(--twitch-glow);
+      filter: brightness(1.1);
     }
 
-    .btn-login:hover {
-      background: #772ce8;
-    }
-
-    .battle-container {
-      max-width: 900px;
-      width: 100%;
-      margin: 0 auto;
-      padding: 14px 16px 30px;
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      flex: 1;
-    }
-
+    /* ═══════════════════════════════════════════════════════════
+       WAITING / OFFLINE BANNER
+       ═══════════════════════════════════════════════════════════ */
     .waiting-banner {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      border-radius: 12px;
-      padding: 40px 20px;
+      border-radius: 14px;
+      padding: 44px 20px;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
       gap: 14px;
       margin: auto 0;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
     }
-
     .waiting-icon {
       font-size: 3.5rem;
       animation: pulseGlow 2.5s infinite ease-in-out;
     }
-
     @keyframes pulseGlow {
       0%, 100% { transform: scale(1); opacity: 0.8; }
       50% { transform: scale(1.08); opacity: 1; }
     }
-
     .waiting-title {
-      font-family: 'Cinzel', serif;
+      font-family: 'Cinzel', Georgia, serif;
       font-size: 1.45rem;
       color: var(--gold-light);
+      text-shadow: 0 0 12px var(--gold-glow);
     }
-
     .waiting-desc {
-      font-size: 0.88rem;
+      font-size: 0.9rem;
       color: var(--text-muted);
-      max-width: 480px;
+      max-width: 500px;
       line-height: 1.6;
     }
 
-    .section-label {
-      font-family: 'Cinzel', serif;
-      font-size: 0.85rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: var(--text-muted);
+    /* ═══════════════════════════════════════════════════════════
+       1. TOP SECTION: RITRATTI PARTY & BOX CONFERMA / ANNULLA
+       ═══════════════════════════════════════════════════════════ */
+    .top-portraits-section {
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      margin-bottom: 8px;
-    }
-
-    .section-label span.highlight {
-      color: var(--gold-light);
-    }
-
-    .enemies-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 10px;
-    }
-
-    .enemy-card {
+      align-items: center;
+      gap: 14px;
       background: var(--bg-card);
       border: 1px solid var(--border-card);
-      border-radius: 10px;
-      padding: 12px 10px;
+      border-radius: 14px;
+      padding: 14px 18px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .portraits-group-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      flex-wrap: wrap;
+      flex: 1;
+      min-width: 0;
+    }
+
+    /* Portrait Cards */
+    .portrait-card {
       display: flex;
       flex-direction: column;
       align-items: center;
-      text-align: center;
+      gap: 6px;
       cursor: pointer;
       position: relative;
-      transition: all 0.2s ease;
       user-select: none;
+      transition: all 0.22s ease;
     }
-
-    .enemy-card:hover {
-      background: var(--bg-card-hover);
-      border-color: rgba(239, 68, 68, 0.4);
+    .portrait-card:hover {
       transform: translateY(-2px);
     }
 
-    .enemy-card.selected-target {
-      border-color: var(--red);
-      background: rgba(239, 68, 68, 0.12);
-      box-shadow: 0 0 16px var(--red-glow);
-    }
-
-    .enemy-letter-badge {
-      width: 38px;
-      height: 38px;
-      border-radius: 8px;
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid rgba(239, 68, 68, 0.35);
-      color: #fca5a5;
-      font-family: 'Cinzel', serif;
-      font-weight: 800;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 6px;
-    }
-
-    .enemy-card.selected-target .enemy-letter-badge {
-      background: var(--red);
-      color: #fff;
-      box-shadow: 0 0 10px var(--red);
-    }
-
-    .enemy-name {
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-main);
-      white-space: nowrap;
+    .portrait-frame {
+      border-radius: 12px;
       overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-    }
-
-    .enemy-states-row {
-      display: flex;
-      gap: 4px;
-      margin-top: 6px;
-      min-height: 18px;
-      flex-wrap: wrap;
-      justify-content: center;
-    }
-
-    .state-badge {
-      font-size: 0.65rem;
-      padding: 2px 6px;
-      border-radius: 4px;
-      background: rgba(139, 92, 246, 0.2);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      color: #c4b5fd;
-      font-weight: 600;
-    }
-
-    .party-row {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-      gap: 10px;
-    }
-
-    .party-card {
-      background: var(--bg-card);
-      border: 1px solid var(--border-card);
-      border-radius: 10px;
-      padding: 10px 8px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
+      border: 1.5px solid var(--border-card);
+      background: #121224;
       position: relative;
       transition: all 0.25s ease;
-      cursor: pointer;
     }
 
-    .party-card:hover {
-      border-color: rgba(59, 130, 246, 0.4);
+    /* Giocatore (Più grande a sinistra) */
+    .portrait-frame.player-frame {
+      width: 84px;
+      height: 84px;
+      border: 2.5px solid var(--gold);
+      box-shadow: 0 0 14px var(--gold-glow);
     }
 
-    .party-card.selected-ally-target {
-      border-color: var(--blue);
-      background: rgba(59, 130, 246, 0.12);
-      box-shadow: 0 0 14px var(--blue-glow);
+    /* Alleati (Più compatti a fianco) */
+    .portrait-frame.ally-frame {
+      width: 64px;
+      height: 64px;
+      border: 1.5px solid rgba(201, 162, 39, 0.3);
     }
 
-    .party-card.is-turn {
-      border-color: var(--gold);
-      background: rgba(245, 158, 11, 0.08);
-      box-shadow: 0 0 16px var(--gold-glow);
-      animation: turnGlow 2s infinite alternate;
+    .portrait-frame.is-turn {
+      border-color: var(--gold-light) !important;
+      box-shadow: 0 0 18px var(--gold-glow) !important;
+      animation: turnGlowBorder 1.8s infinite alternate ease-in-out;
+    }
+    @keyframes turnGlowBorder {
+      0% { box-shadow: 0 0 8px rgba(212, 175, 55, 0.3); }
+      100% { box-shadow: 0 0 22px rgba(212, 175, 55, 0.85); }
     }
 
-    @keyframes turnGlow {
-      0% { box-shadow: 0 0 8px rgba(245, 158, 11, 0.2); }
-      100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.5); }
+    /* Target selezionato (Cyan / Azure) */
+    .portrait-card.selected-target .portrait-frame {
+      border-color: var(--cyan) !important;
+      box-shadow: 0 0 18px var(--blue-glow) !important;
+      transform: scale(1.04);
     }
 
-    .turn-indicator-badge {
-      position: absolute;
-      top: -8px;
-      background: linear-gradient(135deg, #d97706, #f59e0b);
-      color: #000;
-      font-size: 0.62rem;
-      font-weight: 900;
-      letter-spacing: 0.5px;
-      padding: 2px 8px;
-      border-radius: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-      display: none;
-    }
-
-    .party-card.is-turn .turn-indicator-badge {
-      display: block;
-    }
-
-    .party-portrait-wrap {
-      width: 52px;
-      height: 52px;
-      border-radius: 50%;
-      overflow: hidden;
-      border: 2px solid var(--border-card);
-      margin-bottom: 6px;
-      position: relative;
-      background: #1e293b;
-    }
-
-    .party-card.is-turn .party-portrait-wrap {
-      border-color: var(--gold);
-    }
-
-    .party-portrait-img {
+    .portrait-img {
       width: 100%;
       height: 100%;
       background-size: 400% 200%;
       background-repeat: no-repeat;
     }
 
-    .party-name {
+    .portrait-turn-tag {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #c9a227, #d4af37);
+      color: #0a0a14;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.6);
+      display: none;
+      z-index: 2;
+    }
+    .portrait-card.is-turn .portrait-turn-tag {
+      display: block;
+    }
+
+    .portrait-label {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--text-main);
+      max-width: 88px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
+    }
+    .portrait-card.is-player .portrait-label {
+      color: var(--gold-light);
+      font-weight: 800;
+    }
+
+    .allies-sub-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-target-all-allies {
+      background: rgba(212, 175, 55, 0.08);
+      border: 1px solid var(--border-card);
+      color: var(--gold-light);
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .btn-target-all-allies:hover, .btn-target-all-allies.active {
+      background: rgba(212, 175, 55, 0.22);
+      border-color: var(--gold);
+      box-shadow: 0 0 12px var(--gold-glow);
+      color: #fff;
+    }
+
+    /* Box Controllo Azione & Tasti Conferma / Annulla in alto a destra */
+    .top-action-control {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      flex-shrink: 0;
+      background: rgba(18, 18, 34, 0.75);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 10px 14px;
+      min-width: 220px;
+    }
+
+    .action-status-display {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 2px;
+      width: 100%;
+    }
+    .action-name-badge {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+      text-align: right;
+    }
+    .action-target-badge {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-align: right;
+    }
+    .action-target-badge span.target-val {
+      color: var(--cyan);
+      font-weight: 700;
+    }
+
+    .action-buttons-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+      justify-content: flex-end;
+    }
+
+    .btn-confirm-action {
+      background: linear-gradient(135deg, #c9a227 0%, #d4af37 100%);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: #0a0a14;
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.85rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 8px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 2px 10px var(--gold-glow);
+    }
+    .btn-confirm-action:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 0 16px var(--gold-glow);
+      filter: brightness(1.1);
+    }
+    .btn-confirm-action:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+      filter: grayscale(0.8);
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-cancel-action {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-card);
+      color: var(--text-muted);
       font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-cancel-action:hover {
+      background: rgba(239, 68, 68, 0.16);
+      border-color: var(--danger);
+      color: #fca5a5;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       2. BARRA DEL TURNO CON I SECONDI (Larghezza piena)
+       ═══════════════════════════════════════════════════════════ */
+    .turn-timer-banner {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 8px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
+    }
+
+    .turn-timer-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.82rem;
+    }
+    .turn-actor-text {
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+    .turn-actor-text span.turn-name {
+      color: var(--gold-light);
+    }
+    .turn-seconds-text {
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 800;
+      color: var(--gold-light);
+      font-size: 0.88rem;
+    }
+
+    .turn-bar-track {
+      width: 100%;
+      height: 9px;
+      background: rgba(10, 10, 20, 0.8);
+      border-radius: 5px;
+      overflow: hidden;
+      border: 1px solid rgba(201, 162, 39, 0.18);
+    }
+    .turn-bar-fill {
+      height: 100%;
+      width: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #d4af37 60%, #ef4444 100%);
+      transition: width 1s linear;
+      border-radius: 4px;
+    }
+
+    /* ═══════════════════════════════════════════════════════════
+       3. ZONA NEMICI (1 a 6 nemici, solo Lettera + Nome)
+       ═══════════════════════════════════════════════════════════ */
+    .enemies-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border-card);
+      border-radius: 14px;
+      padding: 14px 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    .enemies-header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .enemies-title {
+      font-family: 'Cinzel', Georgia, serif;
+      font-size: 0.85rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--text-muted);
+    }
+    .enemies-title span.count-highlight {
+      color: #f87171;
+    }
+
+    .btn-target-all-enemies {
+      background: rgba(239, 68, 68, 0.12);
+      border: 1px solid rgba(239, 68, 68, 0.35);
+      color: #fca5a5;
+      font-size: 0.74rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-target-all-enemies:hover, .btn-target-all-enemies.active {
+      background: rgba(239, 68, 68, 0.26);
+      border-color: var(--danger);
+      box-shadow: 0 0 14px var(--danger-glow);
+      color: #fff;
+    }
+
+    .enemies-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+      gap: 12px;
+    }
+
+    .enemy-card {
+      background: rgba(18, 18, 32, 0.85);
+      border: 1px solid var(--border-card);
+      border-radius: 12px;
+      padding: 14px 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s ease;
+      user-select: none;
+      min-height: 96px;
+    }
+
+    .enemy-card:hover {
+      background: var(--bg-card-hover);
+      border-color: rgba(239, 68, 68, 0.45);
+      transform: translateY(-2px);
+    }
+
+    .enemy-card.selected-target {
+      border-color: var(--danger) !important;
+      background: rgba(239, 68, 68, 0.16) !important;
+      box-shadow: 0 0 18px var(--danger-glow) !important;
+      transform: scale(1.03);
+    }
+
+    .enemy-letter-badge {
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      background: rgba(239, 68, 68, 0.14);
+      border: 1.5px solid rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+      font-family: 'Cinzel', Georgia, serif;
+      font-weight: 800;
+      font-size: 1.35rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 8px;
+      transition: all 0.2s;
+    }
+
+    .enemy-card.selected-target .enemy-letter-badge {
+      background: var(--danger);
+      color: #fff;
+      box-shadow: 0 0 12px var(--danger);
+    }
+
+    .enemy-name {
+      font-size: 0.86rem;
       font-weight: 700;
       color: var(--text-main);
       white-space: nowrap;
@@ -577,269 +788,128 @@
       max-width: 100%;
     }
 
-    .party-owner-tag {
-      font-size: 0.68rem;
-      color: var(--text-muted);
-    }
-
-    .turn-timer-container {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-card);
-      border-radius: 8px;
-      padding: 8px 12px;
-      display: flex;
-      align-items: center;
+    /* ═══════════════════════════════════════════════════════════
+       4. GRIGLIA COMANDI 2x2 (In basso)
+       ═══════════════════════════════════════════════════════════ */
+    .battle-commands-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-template-rows: auto auto;
       gap: 12px;
     }
 
-    .timer-text {
-      font-family: 'Cinzel', serif;
-      font-weight: 700;
-      font-size: 0.85rem;
-      color: var(--gold-light);
-      white-space: nowrap;
-      min-width: 110px;
-    }
-
-    .timer-bar-track {
-      flex: 1;
-      height: 8px;
-      background: rgba(0, 0, 0, 0.4);
-      border-radius: 4px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .timer-bar-fill {
-      height: 100%;
-      width: 100%;
-      background: linear-gradient(90deg, #10b981, #f59e0b, #ef4444);
-      transition: width 1s linear;
-    }
-
-    .player-dashboard {
+    .btn-battle-cmd {
       background: var(--bg-card);
       border: 1px solid var(--border-card);
       border-radius: 12px;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      position: relative;
-    }
-
-    .player-dashboard.is-my-turn {
-      border-color: var(--gold);
-      box-shadow: 0 0 24px rgba(245, 158, 11, 0.15);
-    }
-
-    .dashboard-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-      padding-bottom: 12px;
-    }
-
-    .dashboard-user-info {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .dashboard-portrait {
-      width: 44px;
-      height: 44px;
-      border-radius: 50%;
-      border: 2px solid var(--gold);
-      overflow: hidden;
-      background: #1e293b;
-    }
-
-    .dashboard-name {
-      font-family: 'Cinzel', serif;
-      font-size: 1.05rem;
-      font-weight: 800;
-      color: var(--gold-light);
-    }
-
-    .dashboard-status-tag {
-      font-size: 0.72rem;
-      padding: 3px 8px;
-      border-radius: 6px;
-      font-weight: 700;
-      letter-spacing: 0.5px;
-    }
-
-    .dashboard-status-tag.turn-active {
-      background: rgba(245, 158, 11, 0.2);
-      border: 1px solid var(--gold);
-      color: var(--gold-light);
-    }
-
-    .dashboard-status-tag.turn-waiting {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-card);
-      color: var(--text-muted);
-    }
-
-    .gauges-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 10px;
-    }
-
-    .gauge-card {
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 8px;
-      padding: 8px 12px;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .gauge-label-row {
-      display: flex;
-      justify-content: space-between;
-      font-size: 0.75rem;
-      font-weight: 700;
-    }
-
-    .gauge-track {
-      height: 7px;
-      background: rgba(255, 255, 255, 0.06);
-      border-radius: 4px;
-      overflow: hidden;
-    }
-
-    .gauge-fill-hp {
-      height: 100%;
-      background: linear-gradient(90deg, #059669, #10b981);
-      transition: width 0.3s ease;
-    }
-
-    .gauge-fill-mp {
-      height: 100%;
-      background: linear-gradient(90deg, #0284c7, #38bdf8);
-      transition: width 0.3s ease;
-    }
-
-    .gauge-fill-limit {
-      height: 100%;
-      background: linear-gradient(90deg, #ea580c, #f97316);
-      transition: width 0.3s ease;
-    }
-
-    .gauge-fill-limit.limit-ready {
-      background: linear-gradient(90deg, #ef4444, #f59e0b, #ef4444);
-      animation: limitFlame 1s infinite linear;
-    }
-
-    @keyframes limitFlame {
-      0% { filter: brightness(1); }
-      50% { filter: brightness(1.4); }
-      100% { filter: brightness(1); }
-    }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-    }
-
-    @media (max-width: 600px) {
-      .actions-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    .btn-battle-cmd {
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid var(--border-card);
-      border-radius: 10px;
-      padding: 14px 10px;
+      padding: 18px 14px;
       color: var(--text-main);
-      font-family: 'Cinzel', serif;
-      font-size: 0.95rem;
-      font-weight: 800;
-      letter-spacing: 0.5px;
+      font-family: 'Cinzel', Georgia, serif;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
       align-items: center;
-      gap: 6px;
+      justify-content: center;
+      gap: 12px;
       transition: all 0.2s ease;
-      position: relative;
       user-select: none;
+      position: relative;
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.35);
     }
-
     .btn-battle-cmd:hover {
       transform: translateY(-2px);
+      background: var(--bg-card-hover);
+    }
+    .btn-battle-cmd:active {
+      transform: translateY(0);
     }
 
+    .cmd-icon {
+      font-size: 1.6rem;
+      line-height: 1;
+    }
+    .cmd-label {
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+    }
+
+    /* Attacca Standard */
     .btn-cmd-attack {
       background: rgba(59, 130, 246, 0.12);
       border-color: rgba(59, 130, 246, 0.35);
-      color: #93c5fd;
+      color: var(--text-main);
     }
     .btn-cmd-attack:hover {
-      background: rgba(59, 130, 246, 0.25);
-      border-color: var(--blue);
-      box-shadow: 0 0 14px var(--blue-glow);
+      background: rgba(59, 130, 246, 0.24);
+      border-color: #60a5fa;
+      box-shadow: 0 0 16px var(--blue-glow);
     }
 
-    .btn-cmd-limit {
-      background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(245, 158, 11, 0.3)) !important;
-      border-color: var(--gold) !important;
-      color: #fef08a !important;
-      animation: limitButtonPulse 1.2s infinite alternate;
+    /* ⭐ REQUISITO LIMIT:
+       Quando in Limit, diventa 'Limit' con scritta in ROSSO */
+    .btn-cmd-attack.is-limit {
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.25) 0%, rgba(185, 28, 28, 0.45) 100%) !important;
+      border-color: var(--danger) !important;
+      box-shadow: 0 0 20px rgba(239, 68, 68, 0.5) !important;
+      animation: limitButtonPulse 1.4s infinite alternate ease-in-out !important;
     }
-
     @keyframes limitButtonPulse {
-      0% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); transform: scale(1); }
-      100% { box-shadow: 0 0 20px rgba(245, 158, 11, 0.8); transform: scale(1.02); }
+      0% { box-shadow: 0 0 10px rgba(239, 68, 68, 0.35); filter: brightness(1); }
+      100% { box-shadow: 0 0 24px rgba(239, 68, 68, 0.8); filter: brightness(1.15); }
+    }
+    .btn-cmd-attack.is-limit .cmd-label {
+      color: var(--danger) !important;
+      text-shadow: 0 0 12px rgba(239, 68, 68, 0.8), 0 0 24px rgba(239, 68, 68, 0.5) !important;
+      font-weight: 900 !important;
+      letter-spacing: 1px !important;
+    }
+    .btn-cmd-attack.is-limit .cmd-icon {
+      filter: drop-shadow(0 0 10px var(--danger));
     }
 
+    /* Arti */
     .btn-cmd-skills {
-      background: rgba(139, 92, 246, 0.12);
-      border-color: rgba(139, 92, 246, 0.35);
-      color: #c4b5fd;
+      background: rgba(145, 70, 255, 0.12);
+      border-color: rgba(145, 70, 255, 0.35);
     }
     .btn-cmd-skills:hover {
-      background: rgba(139, 92, 246, 0.25);
-      border-color: var(--purple);
-      box-shadow: 0 0 14px rgba(139, 92, 246, 0.4);
+      background: rgba(145, 70, 255, 0.24);
+      border-color: var(--twitch-purple);
+      box-shadow: 0 0 16px var(--twitch-glow);
     }
+    .btn-cmd-skills .cmd-label { color: #d8b4fe; }
 
+    /* Difendi */
     .btn-cmd-guard {
       background: rgba(16, 185, 129, 0.12);
       border-color: rgba(16, 185, 129, 0.35);
-      color: #a7f3d0;
     }
     .btn-cmd-guard:hover {
-      background: rgba(16, 185, 129, 0.25);
-      border-color: var(--green);
-      box-shadow: 0 0 14px rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.24);
+      border-color: var(--success);
+      box-shadow: 0 0 16px rgba(16, 185, 129, 0.35);
     }
+    .btn-cmd-guard .cmd-label { color: #a7f3d0; }
 
+    /* Oggetti */
     .btn-cmd-items {
-      background: rgba(245, 158, 11, 0.12);
-      border-color: rgba(245, 158, 11, 0.35);
-      color: #fde68a;
+      background: rgba(212, 175, 55, 0.12);
+      border-color: rgba(201, 162, 39, 0.35);
     }
     .btn-cmd-items:hover {
-      background: rgba(245, 158, 11, 0.25);
+      background: rgba(212, 175, 55, 0.24);
       border-color: var(--gold);
-      box-shadow: 0 0 14px var(--gold-glow);
+      box-shadow: 0 0 16px var(--gold-glow);
     }
+    .btn-cmd-items .cmd-label { color: var(--gold-light); }
 
+    /* ═══════════════════════════════════════════════════════════
+       FINESTRE MODALI (Scelta rapida Arti e Oggetti)
+       ═══════════════════════════════════════════════════════════ */
     .battle-modal-overlay {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.78);
+      background: rgba(10, 10, 20, 0.85);
       backdrop-filter: blur(8px);
       z-index: 200;
       display: none;
@@ -847,219 +917,77 @@
       justify-content: center;
       padding: 16px;
     }
-
-    .battle-modal-overlay.active {
-      display: flex;
-    }
+    .battle-modal-overlay.active { display: flex; }
 
     .battle-modal-card {
-      background: #0f1523;
+      background: #121222;
       border: 1px solid var(--border-card);
       border-radius: 14px;
-      max-width: 520px;
+      max-width: 480px;
       width: 100%;
-      max-height: 85vh;
+      max-height: 82vh;
       overflow-y: auto;
-      box-shadow: 0 12px 40px rgba(0,0,0,0.8);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.85);
       display: flex;
       flex-direction: column;
     }
-
     .modal-head {
       padding: 14px 18px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      border-bottom: 1px solid var(--border-card);
       display: flex;
       justify-content: space-between;
       align-items: center;
     }
-
     .modal-head h3 {
-      font-family: 'Cinzel', serif;
+      font-family: 'Cinzel', Georgia, serif;
       font-size: 1.15rem;
       color: var(--gold-light);
     }
-
     .btn-close-modal {
       background: none;
       border: none;
       color: var(--text-muted);
       font-size: 1.4rem;
       cursor: pointer;
-      line-height: 1;
     }
+    .btn-close-modal:hover { color: #fff; }
 
     .modal-body {
       padding: 16px 18px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 10px;
     }
 
-    .action-choice-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .choice-item-card {
-      background: rgba(255, 255, 255, 0.03);
+    .action-choice-item {
+      background: rgba(22, 22, 38, 0.85);
       border: 1px solid var(--border-card);
       border-radius: 8px;
-      padding: 10px 14px;
+      padding: 12px 14px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       cursor: pointer;
       transition: all 0.2s;
     }
-
-    .choice-item-card:hover {
-      background: rgba(255, 255, 255, 0.07);
+    .action-choice-item:hover {
+      background: rgba(28, 28, 48, 0.95);
       border-color: var(--gold);
+      transform: translateX(2px);
     }
 
-    .choice-item-info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .choice-item-name {
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #fff;
-    }
-
-    .choice-item-desc {
-      font-size: 0.72rem;
-      color: var(--text-muted);
-    }
-
-    .choice-item-meta {
-      font-size: 0.8rem;
-      font-weight: 700;
-      color: var(--gold-light);
-      white-space: nowrap;
-    }
-
-    .target-group-title {
-      font-family: 'Cinzel', serif;
-      font-size: 0.78rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 6px;
-    }
-
-    .target-chips-row {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .target-chip {
-      background: rgba(255, 255, 255, 0.04);
-      border: 1px solid var(--border-card);
-      border-radius: 8px;
-      padding: 8px 14px;
-      font-size: 0.82rem;
-      font-weight: 700;
-      color: var(--text-main);
-      cursor: pointer;
-      transition: all 0.2s;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .target-chip:hover {
-      background: rgba(255, 255, 255, 0.1);
-      border-color: var(--gold);
-    }
-
-    .target-chip.selected {
-      background: rgba(245, 158, 11, 0.2);
-      border-color: var(--gold);
-      color: var(--gold-light);
-      box-shadow: 0 0 10px var(--gold-glow);
-    }
-
-    .target-chip.enemy-chip {
-      border-color: rgba(239, 68, 68, 0.35);
-    }
-    .target-chip.enemy-chip:hover, .target-chip.enemy-chip.selected {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: var(--red);
-      color: #fca5a5;
-    }
-
-    .target-chip.ally-chip {
-      border-color: rgba(59, 130, 246, 0.35);
-    }
-    .target-chip.ally-chip:hover, .target-chip.ally-chip.selected {
-      background: rgba(59, 130, 246, 0.25);
-      border-color: var(--blue);
-      color: #93c5fd;
-    }
-
-    .target-chip.default-chip {
-      border-color: rgba(16, 185, 129, 0.35);
-      width: 100%;
-      justify-content: center;
-      padding: 10px;
-    }
-
-    .modal-footer {
-      padding: 14px 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      justify-content: flex-end;
-      gap: 10px;
-    }
-
-    .btn-modal-action {
-      background: linear-gradient(135deg, #d97706, #f59e0b);
-      border: none;
-      border-radius: 8px;
-      color: #000;
-      font-weight: 800;
-      font-size: 0.85rem;
-      padding: 10px 18px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      transition: all 0.2s;
-    }
-
-    .btn-modal-action:hover {
-      box-shadow: 0 0 14px var(--gold-glow);
-      transform: translateY(-1px);
-    }
-
-    .btn-modal-cancel {
-      background: transparent;
-      border: 1px solid var(--border-card);
-      border-radius: 8px;
-      color: var(--text-muted);
-      font-weight: 600;
-      font-size: 0.85rem;
-      padding: 10px 16px;
-      cursor: pointer;
-    }
-
+    /* Toast */
     .toast-box {
       position: fixed;
       bottom: 24px;
       left: 50%;
       transform: translateX(-50%) translateY(100px);
-      background: #1e293b;
+      background: #161626;
       border: 1px solid var(--gold);
-      color: #fff;
+      color: var(--text-main);
       padding: 12px 20px;
       border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.6);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.7);
       font-size: 0.85rem;
       font-weight: 700;
       z-index: 999;
@@ -1070,247 +998,12 @@
       align-items: center;
       gap: 8px;
     }
-
     .toast-box.show {
       transform: translateX(-50%) translateY(0);
       opacity: 1;
     }
-  
-    .top-nav {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 14px;
-      background: rgba(18, 18, 32, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border-card);
-      padding: 10px 18px;
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    }
 
-    .top-nav-left {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-
-    .nav-brand-title {
-      font-family: 'Cinzel', Georgia, serif;
-      font-weight: 700;
-      font-size: 1.1rem;
-      color: var(--gold-light, #ffd700);
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-decoration: none;
-    }
-    .nav-brand-title:hover {
-      filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
-    }
-
-    .sync-status-pill {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      color: #94a3b8;
-    }
-    .sync-status-pill.active,
-    .sync-status-pill.synced {
-      background: rgba(16, 185, 129, 0.15);
-      border-color: #10b981;
-      color: #34d399;
-    }
-    .sync-status-pill.offline {
-      background: rgba(239, 68, 68, 0.15);
-      border-color: #ef4444;
-      color: #f87171;
-    }
-    .sync-dot {
-      width: 7px;
-      height: 7px;
-      border-radius: 50%;
-      background: currentColor;
-    }
-
-    .nav-links-row {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      flex-wrap: wrap;
-    }
-
-    .nav-pill-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 12px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.12);
-      color: #cbd5e1;
-      font-size: 0.82rem;
-      font-weight: 500;
-      text-decoration: none;
-      transition: all 0.2s;
-      cursor: pointer;
-    }
-    .nav-pill-btn:hover {
-      background: rgba(212, 175, 55, 0.12);
-      border-color: #d4af37;
-      color: #fef08a;
-      transform: translateY(-1px);
-    }
-    .nav-pill-btn.active {
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(201, 162, 39, 0.1) 100%);
-      border-color: #d4af37;
-      color: #fff;
-      font-weight: 600;
-    }
-
-    .top-nav-right {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-
-    .user-gold-badge {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
-      border: 1px solid rgba(212, 175, 55, 0.4);
-      padding: 5px 14px;
-      border-radius: 20px;
-      box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
-    }
-    .user-gold-badge .coin-icon {
-      font-size: 1.1rem;
-    }
-    .user-gold-badge .gold-val {
-      font-family: 'Cinzel', Georgia, serif;
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--gold-light, #ffd700);
-    }
-
-    .twitch-user-pill {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      background: rgba(145, 70, 255, 0.14);
-      border: 1px solid rgba(145, 70, 255, 0.4);
-      padding: 4px 12px 4px 6px;
-      border-radius: 20px;
-    }
-    .twitch-avatar {
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      background: #9146ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.75rem;
-      font-weight: 700;
-      color: #fff;
-      overflow: hidden;
-    }
-    .twitch-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-    .twitch-name {
-      font-size: 0.82rem;
-      font-weight: 600;
-      color: #fff;
-    }
-    .btn-logout {
-      background: none;
-      border: none;
-      color: #94a3b8;
-      font-size: 0.72rem;
-      cursor: pointer;
-      text-decoration: underline;
-      transition: color 0.2s;
-    }
-    .btn-logout:hover { color: #ff6b6b; }
-
-    .btn-twitch-login {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: linear-gradient(135deg, #9146ff 0%, #772ce8 100%);
-      color: #fff;
-      padding: 6px 14px;
-      border-radius: 8px;
-      font-size: 0.8rem;
-      font-weight: 600;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      cursor: pointer;
-      text-decoration: none;
-      transition: all 0.2s ease;
-      box-shadow: 0 2px 8px rgba(145, 70, 255, 0.3);
-    }
-    .btn-twitch-login:hover {
-      filter: brightness(1.1);
-      transform: translateY(-1px);
-    }
-
-    .nav-pill-btn.pill-status {
-      border-color: rgba(59, 130, 246, 0.45);
-      color: #93c5fd;
-      background: rgba(59, 130, 246, 0.1);
-      font-weight: 600;
-    }
-    .nav-pill-btn.pill-status:hover {
-      background: rgba(59, 130, 246, 0.22);
-      border-color: #60a5fa;
-      color: #fff;
-      box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
-    }
-
-    .nav-pill-btn.pill-shop {
-      border-color: rgba(212, 175, 55, 0.35);
-      color: var(--gold-light, #ffd700);
-    }
-    .nav-pill-btn.pill-shop:hover {
-      background: rgba(212, 175, 55, 0.18);
-      border-color: var(--gold, #d4af37);
-      box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
-    }
-
-    .nav-pill-btn.pill-market {
-      border-color: rgba(145, 70, 255, 0.35);
-      color: #c49eff;
-    }
-    .nav-pill-btn.pill-market:hover {
-      background: rgba(145, 70, 255, 0.18);
-      border-color: #a855f7;
-      box-shadow: 0 0 12px rgba(145, 70, 255, 0.35);
-    }
-
-    .nav-pill-btn.pill-guide {
-      color: #94a3b8;
-      opacity: 0.85;
-    }
-    .nav-pill-btn.pill-guide:hover {
-      opacity: 1;
-      color: #e2e8f0;
-    }
-
+    /* Mobile Bottom Bar */
     .mobile-bottom-bar {
       display: none;
       position: fixed;
@@ -1320,7 +1013,6 @@
       border-top: 1px solid rgba(212, 175, 55, 0.35);
       padding: 8px 10px;
       z-index: 9999;
-      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
       justify-content: space-around;
       align-items: center;
     }
@@ -1330,81 +1022,81 @@
       align-items: center;
       gap: 3px;
       text-decoration: none;
-      color: #94a3b8;
+      color: var(--text-muted);
       font-size: 0.68rem;
       font-weight: 600;
       padding: 4px 6px;
       border-radius: 8px;
-      transition: all 0.2s;
       min-width: 50px;
     }
-    .mobile-nav-item .mobile-nav-icon {
-      font-size: 1.25rem;
-      line-height: 1;
-    }
-    .mobile-nav-item:hover, .mobile-nav-item:active {
-      color: #fff;
-      transform: translateY(-2px);
-    }
-    .mobile-nav-item.item-portal { color: #cbd5e1; }
-    .mobile-nav-item.item-battle { color: #fca5a5; }
-    .mobile-nav-item.item-status { color: #93c5fd; }
-    .mobile-nav-item.item-status:hover { color: #3b82f6; }
-    .mobile-nav-item.item-shop { color: #fde047; }
-    .mobile-nav-item.item-market { color: #c49eff; }
-    .mobile-nav-item.item-guide { color: #94a3b8; }
+    .mobile-nav-item .mobile-nav-icon { font-size: 1.25rem; line-height: 1; }
+    .mobile-nav-item:hover, .mobile-nav-item:active { color: #fff; }
 
     @media (max-width: 768px) {
+      .top-portraits-section {
+        flex-direction: column;
+        align-items: stretch;
+      }
+      .top-action-control {
+        align-items: stretch;
+      }
+      .action-status-display {
+        align-items: center;
+      }
+      .action-buttons-group {
+        justify-content: center;
+      }
       .mobile-bottom-bar { display: flex; }
-      body { padding-bottom: 70px !important; }
+      body { padding-bottom: 76px !important; }
     }
-
-</style>
+  </style>
   <script src="status_data.js"></script>
 </head>
 <body>
 
-  <nav class="top-nav">
-    <div class="top-nav-left">
-      <a href="main.html" class="nav-brand-title">
-        <span>⚔️</span>
-        <span>TBRPG</span>
-      </a>
+  <div class="container">
 
-      <div class="sync-status-pill offline" id="syncStatusBadge">
-        <span class="sync-dot"></span>
-        <span id="syncStatusText">Offline</span>
+    <!-- Top Navigation Header -->
+    <nav class="top-nav">
+      <div class="top-nav-left">
+        <a href="main.html" class="nav-brand-title">
+          <span>⚔️</span>
+          <span>TBRPG</span>
+        </a>
+
+        <div class="sync-status-pill offline" id="syncStatusBadge">
+          <span class="sync-dot"></span>
+          <span id="syncStatusText">Offline</span>
+        </div>
+
+        <div class="nav-links-row">
+          <a href="main.html" class="nav-pill-btn">← Portale</a>
+          <a href="status.html" class="nav-pill-btn pill-status">Status 🛡️</a>
+          <a href="shop.html" class="nav-pill-btn pill-shop">Bottega 💰</a>
+          <a href="market.html" class="nav-pill-btn pill-market">Mercatino 🏪</a>
+          <a href="guide.html" class="nav-pill-btn pill-guide">Guida 📖</a>
+        </div>
       </div>
 
-      <div class="nav-links-row">
-        <a href="main.html" class="nav-pill-btn">← Portale</a>
-        <a href="status.html" class="nav-pill-btn pill-status">Status 🛡️</a>
-        <a href="shop.html" class="nav-pill-btn pill-shop">Bottega 💰</a>
-        <a href="market.html" class="nav-pill-btn pill-market">Mercatino 🏪</a>
-        <a href="guide.html" class="nav-pill-btn pill-guide">Guida 📖</a>
+      <div class="top-nav-right">
+        <div class="user-gold-badge" id="userGoldBox" title="Il tuo saldo Oro attuale in gioco">
+          <span>🪙</span>
+          <span id="topUserGold">--</span>
+          <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
+        </div>
+
+        <div id="twitchAuthContainer">
+          <button class="btn-twitch-login" onclick="loginWithTwitch()">
+            <svg style="width:14px;height:14px;fill:#fff;" viewBox="0 0 24 24">
+              <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+            </svg>
+            <span>Accedi con Twitch</span>
+          </button>
+        </div>
       </div>
-    </div>
+    </nav>
 
-    <div class="top-nav-right">
-      <div class="user-gold-badge" id="userGoldBox" title="Il tuo saldo Oro attuale in gioco">
-        <span class="coin-icon">🪙</span>
-        <span class="gold-val" id="topUserGold">--</span>
-        <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
-      </div>
-
-      <div id="twitchAuthContainer">
-        <button class="btn-twitch-login" onclick="loginWithTwitch()">
-          <svg style="width:14px;height:14px;fill:#fff;" viewBox="0 0 24 24">
-            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-          </svg>
-          <span>Accedi con Twitch</span>
-        </button>
-      </div>
-    </div>
-  </nav>
-
-  <div class="battle-container">
-
+    <!-- 1. Offline / No Battle Banner -->
     <div id="waitingScreen" class="waiting-banner">
       <div class="waiting-icon">⏳</div>
       <h2 class="waiting-title">Nessuna Battaglia Attiva</h2>
@@ -1412,153 +1104,109 @@
         Il party non è attualmente impegnato in combattimento.<br>
         Quando inizierà uno scontro nel gioco, questa schermata si aggiornerà in tempo reale con nemici, turni e comandi d'azione.
       </p>
-      <button class="nav-btn" onclick="forceCheckState()" style="margin-top: 10px;">
+      <button class="nav-pill-btn" onclick="forceCheckState()" style="margin-top: 10px; padding: 8px 16px;">
         🔄 Verifica Stato Gioco
       </button>
     </div>
 
-    <div id="activeBattleScreen" style="display: none; flex-direction: column; gap: 16px;">
-      
-      <div>
-        <div class="section-label">
-          <span>Nemici in Campo</span>
-          <span class="highlight" id="enemyCountLabel">-- Nemici</span>
+    <!-- 2. Active Battle Screen (Reworked Structure) -->
+    <div id="activeBattleScreen" style="display: none; flex-direction: column; gap: 14px;">
+
+      <!-- SECTION 1: TOP ROW (Portraits Party & Action/Confirm Panel) -->
+      <div class="top-portraits-section">
+        <div class="portraits-group-left">
+          
+          <!-- Player Portrait (Larger, Left) -->
+          <div class="portrait-card is-player" id="playerPortraitCard" onclick="selectAllyTarget('__player__')">
+            <div class="portrait-frame player-frame" id="playerPortraitFrame">
+              <span class="portrait-turn-tag" id="playerTurnBadge">⚡ IN TURNO</span>
+              <div class="portrait-img" id="playerPortraitImg"></div>
+            </div>
+            <div class="portrait-label" id="playerLabel">Tu</div>
+          </div>
+
+          <!-- Ally Portraits (Up to 3, Center) -->
+          <div class="allies-sub-row" id="alliesSubRow"></div>
+
+          <!-- Quick Chip: Target All Allies (Area) -->
+          <button class="btn-target-all-allies" id="btnTargetAllAllies" onclick="selectTargetOption('tutti alleati')">
+            <span>✨ Tutti gli Alleati</span>
+          </button>
+        </div>
+
+        <!-- Top Right: Action & Confirm / Cancel Panel -->
+        <div class="top-action-control">
+          <div class="action-status-display">
+            <div class="action-name-badge" id="actionNameBadge">Azione: Nessuna</div>
+            <div class="action-target-badge" id="actionTargetBadge">
+              Bersaglio: <span class="target-val" id="targetValText">Nessuno</span>
+            </div>
+          </div>
+          <div class="action-buttons-group">
+            <button class="btn-cancel-action" id="btnCancelAction" onclick="cancelAction()" title="Annulla azione o bersaglio">
+              <span>Annulla ✕</span>
+            </button>
+            <button class="btn-confirm-action" id="btnConfirmAction" onclick="confirmExecuteAction()" disabled>
+              <span>Conferma ⚔️</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 2: TURN TIMER BAR (Full Width) -->
+      <div class="turn-timer-banner">
+        <div class="turn-timer-header">
+          <span class="turn-actor-text" id="turnActorText">Turno di: <span class="turn-name" id="turnActorName">--</span></span>
+          <span class="turn-seconds-text" id="turnTimerText">⏱️ 15s</span>
+        </div>
+        <div class="turn-bar-track">
+          <div class="turn-bar-fill" id="turnTimerFill" style="width: 100%;"></div>
+        </div>
+      </div>
+
+      <!-- SECTION 3: ENEMIES ZONE (1 to 6 enemies, Letter + Name only) -->
+      <div class="enemies-container">
+        <div class="enemies-header-row">
+          <span class="enemies-title">Nemici in Campo (<span class="count-highlight" id="enemyCountNum">0</span>)</span>
+          <button class="btn-target-all-enemies" id="btnTargetAllEnemies" onclick="selectTargetOption('tutti nemici')">
+            <span>💥 Tutti i Nemici (Area)</span>
+          </button>
         </div>
         <div class="enemies-grid" id="enemiesGrid"></div>
       </div>
 
-      <div>
-        <div class="section-label">
-          <span>Party Alleato</span>
-          <span class="highlight" id="turnActorLabel">Turno di: --</span>
-        </div>
-        <div class="party-row" id="partyRow"></div>
-      </div>
+      <!-- SECTION 4: 2x2 ACTION COMMANDS -->
+      <div class="battle-commands-grid">
+        <!-- Attack / Limit button (when limit ready: 'Limit' in RED text) -->
+        <button class="btn-battle-cmd btn-cmd-attack" id="btnActionAttack" onclick="triggerAttackAction()">
+          <span class="cmd-icon" id="btnAttackIcon">⚔️</span>
+          <span class="cmd-label" id="btnAttackLabel">Attacca</span>
+        </button>
 
-      <div class="turn-timer-container">
-        <span class="timer-text" id="turnTimerText">⏱️ 20 Secondi</span>
-        <div class="timer-bar-track">
-          <div class="timer-bar-fill" id="turnTimerFill"></div>
-        </div>
-      </div>
+        <!-- Skills / Magic button -->
+        <button class="btn-battle-cmd btn-cmd-skills" id="btnActionSkills" onclick="openSkillsModal()">
+          <span class="cmd-icon">✨</span>
+          <span class="cmd-label">Arti</span>
+        </button>
 
-      <div class="player-dashboard" id="playerDashboard">
-        
-        <div class="dashboard-header">
-          <div class="dashboard-user-info">
-            <div class="dashboard-portrait">
-              <div class="party-portrait-img" id="myDashboardPortrait"></div>
-            </div>
-            <div>
-              <div class="dashboard-name" id="myDashboardName">Il Tuo Personaggio</div>
-              <div style="font-size: 0.72rem; color: var(--text-muted);" id="myDashboardSub">Livello & Classe</div>
-            </div>
-          </div>
-          <span class="dashboard-status-tag turn-waiting" id="myTurnBadge">In Attesa</span>
-        </div>
+        <!-- Guard / Defend button (direct execution) -->
+        <button class="btn-battle-cmd btn-cmd-guard" id="btnActionGuard" onclick="triggerGuardAction()">
+          <span class="cmd-icon">🛡️</span>
+          <span class="cmd-label">Difendi</span>
+        </button>
 
-        <div id="spectatorNotice" style="display: none; text-align: center; padding: 12px; color: var(--text-muted); font-size: 0.85rem;">
-          Non stai partecipando a questa battaglia (stai seguendo lo scontro da spettatore).
-        </div>
-
-        <div class="gauges-grid" id="myGaugesContainer">
-          <div class="gauge-card">
-            <div class="gauge-label-row">
-              <span style="color: var(--hp-color);">Punti Vita (PV)</span>
-              <span id="myHpVal">-- / --</span>
-            </div>
-            <div class="gauge-track">
-              <div class="gauge-fill-hp" id="myHpBar" style="width: 100%;"></div>
-            </div>
-          </div>
-
-          <div class="gauge-card">
-            <div class="gauge-label-row">
-              <span style="color: var(--mp-color);">Punti Magia (PM)</span>
-              <span id="myMpVal">-- / --</span>
-            </div>
-            <div class="gauge-track">
-              <div class="gauge-fill-mp" id="myMpBar" style="width: 100%;"></div>
-            </div>
-          </div>
-
-          <div class="gauge-card">
-            <div class="gauge-label-row">
-              <span style="color: var(--limit-color);" id="myLimitLabel">Barra Limit</span>
-              <span id="myLimitVal">0%</span>
-            </div>
-            <div class="gauge-track">
-              <div class="gauge-fill-limit" id="myLimitBar" style="width: 0%;"></div>
-            </div>
-          </div>
-        </div>
-
-        <div id="myStatesRow" style="display: flex; gap: 6px; flex-wrap: wrap;"></div>
-
-        <div class="actions-grid" id="myActionsContainer">
-          <button class="btn-battle-cmd btn-cmd-attack" id="btnActionAttack" onclick="openAttackModal()">
-            <span style="font-size: 1.3rem;" id="btnAttackIcon">⚔️</span>
-            <span id="btnAttackLabel">Attacca</span>
-          </button>
-
-          <button class="btn-battle-cmd btn-cmd-skills" id="btnActionSkills" onclick="openSkillsModal()">
-            <span style="font-size: 1.3rem;">✨</span>
-            <span>Arti & Magie</span>
-          </button>
-
-          <button class="btn-battle-cmd btn-cmd-guard" id="btnActionGuard" onclick="triggerGuardAction()">
-            <span style="font-size: 1.3rem;">🛡️</span>
-            <span>Difendi</span>
-          </button>
-
-          <button class="btn-battle-cmd btn-cmd-items" id="btnActionItems" onclick="openItemsModal()">
-            <span style="font-size: 1.3rem;">🎒</span>
-            <span>Oggetti</span>
-          </button>
-        </div>
-
-      </div>
-
-    </div>
-
-  </div>
-
-  <div class="battle-modal-overlay" id="targetModalOverlay" onclick="closeTargetModal(event)">
-    <div class="battle-modal-card" onclick="event.stopPropagation()">
-      <div class="modal-head">
-        <h3 id="targetModalTitle">Seleziona Bersaglio</h3>
-        <button class="btn-close-modal" onclick="closeTargetModal()">✕</button>
-      </div>
-      <div class="modal-body">
-        
-        <div>
-          <button class="target-chip default-chip selected" id="chipDefaultTarget" onclick="selectTargetOption('default')">
-            <span>🎲</span>
-            <span id="chipDefaultLabel">Bersaglio Naturale / Casuale</span>
-          </button>
-        </div>
-
-        <div class="target-group-title">👾 Nemici in Campo</div>
-        <div class="target-chips-row" id="targetEnemiesChips"></div>
-
-        <div class="target-group-title">🛡️ Alleati del Party</div>
-        <div class="target-chips-row" id="targetAlliesChips"></div>
-
-        <div id="targetAreaSection" style="display: none;">
-          <div class="target-group-title">🌐 Bersagli ad Area</div>
-          <div class="target-chips-row" id="targetAreaChips"></div>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button class="btn-modal-cancel" onclick="closeTargetModal()">Annulla</button>
-        <button class="btn-modal-action" id="btnConfirmAction" onclick="confirmExecuteAction()">
-          <span>Conferma & Invia ⚔️</span>
+        <!-- Party Items button -->
+        <button class="btn-battle-cmd btn-cmd-items" id="btnActionItems" onclick="openItemsModal()">
+          <span class="cmd-icon">🎒</span>
+          <span class="cmd-label">Oggetti</span>
         </button>
       </div>
+
     </div>
+
   </div>
 
+  <!-- MODAL: ARTI & MAGIE / BOMBE -->
   <div class="battle-modal-overlay" id="skillsModalOverlay" onclick="closeSkillsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1571,6 +1219,7 @@
     </div>
   </div>
 
+  <!-- MODAL: BOMBE -->
   <div class="battle-modal-overlay" id="bombsModalOverlay" onclick="closeBombsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1583,6 +1232,7 @@
     </div>
   </div>
 
+  <!-- MODAL: OGGETTI -->
   <div class="battle-modal-overlay" id="itemsModalOverlay" onclick="closeItemsModal(event)">
     <div class="battle-modal-card" onclick="event.stopPropagation()">
       <div class="modal-head">
@@ -1595,14 +1245,40 @@
     </div>
   </div>
 
+  <!-- Toast Box Feedback -->
   <div class="toast-box" id="battleToast">
     <span id="toastIcon">⚔️</span>
     <span id="toastText">Comando inviato!</span>
   </div>
 
-    <script>
+  <!-- Mobile Bottom Navigation -->
+  <nav class="mobile-bottom-bar" id="mobileBottomBar">
+    <a href="main.html" class="mobile-nav-item">
+      <span class="mobile-nav-icon">🚪</span>
+      <span>Portale</span>
+    </a>
+    <a href="battle.html" class="mobile-nav-item" style="color:#f87171; font-weight:bold;">
+      <span class="mobile-nav-icon">⚔️</span>
+      <span>Battaglia</span>
+    </a>
+    <a href="status.html" class="mobile-nav-item">
+      <span class="mobile-nav-icon">🛡️</span>
+      <span>Status</span>
+    </a>
+    <a href="shop.html" class="mobile-nav-item">
+      <span class="mobile-nav-icon">💰</span>
+      <span>Bottega</span>
+    </a>
+    <a href="market.html" class="mobile-nav-item">
+      <span class="mobile-nav-icon">🏪</span>
+      <span>Mercato</span>
+    </a>
+  </nav>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
     // ============================================================
-    // SINCRONIZZAZIONE REALTIME FIREBASE & LOCALE
+    // CONFIGURAZIONE & STATO
     // ============================================================
     const TWITCH_CLIENT_ID = "eim2qymtvqvr2s7os8hoonenqzvd71";
     const STREAMER_CHANNEL = "kenz088";
@@ -1612,13 +1288,15 @@
     let currentUser = null;
     let twitchToken = null;
     let battleState = null;
-    let selectedTargetStr = "";
-    let pendingActionType = "";
-    let pendingActionDetail = null;
     let isGameRunning = false;
 
+    // Azione e Bersaglio selezionati
+    let pendingActionType = "";       // "attack", "limit", "skill", "bomb", "item"
+    let pendingActionDetail = null;   // oggetto skill, bomba o item
+    let selectedTargetStr = "";       // "A", "B", "@username", "tutti nemici", "tutti alleati"
+
     // ============================================================
-    // ⭐ FIX: rileva se il gioco è ancora vivo (heartbeat < 25s)
+    // STATO OPERATIVO DEL GIOCO (Heartbeat & Live Check)
     // ============================================================
     function isGameAlive() {
       const live = window.__LIVE_GAME_DATA;
@@ -1631,9 +1309,6 @@
       return false;
     }
 
-    // ============================================================
-    // ⭐ FIX: getGameOperationalState robusto con cache last state
-    // ============================================================
     function getGameOperationalState(data) {
       const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
       if (!d) return 'offline';
@@ -1669,6 +1344,9 @@
       return state;
     }
 
+    // ============================================================
+    // GESTIONE AUTENTICAZIONE TWITCH
+    // ============================================================
     function initAuth() {
       if (window.location.hash) {
         const params = new URLSearchParams(window.location.hash.substring(1));
@@ -1774,7 +1452,7 @@
       if (window.location.protocol === 'file:') {
         const chosen = prompt(
           "Modalità Locale (file://):\n\n" +
-          "Inserisci il nome utente Twitch con cui accedere (es. ashen84, kenz088, captainlover92, gianni23):",
+          "Inserisci il nome utente Twitch con cui accedere (es. ashen84, kenz088, captainlover92):",
           currentUser ? (currentUser.login || currentUser.name || "kenz088") : "kenz088"
         );
         if (chosen && chosen.trim()) {
@@ -1822,81 +1500,77 @@
       }
     });
 
-var __btBattleStream = null;
-var __btLiveStream = null;
-var __btLastEventAt = 0;
-var __btWatchdogStarted = false;
-var __btLifecycleBound = false;
+    // ============================================================
+    // SINCRONIZZAZIONE REALTIME FIREBASE & SSE
+    // ============================================================
+    var __btBattleStream = null;
+    var __btLiveStream = null;
+    var __btLastEventAt = 0;
+    var __btWatchdogStarted = false;
+    var __btLifecycleBound = false;
 
-function initFirebaseStreams() {
-  try {
-    if (typeof EventSource === 'undefined') return;
-
-    if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} __btBattleStream = null; }
-    if (__btLiveStream) { try { __btLiveStream.close(); } catch(e){} __btLiveStream = null; }
-
-    __btLastEventAt = Date.now();
-
-    var esBattle = new EventSource(FIREBASE_BATTLE_URL);
-    __btBattleStream = esBattle;
-    var handleBattleEvent = function(e) {
+    function initFirebaseStreams() {
       try {
-        __btLastEventAt = Date.now();
-        var payload = JSON.parse(e.data);
-        var data = (payload && payload.data !== undefined) ? payload.data : payload;
-        if (data && typeof data === 'object') updateBattleView(data);
-      } catch(err) {}
-    };
-    esBattle.addEventListener('put', handleBattleEvent);
-    esBattle.addEventListener('patch', handleBattleEvent);
-    esBattle.onerror = function() { /* gestito dal watchdog */ };
+        if (typeof EventSource === 'undefined') return;
 
-    var esLive = new EventSource(FIREBASE_LIVE_URL);
-    __btLiveStream = esLive;
-    var handleLiveEvent = function(e) {
-      try {
-        __btLastEventAt = Date.now();
-        var payload = JSON.parse(e.data);
-        var data = (payload && payload.data !== undefined) ? payload.data : payload;
-        if (data && typeof data === 'object') handleLiveGameStatus(data);
-      } catch(err) {}
-    };
-    esLive.addEventListener('put', handleLiveEvent);
-    esLive.addEventListener('patch', handleLiveEvent);
-    esLive.onerror = function() { /* gestito dal watchdog */ };
+        if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} __btBattleStream = null; }
+        if (__btLiveStream) { try { __btLiveStream.close(); } catch(e){} __btLiveStream = null; }
 
-    if (!__btWatchdogStarted) {
-      __btWatchdogStarted = true;
-      setInterval(function() {
-        if ((Date.now() - __btLastEventAt) > 30000) {
-          console.warn('[Firebase] SSE battle/live muto da >30s, riconnessione');
-          initFirebaseStreams();
+        __btLastEventAt = Date.now();
+
+        var esBattle = new EventSource(FIREBASE_BATTLE_URL);
+        __btBattleStream = esBattle;
+        var handleBattleEvent = function(e) {
+          try {
+            __btLastEventAt = Date.now();
+            var payload = JSON.parse(e.data);
+            var data = (payload && payload.data !== undefined) ? payload.data : payload;
+            if (data && typeof data === 'object') updateBattleView(data);
+          } catch(err) {}
+        };
+        esBattle.addEventListener('put', handleBattleEvent);
+        esBattle.addEventListener('patch', handleBattleEvent);
+
+        var esLive = new EventSource(FIREBASE_LIVE_URL);
+        __btLiveStream = esLive;
+        var handleLiveEvent = function(e) {
+          try {
+            __btLastEventAt = Date.now();
+            var payload = JSON.parse(e.data);
+            var data = (payload && payload.data !== undefined) ? payload.data : payload;
+            if (data && typeof data === 'object') handleLiveGameStatus(data);
+          } catch(err) {}
+        };
+        esLive.addEventListener('put', handleLiveEvent);
+        esLive.addEventListener('patch', handleLiveEvent);
+
+        if (!__btWatchdogStarted) {
+          __btWatchdogStarted = true;
+          setInterval(function() {
+            if ((Date.now() - __btLastEventAt) > 30000) {
+              initFirebaseStreams();
+            }
+          }, 10000);
         }
-      }, 10000);
+
+        if (!__btLifecycleBound) {
+          __btLifecycleBound = true;
+          document.addEventListener('visibilitychange', function() {
+            if (document.visibilityState === 'visible' && (Date.now() - __btLastEventAt) > 10000) {
+              initFirebaseStreams();
+            }
+          });
+          var _closeStreams = function() {
+            if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} }
+            if (__btLiveStream)   { try { __btLiveStream.close(); } catch(e){} }
+          };
+          window.addEventListener('pagehide', _closeStreams);
+          window.addEventListener('beforeunload', _closeStreams);
+        }
+      } catch(e) {}
     }
 
-    if (!__btLifecycleBound) {
-      __btLifecycleBound = true;
-      document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'visible' && (Date.now() - __btLastEventAt) > 10000) {
-          initFirebaseStreams();
-        }
-      });
-      var _closeStreams = function() {
-        if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} }
-        if (__btLiveStream)   { try { __btLiveStream.close(); } catch(e){} }
-      };
-      window.addEventListener('pagehide', _closeStreams);
-      window.addEventListener('beforeunload', _closeStreams);
-    }
-  } catch(e) {}
-}
-
-    // ============================================================
-    // ⭐ FIX: handleLiveGameStatus memorizza __LIVE_GAME_DATA
-    // ============================================================
     function handleLiveGameStatus(data) {
-      // ⭐ FIX: memorizza i dati live per il check battaglia fantasma
       if (data && typeof data === 'object') window.__LIVE_GAME_DATA = data;
 
       const state = getGameOperationalState(data);
@@ -1935,11 +1609,8 @@ function initFirebaseStreams() {
       }
     }
 
-    // ============================================================
-    // ⭐ FIX: fetchBattleState invertito — PRIMA live, POI battle
-    // ============================================================
     async function fetchBattleState() {
-      // 1) Prima aggiorna LIVE data (heartbeat) — così updateBattleView lo trova fresco
+      // 1) Prima LIVE data
       try {
         const lRes = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
         if (lRes.ok) {
@@ -1951,7 +1622,7 @@ function initFirebaseStreams() {
         }
       } catch(e) {}
 
-      // 2) Poi fetch BATTLE data
+      // 2) BATTLE data
       let fetchedFromFirebase = false;
       try {
         const fbRes = await fetch(FIREBASE_BATTLE_URL + "?t=" + Date.now());
@@ -1960,11 +1631,14 @@ function initFirebaseStreams() {
           if (fbData && typeof fbData === 'object' && fbData.inBattle !== undefined) {
             fetchedFromFirebase = true;
             updateBattleView(fbData);
+          } else if (fbData === null) {
+            updateBattleView({ inBattle: false });
+            fetchedFromFirebase = true;
           }
         }
       } catch(e) {}
 
-      // 3) Fallback su file locale (solo se non su HTTP)
+      // 3) Fallback locale
       if (!fetchedFromFirebase) {
         try {
           const res = await fetch("twitch_battle_state.json?t=" + Date.now());
@@ -1986,7 +1660,7 @@ function initFirebaseStreams() {
     }
 
     // ============================================================
-    // RENDERING BATTAGLIA
+    // AGGIORNAMENTO VIEW BATTAGLIA
     // ============================================================
     function updateBattleView(data) {
       battleState = data;
@@ -1994,29 +1668,17 @@ function initFirebaseStreams() {
       const waitingScreen = document.getElementById("waitingScreen");
       const activeBattleScreen = document.getElementById("activeBattleScreen");
 
-      // Determina se la battaglia è reale o fantasma
       let battleIsReal = false;
       if (data && data.inBattle && data.enemies && data.enemies.length > 0) {
         const alive = isGameAlive();
-        if (alive === true) {
-          battleIsReal = true;
-        } else if (alive === false) {
-          battleIsReal = false;
-        } else {
-          battleIsReal = true; // sconosciuto → fallback (primi secondi)
-        }
+        if (alive === true) battleIsReal = true;
+        else if (alive === false) battleIsReal = false;
+        else battleIsReal = true;
       }
 
       if (!data || !data.inBattle || !data.enemies || data.enemies.length === 0 || !battleIsReal) {
         waitingScreen.style.display = "flex";
         activeBattleScreen.style.display = "none";
-
-        const grid = document.getElementById("enemiesGrid");
-        if (grid) grid.innerHTML = "";
-        const row = document.getElementById("partyRow");
-        if (row) row.innerHTML = "";
-        const myStates = document.getElementById("myStatesRow");
-        if (myStates) myStates.innerHTML = "";
 
         const waitTitle = document.querySelector(".waiting-title");
         const waitDesc = document.querySelector(".waiting-desc");
@@ -2044,66 +1706,86 @@ function initFirebaseStreams() {
       waitingScreen.style.display = "none";
       activeBattleScreen.style.display = "flex";
 
+      renderPortraits(data.party || [], data.currentTurnUser);
+      renderTimer(data.timerSeconds || 0, data.currentTurnUser);
       renderEnemies(data.enemies || []);
-      renderParty(data.party || [], data.currentTurnUser);
-      renderTimer(data.timerSeconds || 0);
-      renderPlayerDashboard(data.party || [], data.currentTurnUser);
+      renderCommandButtons();
+      updateActionControlPanel();
     }
 
-    function renderEnemies(enemies) {
-      const grid = document.getElementById("enemiesGrid");
-      const countLabel = document.getElementById("enemyCountLabel");
-      countLabel.innerText = `${enemies.length} Nemic${enemies.length === 1 ? 'o' : 'i'}`;
+    // ============================================================
+    // 1. RENDERING RITRATTI (Solo ritratti, selezionabili)
+    // ============================================================
+    function renderPortraits(party, currentTurnUser) {
+      const myActor = getMyCurrentActor();
+      const myLogin = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
 
-      if (!enemies.length) {
-        grid.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem;">Nessun nemico presente.</div>';
-        return;
+      // Ritratto Giocatore
+      const playerCard = document.getElementById("playerPortraitCard");
+      const playerFrame = document.getElementById("playerPortraitFrame");
+      const playerImg = document.getElementById("playerPortraitImg");
+      const playerLabel = document.getElementById("playerLabel");
+
+      const displayActor = myActor || (party.length > 0 ? party[0] : null);
+      if (displayActor) {
+        playerLabel.innerText = myActor ? `Tu (${displayActor.name})` : displayActor.name;
+        playerImg.style.cssText = getFaceSpriteStyle(displayActor.faceName, displayActor.faceIndex);
+
+        const isPlayerTurn = displayActor.isTurn || (currentTurnUser && displayActor.owner && displayActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
+        if (isPlayerTurn) {
+          playerCard.classList.add("is-turn");
+          playerFrame.classList.add("is-turn");
+        } else {
+          playerCard.classList.remove("is-turn");
+          playerFrame.classList.remove("is-turn");
+        }
+
+        const cleanOwner = (displayActor.owner || displayActor.name).replace(/^@/, '');
+        const isSelected = selectedTargetStr === '@' + cleanOwner || selectedTargetStr === '__player__';
+        if (isSelected) {
+          playerCard.classList.add("selected-target");
+        } else {
+          playerCard.classList.remove("selected-target");
+        }
       }
 
-      grid.innerHTML = enemies.map(e => {
-        const statesHtml = (e.states || []).map(st => `<span class="state-badge">${st.name}</span>`).join("");
-        const isSelected = (selectedTargetStr === e.letter);
+      // Ritratti Alleati (fino a 3)
+      const alliesRow = document.getElementById("alliesSubRow");
+      const allies = party.filter(p => {
+        if (!displayActor) return true;
+        const ownerClean = (p.owner || p.name || "").toLowerCase().trim();
+        const mainOwnerClean = (displayActor.owner || displayActor.name || "").toLowerCase().trim();
+        return ownerClean !== mainOwnerClean;
+      }).slice(0, 3);
+
+      alliesRow.innerHTML = allies.map(ally => {
+        const allyOwner = (ally.owner || ally.name || "").replace(/^@/, '');
+        const isTurn = ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase());
+        const isSelected = (selectedTargetStr === '@' + allyOwner);
+        const faceStyle = getFaceSpriteStyle(ally.faceName, ally.faceIndex);
+
         return `
-          <div class="enemy-card ${isSelected ? 'selected-target' : ''}" onclick="quickSelectEnemyTarget('${e.letter}')">
-            <div class="enemy-letter-badge">${e.letter}</div>
-            <div class="enemy-name" title="${e.name}">${e.name}</div>
-            <div class="enemy-states-row">${statesHtml}</div>
-          </div>
-        `;
-      }).join("");
-    }
-
-    function quickSelectEnemyTarget(letter) {
-      selectedTargetStr = (selectedTargetStr === letter) ? "" : letter;
-      renderEnemies(battleState ? battleState.enemies : []);
-      showToast(selectedTargetStr ? `Bersaglio: Nemico ${letter}` : "Bersaglio deselezionato", "🎯");
-    }
-
-    function renderParty(party, currentTurnUser) {
-      const row = document.getElementById("partyRow");
-      const turnLabel = document.getElementById("turnActorLabel");
-      turnLabel.innerText = currentTurnUser ? `Turno di: @${currentTurnUser}` : "In attesa";
-
-      row.innerHTML = party.map(p => {
-        const isTurn = p.isTurn || (currentTurnUser && (p.owner.toLowerCase() === currentTurnUser.toLowerCase() || p.name.toLowerCase() === currentTurnUser.toLowerCase()));
-        const faceStyle = getFaceSpriteStyle(p.faceName, p.faceIndex);
-        return `
-          <div class="party-card ${isTurn ? 'is-turn' : ''}" onclick="quickSelectAllyTarget('${p.owner || p.name}')">
-            <span class="turn-indicator-badge">⚡ IN TURNO</span>
-            <div class="party-portrait-wrap">
-              <div class="party-portrait-img" style="${faceStyle}"></div>
+          <div class="portrait-card ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''}" 
+               onclick="selectAllyTarget('@${allyOwner}')" 
+               title="Seleziona alleato @${allyOwner}">
+            <div class="portrait-frame ally-frame ${isTurn ? 'is-turn' : ''}">
+              <span class="portrait-turn-tag">⚡ TURNO</span>
+              <div class="portrait-img" style="${faceStyle}"></div>
             </div>
-            <div class="party-name" title="${p.name}">${p.name}</div>
-            <div class="party-owner-tag">@${p.owner || p.name}</div>
+            <div class="portrait-label">@${allyOwner}</div>
           </div>
         `;
       }).join("");
-    }
 
-    function quickSelectAllyTarget(ownerName) {
-      const clean = ownerName.replace(/^@/, '');
-      selectedTargetStr = (selectedTargetStr === '@' + clean) ? "" : '@' + clean;
-      showToast(selectedTargetStr ? `Bersaglio Alleato: ${selectedTargetStr}` : "Bersaglio deselezionato", "🛡️");
+      // Chip Tutti gli Alleati
+      const btnAllAllies = document.getElementById("btnTargetAllAllies");
+      if (btnAllAllies) {
+        if (selectedTargetStr === "tutti alleati") {
+          btnAllAllies.classList.add("active");
+        } else {
+          btnAllAllies.classList.remove("active");
+        }
+      }
     }
 
     function getFaceSpriteStyle(faceName, faceIndex) {
@@ -2116,145 +1798,221 @@ function initFirebaseStreams() {
       return `background-image: url('img/faces/${fName}.png'); background-position: ${posX}% ${posY}%;`;
     }
 
-    function renderTimer(seconds) {
-      const text = document.getElementById("turnTimerText");
-      const fill = document.getElementById("turnTimerFill");
+    // ============================================================
+    // 2. RENDERING BARRA DEL TURNO CON SECONDI
+    // ============================================================
+    function renderTimer(seconds, currentTurnUser) {
+      const timerText = document.getElementById("turnTimerText");
+      const timerFill = document.getElementById("turnTimerFill");
+      const actorName = document.getElementById("turnActorName");
+
       const clamped = Math.max(0, Math.min(20, seconds));
-      text.innerText = `⏱️ ${clamped} Secondi`;
-      fill.style.width = `${(clamped / 20) * 100}%`;
+      timerText.innerText = `⏱️ ${clamped}s`;
+      timerFill.style.width = `${(clamped / 20) * 100}%`;
+
+      if (actorName) {
+        actorName.innerText = currentTurnUser ? `@${currentTurnUser}` : "In attesa...";
+      }
     }
 
-    function renderPlayerDashboard(party, currentTurnUser) {
-      const myActor = getMyCurrentActor();
-      const spectatorNotice = document.getElementById("spectatorNotice");
-      const gaugesContainer = document.getElementById("myGaugesContainer");
-      const actionsContainer = document.getElementById("myActionsContainer");
-      const badge = document.getElementById("myTurnBadge");
-      const dash = document.getElementById("playerDashboard");
+    // ============================================================
+    // 3. RENDERING NEMICI (Da 1 a 6 nemici, solo Lettera + Nome)
+    // ============================================================
+    function renderEnemies(enemies) {
+      const grid = document.getElementById("enemiesGrid");
+      const countEl = document.getElementById("enemyCountNum");
+      countEl.innerText = enemies.length;
 
-      if (!myActor) {
-        spectatorNotice.style.display = "block";
-        gaugesContainer.style.display = "none";
-        actionsContainer.style.display = "none";
-        badge.className = "dashboard-status-tag turn-waiting";
-        badge.innerText = "Spettatore";
-        document.getElementById("myDashboardName").innerText = currentUser ? (currentUser.name || currentUser.login) : "Ospite";
-        document.getElementById("myDashboardSub").innerText = "Non presente nel party di battaglia";
+      const isAllEnemies = (selectedTargetStr === "tutti nemici");
+      const btnAllEnemies = document.getElementById("btnTargetAllEnemies");
+      if (btnAllEnemies) {
+        if (isAllEnemies) btnAllEnemies.classList.add("active");
+        else btnAllEnemies.classList.remove("active");
+      }
+
+      if (!enemies.length) {
+        grid.innerHTML = '<div style="color:var(--text-muted); font-size:0.85rem; padding:10px;">Nessun nemico in campo.</div>';
         return;
       }
 
-      spectatorNotice.style.display = "none";
-      gaugesContainer.style.display = "grid";
-      actionsContainer.style.display = "grid";
+      grid.innerHTML = enemies.map(e => {
+        const isSelected = (selectedTargetStr === e.letter) || isAllEnemies;
+        return `
+          <div class="enemy-card ${isSelected ? 'selected-target' : ''}" 
+               onclick="selectEnemyTarget('${e.letter}')" 
+               title="Bersaglio: Nemico ${e.letter} (${e.name})">
+            <div class="enemy-letter-badge">${e.letter}</div>
+            <div class="enemy-name">${e.name}</div>
+          </div>
+        `;
+      }).join("");
+    }
 
-      document.getElementById("myDashboardName").innerText = myActor.name;
-      document.getElementById("myDashboardSub").innerText = `@${myActor.owner}`;
-
-      const portEl = document.getElementById("myDashboardPortrait");
-      if (portEl) {
-        portEl.style.cssText = getFaceSpriteStyle(myActor.faceName, myActor.faceIndex);
+    // ============================================================
+    // 4. RENDERING & STATO COMANDI AZIONE (Attacca, Limit, Arti, etc.)
+    // ============================================================
+    function isPlayerInLimit() {
+      const myActor = getMyCurrentActor();
+      if (!myActor) return false;
+      let limitPct = 0;
+      if (myActor.limitPercent !== undefined) {
+        limitPct = Math.min(100, Math.max(0, Math.round(myActor.limitPercent)));
+      } else if (myActor.limit !== undefined) {
+        const max = myActor.limitMax || 255;
+        limitPct = Math.min(100, Math.max(0, Math.round((myActor.limit / max) * 100)));
       }
+      return !!myActor.isLimit || limitPct >= 100 || (myActor.tp !== undefined && myActor.tp >= 100);
+    }
 
-      const isMyTurn = myActor.isTurn || (currentTurnUser && myActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
-      if (isMyTurn) {
-        badge.className = "dashboard-status-tag turn-active";
-        badge.innerText = "È IL TUO TURNO! 🔥";
-        dash.classList.add("my-turn-active");
-      } else {
-        badge.className = "dashboard-status-tag turn-waiting";
-        badge.innerText = currentTurnUser ? `In Attesa (Turno di @${currentTurnUser})` : "In Attesa";
-        dash.classList.remove("my-turn-active");
-      }
-
-      const hp = myActor.hp || 0;
-      const maxHp = Math.max(1, myActor.maxHp || 1);
-      const hpPct = Math.min(100, Math.round((hp / maxHp) * 100));
-      document.getElementById("myHpVal").innerText = `${hp} / ${maxHp}`;
-      document.getElementById("myHpBar").style.width = `${hpPct}%`;
-
-      const mp = myActor.mp || 0;
-      const maxMp = Math.max(1, myActor.maxMp || 1);
-      const mpPct = Math.min(100, Math.round((mp / maxMp) * 100));
-      document.getElementById("myMpVal").innerText = `${mp} / ${maxMp}`;
-      document.getElementById("myMpBar").style.width = `${mpPct}%`;
-
-      let limitPct;
-if (myActor.limitPercent !== undefined) {
-  limitPct = Math.min(100, Math.max(0, Math.round(myActor.limitPercent)));
-} else if (myActor.limit !== undefined) {
-  const max = myActor.limitMax || 255;
-  limitPct = Math.min(100, Math.max(0, Math.round((myActor.limit / max) * 100)));
-} else {
-  limitPct = 0;
-}
-const isLimit = !!myActor.isLimit || limitPct >= 100;
-      const limitLabel = document.getElementById("myLimitLabel");
-      const limitVal = document.getElementById("myLimitVal");
-      const limitBar = document.getElementById("myLimitBar");
-      limitBar.style.width = `${limitPct}%`;
-
-      if (isLimit || limitPct >= 100) {
-        limitLabel.innerText = "Barra Limit (PRONTA!)";
-        limitVal.innerText = "100% (PRONTA!)";
-        limitBar.classList.add("limit-ready-pulse");
-      } else {
-        limitLabel.innerText = "Barra Limit";
-        limitVal.innerText = `${limitPct}%`;
-        limitBar.classList.remove("limit-ready-pulse");
-      }
-
+    function renderCommandButtons() {
+      const isLimit = isPlayerInLimit();
       const btnAttack = document.getElementById("btnActionAttack");
       const btnAttackIcon = document.getElementById("btnAttackIcon");
       const btnAttackLabel = document.getElementById("btnAttackLabel");
+
+      // ⭐ REQUISITO: In limit diventa "Limit" con la scritta in ROSSO anziché bianco
       if (isLimit) {
-        btnAttack.classList.add("limit-ready");
+        btnAttack.classList.add("is-limit");
         btnAttackIcon.innerText = "🔥";
-        btnAttackLabel.innerText = "LIMIT";
+        btnAttackLabel.innerText = "Limit";
       } else {
-        btnAttack.classList.remove("limit-ready");
+        btnAttack.classList.remove("is-limit");
         btnAttackIcon.innerText = "⚔️";
         btnAttackLabel.innerText = "Attacca";
       }
-
-      const statesRow = document.getElementById("myStatesRow");
-      statesRow.innerHTML = (myActor.states || []).map(st => `<span class="state-badge">⚠️ ${st.name}</span>`).join("");
     }
 
-    function getMyCurrentActor() {
-      if (!battleState || !battleState.party || !battleState.party.length) return null;
-      const myUserClean = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
-      if (!myUserClean) return null;
-      return battleState.party.find(p => (p.owner && p.owner.toLowerCase() === myUserClean) || (p.name && p.name.toLowerCase() === myUserClean)) || null;
-    }
-
-    function checkCanExecuteBattleCommand() {
-      const st = getGameOperationalState();
-      if (st !== 'live') {
-        if (st === 'menu') {
-          showToast("⚠️ Il gioco è al menu iniziale. I comandi saranno disponibili all'avvio della partita!", "⏳");
-        } else {
-          showToast("🔴 Il gioco è offline. Entra in partita per combattere!", "✕");
-        }
-        return false;
-      }
-      if (!battleState || !battleState.inBattle) {
-        showToast("⚔️ I comandi di combattimento sono attivi solo durante una battaglia in gioco!", "⚠️");
-        return false;
-      }
-      return true;
-    }
-
-    function openAttackModal() {
+    // ============================================================
+    // TARGETING DIRETTO & FLUSSO AZIONI SENZA MODALI DI CONFERMA
+    // ============================================================
+    function triggerAttackAction() {
       if (!checkCanExecuteBattleCommand()) return;
-      const myActor = getMyCurrentActor();
-      const isLimit = myActor && (myActor.isLimit || (myActor.tp >= 100));
+      const isLimit = isPlayerInLimit();
       pendingActionType = isLimit ? "limit" : "attack";
       pendingActionDetail = null;
-      document.getElementById("targetModalTitle").innerText = isLimit ? "Limit Break 🔥 - Seleziona Bersaglio" : "Attacco Fisico ⚔️ - Seleziona Bersaglio";
-      populateTargetModal(false, false);
-      openTargetModal();
+
+      // Se era selezionato un alleato o tutti alleati, resettalo per attacco nemico
+      if (selectedTargetStr && (selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "__player__")) {
+        selectedTargetStr = "";
+      }
+
+      refreshBattleViews();
+      if (selectedTargetStr) {
+        showToast(`Azione: ${isLimit ? 'Limit 🔥' : 'Attacco ⚔️'} su Nemico ${selectedTargetStr}!`, "🎯");
+      } else {
+        showToast(`Azione: ${isLimit ? 'Limit 🔥' : 'Attacco ⚔️'} (Casuale 🎲) - Premi Conferma o scegli un nemico!`, "🎯");
+      }
     }
 
+    function selectEnemyTarget(letter) {
+      if (selectedTargetStr === letter) {
+        selectedTargetStr = "";
+      } else {
+        selectedTargetStr = letter;
+      }
+
+      if (!pendingActionType && selectedTargetStr) {
+        pendingActionType = isPlayerInLimit() ? "limit" : "attack";
+      }
+
+      refreshBattleViews();
+    }
+
+    function selectAllyTarget(targetRaw) {
+      const myActor = getMyCurrentActor();
+      const myLogin = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
+      let targetUser = "";
+
+      if (targetRaw === '__player__') {
+        targetUser = myActor ? (myActor.owner || myActor.name) : (myLogin || "Tu");
+      } else {
+        targetUser = targetRaw.replace(/^@/, '');
+      }
+
+      const formatted = '@' + targetUser;
+      if (selectedTargetStr === formatted || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
+        selectedTargetStr = "";
+      } else {
+        selectedTargetStr = formatted;
+      }
+
+      refreshBattleViews();
+    }
+
+    function selectTargetOption(option) {
+      if (selectedTargetStr === option) {
+        selectedTargetStr = "";
+      } else {
+        selectedTargetStr = option;
+      }
+      refreshBattleViews();
+    }
+
+    function updateActionControlPanel() {
+      const nameBadge = document.getElementById("actionNameBadge");
+      const targetVal = document.getElementById("targetValText");
+      const btnConfirm = document.getElementById("btnConfirmAction");
+
+      let actionDesc = "Nessuna Azione";
+      if (pendingActionType === "attack") actionDesc = "⚔️ Attacco Fisico";
+      else if (pendingActionType === "limit") actionDesc = "🔥 Limit Break";
+      else if (pendingActionType === "skill") actionDesc = `✨ ${pendingActionDetail ? pendingActionDetail.name : 'Arte'}`;
+      else if (pendingActionType === "bomb") actionDesc = `💣 Bomba ${pendingActionDetail ? pendingActionDetail.type.toUpperCase() : ''}`;
+      else if (pendingActionType === "item") actionDesc = `🎒 ${pendingActionDetail ? pendingActionDetail.name : 'Oggetto'}`;
+      else if (pendingActionType === "guard") actionDesc = "🛡️ Difesa";
+
+      nameBadge.innerText = `Azione: ${actionDesc}`;
+
+      let targetDesc = "Nessuno";
+      if (selectedTargetStr === "tutti nemici") {
+        targetDesc = "Tutti i Nemici (Area) 💥";
+      } else if (selectedTargetStr === "tutti alleati") {
+        targetDesc = "Tutti gli Alleati (Area) ✨";
+      } else if (selectedTargetStr.startsWith("@")) {
+        targetDesc = `Alleato ${selectedTargetStr} 🛡️`;
+      } else if (selectedTargetStr.length === 1) {
+        targetDesc = `Nemico ${selectedTargetStr} 🎯`;
+      } else if (selectedTargetStr === "__player__") {
+        targetDesc = "Te stesso 🛡️";
+      } else if (!selectedTargetStr) {
+        // Bersaglio casuale o automatico se non scelto manualmente
+        if (pendingActionType === "attack" || pendingActionType === "limit" || pendingActionType === "bomb") {
+          targetDesc = "Nemico Casuale 🎲";
+        } else if (pendingActionType === "skill") {
+          targetDesc = (pendingActionDetail && pendingActionDetail.isAlly) ? "Te stesso 🛡️" : "Nemico Casuale 🎲";
+        } else if (pendingActionType === "item") {
+          targetDesc = "Te stesso 🛡️";
+        } else if (pendingActionType === "guard") {
+          targetDesc = "--";
+        }
+      }
+
+      targetVal.innerText = targetDesc;
+
+      // Abilitazione tasto Conferma: basta avere un'azione selezionata!
+      btnConfirm.disabled = !pendingActionType;
+    }
+
+    function cancelAction() {
+      pendingActionType = "";
+      pendingActionDetail = null;
+      selectedTargetStr = "";
+      refreshBattleViews();
+      showToast("Azione e bersaglio annullati", "✕");
+    }
+
+    function refreshBattleViews() {
+      if (battleState) {
+        renderPortraits(battleState.party || [], battleState.currentTurnUser);
+        renderEnemies(battleState.enemies || []);
+        renderCommandButtons();
+      }
+      updateActionControlPanel();
+    }
+
+    // ============================================================
+    // MODALE ARTI (Scelta dell'abilità senza modale bersaglio)
+    // ============================================================
     function openSkillsModal() {
       if (!checkCanExecuteBattleCommand()) return;
       const myActor = getMyCurrentActor();
@@ -2265,9 +2023,9 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       let html = "";
       if (skills.length > 0) {
         html += skills.map((s, idx) => `
-          <div class="action-choice-item" onclick="chooseSkillAction(${idx})">
+          <div class="action-choice-item" onclick="chooseSkillDirectly(${idx})">
             <div>
-              <div style="font-weight:700; color:#fff;">${s.name}</div>
+              <div style="font-weight:700; color:var(--text-main);">✨ ${s.name}</div>
               <div style="font-size:0.8rem; color:var(--text-muted);">${s.desc || ''}</div>
             </div>
             <div style="color:#60a5fa; font-weight:700;">${s.mpCost || 0} MP</div>
@@ -2278,7 +2036,7 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       }
 
       html += `
-        <div class="action-choice-item" style="border-top:1px solid rgba(255,255,255,0.1); margin-top:10px;" onclick="closeSkillsModal(); openBombsModal();">
+        <div class="action-choice-item" style="border-top:1px solid var(--border-card); margin-top:10px;" onclick="closeSkillsModal(); openBombsModal();">
           <div>
             <div style="font-weight:700; color:var(--gold-light);">💣 Lancia Bomba (Munizioni)</div>
             <div style="font-size:0.8rem; color:var(--text-muted);">Usa munizioni esplosive dall'inventario</div>
@@ -2296,18 +2054,38 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       document.getElementById("skillsModalOverlay").classList.remove("active");
     }
 
-    function chooseSkillAction(idx) {
+    function chooseSkillDirectly(idx) {
       const myActor = getMyCurrentActor();
       if (!myActor || !myActor.skills || !myActor.skills[idx]) return;
       const s = myActor.skills[idx];
       pendingActionType = "skill";
       pendingActionDetail = s;
       document.getElementById("skillsModalOverlay").classList.remove("active");
-      document.getElementById("targetModalTitle").innerText = `${s.name} - Seleziona Bersaglio`;
-      populateTargetModal(!!s.isArea, !!s.isAlly);
-      openTargetModal();
+
+      if (s.isArea) {
+        selectedTargetStr = s.isAlly ? "tutti alleati" : "tutti nemici";
+      } else if (s.isAlly) {
+        if (!selectedTargetStr || !selectedTargetStr.startsWith("@")) {
+          selectedTargetStr = "@" + (myActor.owner || myActor.name);
+        }
+      } else {
+        // Magia su nemico: se era selezionato un alleato, resettalo a vuoto (casuale)
+        if (selectedTargetStr && (selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "__player__")) {
+          selectedTargetStr = "";
+        }
+      }
+
+      refreshBattleViews();
+      if (selectedTargetStr) {
+        showToast(`Arte ${s.name} pronta su ${selectedTargetStr}! Premi Conferma ⚔️`, "✨");
+      } else {
+        showToast(`Arte ${s.name} pronta (Nemico Casuale 🎲)! Premi Conferma ⚔️ o scegli un bersaglio`, "✨");
+      }
     }
 
+    // ============================================================
+    // MODALE BOMBE
+    // ============================================================
     function openBombsModal() {
       if (!checkCanExecuteBattleCommand()) return;
       const list = document.getElementById("bombsChoiceList");
@@ -2321,9 +2099,9 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       ];
 
       list.innerHTML = bombTypes.map(b => `
-        <div class="action-choice-item" onclick="chooseBombAction('${b.type}')">
+        <div class="action-choice-item" onclick="chooseBombDirectly('${b.type}')">
           <div>
-            <div style="font-weight:700; color:#fff;">${b.name}</div>
+            <div style="font-weight:700; color:var(--text-main);">${b.name}</div>
             <div style="font-size:0.8rem; color:var(--text-muted);">${b.desc}</div>
           </div>
           <div style="color:var(--gold); font-weight:700;">1 Munizione</div>
@@ -2338,15 +2116,21 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       document.getElementById("bombsModalOverlay").classList.remove("active");
     }
 
-    function chooseBombAction(type) {
+    function chooseBombDirectly(type) {
       pendingActionType = "bomb";
       pendingActionDetail = { type: type };
       document.getElementById("bombsModalOverlay").classList.remove("active");
-      document.getElementById("targetModalTitle").innerText = `Lancio Bomba (${type.toUpperCase()}) - Bersaglio`;
-      populateTargetModal(false, false);
-      openTargetModal();
+
+      if (selectedTargetStr && (selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "__player__")) {
+        selectedTargetStr = "";
+      }
+      refreshBattleViews();
+      showToast(`Bomba ${type.toUpperCase()} pronta! Premi Conferma ⚔️ (Nemico Casuale 🎲) o scegli un bersaglio.`, "💣");
     }
 
+    // ============================================================
+    // MODALE OGGETTI
+    // ============================================================
     function openItemsModal() {
       if (!checkCanExecuteBattleCommand()) return;
       const list = document.getElementById("itemsChoiceList");
@@ -2360,9 +2144,9 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       ];
 
       list.innerHTML = items.map(it => `
-        <div class="action-choice-item" onclick="chooseItemAction('${it.name}')">
+        <div class="action-choice-item" onclick="chooseItemDirectly('${it.name}')">
           <div>
-            <div style="font-weight:700; color:#fff;">🧪 ${it.name}</div>
+            <div style="font-weight:700; color:var(--text-main);">🧪 ${it.name}</div>
             <div style="font-size:0.8rem; color:var(--text-muted);">${it.desc || ''}</div>
           </div>
           <div style="color:#34d399; font-weight:700;">Usa</div>
@@ -2377,102 +2161,46 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       document.getElementById("itemsModalOverlay").classList.remove("active");
     }
 
-    function chooseItemAction(name) {
+    function chooseItemDirectly(name) {
+      const myActor = getMyCurrentActor();
       pendingActionType = "item";
       pendingActionDetail = { name: name };
       document.getElementById("itemsModalOverlay").classList.remove("active");
-      document.getElementById("targetModalTitle").innerText = `Usa ${name} - Bersaglio`;
-      populateTargetModal(false, true);
-      openTargetModal();
+
+      if (!selectedTargetStr || !selectedTargetStr.startsWith("@")) {
+        if (myActor) selectedTargetStr = "@" + (myActor.owner || myActor.name);
+      }
+      refreshBattleViews();
+      showToast(`Oggetto ${name} pronto! Premi Conferma ⚔️ per usarlo.`, "🧪");
     }
 
+    // ============================================================
+    // DIFENDI (Esecuzione Diretta)
+    // ============================================================
     function triggerGuardAction() {
       if (!checkCanExecuteBattleCommand()) return;
       executeSendCommand("!difendi");
+      cancelAction();
     }
 
-    function populateTargetModal(allowArea = false, onlyAllies = false) {
-      selectedTargetStr = "";
-      document.getElementById("chipDefaultTarget").classList.add("selected");
-
-      const enemyContainer = document.getElementById("targetEnemiesChips");
-      if (onlyAllies) {
-        enemyContainer.parentElement.style.display = "none";
-      } else {
-        enemyContainer.parentElement.style.display = "block";
-        const enemies = (battleState && battleState.enemies) ? battleState.enemies : [];
-        enemyContainer.innerHTML = enemies.map(e => `
-          <button class="target-chip enemy-chip" id="targetChipEnemy_${e.letter}" onclick="selectTargetOption('${e.letter}')">
-            <span>👾</span>
-            <span>Nemico ${e.letter} (${e.name})</span>
-          </button>
-        `).join("");
-      }
-
-      const allyContainer = document.getElementById("targetAlliesChips");
-      const party = (battleState && battleState.party) ? battleState.party : [];
-      allyContainer.innerHTML = party.map(p => {
-        const owner = p.owner || p.name;
-        return `
-          <button class="target-chip ally-chip" id="targetChipAlly_${owner}" onclick="selectTargetOption('@${owner}')">
-            <span>🛡️</span>
-            <span>@${owner}</span>
-          </button>
-        `;
-      }).join("");
-
-      const areaSection = document.getElementById("targetAreaSection");
-      const areaChips = document.getElementById("targetAreaChips");
-      if (allowArea) {
-        areaSection.style.display = "block";
-        areaChips.innerHTML = `
-          <button class="target-chip enemy-chip" onclick="selectTargetOption('tutti nemici')">
-            <span>💥</span>
-            <span>Tutti i Nemici (Area)</span>
-          </button>
-          <button class="target-chip ally-chip" onclick="selectTargetOption('tutti alleati')">
-            <span>✨</span>
-            <span>Tutti gli Alleati (Area)</span>
-          </button>
-        `;
-      } else {
-        areaSection.style.display = "none";
-      }
-    }
-
-    function selectTargetOption(target) {
-      selectedTargetStr = (target === "default") ? "" : target;
-      document.querySelectorAll(".target-chip").forEach(c => c.classList.remove("selected"));
-
-      if (!selectedTargetStr) {
-        document.getElementById("chipDefaultTarget").classList.add("selected");
-      } else if (selectedTargetStr.startsWith("@")) {
-        const clean = selectedTargetStr.substring(1);
-        const chip = document.getElementById("targetChipAlly_" + clean);
-        if (chip) chip.classList.add("selected");
-      } else if (selectedTargetStr.length === 1) {
-        const chip = document.getElementById("targetChipEnemy_" + selectedTargetStr);
-        if (chip) chip.classList.add("selected");
-      }
-    }
-
-    function openTargetModal() {
-      document.getElementById("targetModalOverlay").classList.add("active");
-    }
-
-    function closeTargetModal(e) {
-      if (e && e.target && e.target.id !== "targetModalOverlay" && !e.target.classList.contains("btn-close-modal") && !e.target.classList.contains("btn-modal-cancel")) return;
-      document.getElementById("targetModalOverlay").classList.remove("active");
-    }
-
+    // ============================================================
+    // CONFERMA E INVIO COMANDO FINALE
+    // ============================================================
     function confirmExecuteAction() {
-      if (!checkCanExecuteBattleCommand()) {
-        closeTargetModal();
-        return;
-      }
-      closeTargetModal();
+      if (!checkCanExecuteBattleCommand()) return;
+
       let cmdString = "";
-      const targetArg = selectedTargetStr ? (" " + selectedTargetStr) : "";
+      let targetArg = "";
+
+      if (selectedTargetStr) {
+        if (selectedTargetStr === '__player__') {
+          const myActor = getMyCurrentActor();
+          const myLogin = currentUser ? (currentUser.login || currentUser.name) : "";
+          targetArg = " @" + (myActor ? (myActor.owner || myActor.name) : myLogin);
+        } else {
+          targetArg = " " + selectedTargetStr;
+        }
+      }
 
       if (pendingActionType === "attack") {
         cmdString = `!attacca${targetArg}`;
@@ -2484,10 +2212,13 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
         cmdString = `!arti bomba ${pendingActionDetail.type}${targetArg}`;
       } else if (pendingActionType === "item") {
         cmdString = `!oggetti ${pendingActionDetail.name}${targetArg}`;
+      } else if (pendingActionType === "guard") {
+        cmdString = `!difendi`;
       }
 
       if (cmdString) {
-        executeSendCommand(cmdString);
+        executeSendCommand(cmdString.trim());
+        cancelAction();
       }
     }
 
@@ -2554,6 +2285,30 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       }
     }
 
+    function getMyCurrentActor() {
+      if (!battleState || !battleState.party || !battleState.party.length) return null;
+      const myUserClean = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
+      if (!myUserClean) return null;
+      return battleState.party.find(p => (p.owner && p.owner.toLowerCase() === myUserClean) || (p.name && p.name.toLowerCase() === myUserClean)) || null;
+    }
+
+    function checkCanExecuteBattleCommand() {
+      const st = getGameOperationalState();
+      if (st !== 'live') {
+        if (st === 'menu') {
+          showToast("⚠️ Il gioco è al menu iniziale. I comandi saranno disponibili all'avvio della partita!", "⏳");
+        } else {
+          showToast("🔴 Il gioco è offline. Entra in partita per combattere!", "✕");
+        }
+        return false;
+      }
+      if (!battleState || !battleState.inBattle) {
+        showToast("⚔️ I comandi di combattimento sono attivi solo durante una battaglia in gioco!", "⚠️");
+        return false;
+      }
+      return true;
+    }
+
     function showToast(msg, icon = "⚔️") {
       const toast = document.getElementById("battleToast");
       if (!toast) return;
@@ -2578,50 +2333,30 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
       document.head.appendChild(s);
     }
 
+    // ============================================================
+    // INIZIALIZZAZIONE ALL'AVVIO
+    // ============================================================
     window.addEventListener("DOMContentLoaded", () => {
-  pollLocalBattleStatus();
-  setInterval(pollLocalBattleStatus, 2000);
-  initAuth();
-  initFirebaseStreams();
-  fetchBattleState();
-  setInterval(fetchBattleState, 800);
+      pollLocalBattleStatus();
+      setInterval(pollLocalBattleStatus, 2000);
+      initAuth();
+      initFirebaseStreams();
+      fetchBattleState();
+      setInterval(fetchBattleState, 800);
 
-  // ⭐ WATCHDOG ANTI-STALE: se l'heartbeat è vecchio, forza il re-render
-  // così se SSE muore la vista battaglia passa a "Battaglia Interrotta"/"Offline"
-  setInterval(function() {
-    var live = window.__LIVE_GAME_DATA;
-    if (!live) return;
-    var hb = live.heartbeat || live.timestamp || 0;
-    var stale = !hb || (Date.now() - hb) > 20000;
-    if (stale && window.__LAST_BATTLE_DATA) {
-      updateBattleView(window.__LAST_BATTLE_DATA);
-    }
-  }, 5000);
-});
+      // Watchdog anti-stale
+      setInterval(function() {
+        var live = window.__LIVE_GAME_DATA;
+        if (!live) return;
+        var hb = live.heartbeat || live.timestamp || 0;
+        var stale = !hb || (Date.now() - hb) > 20000;
+        if (stale && window.__LAST_BATTLE_DATA) {
+          handleLiveGameStatus(window.__LIVE_GAME_DATA);
+          updateBattleView(window.__LAST_BATTLE_DATA);
+        }
+      }, 5000);
+    });
   </script>
-
-<nav class="mobile-bottom-bar" id="mobileBottomBar">
-  <a href="main.html" class="mobile-nav-item item-portal">
-    <span class="mobile-nav-icon">🚪</span>
-    <span class="mobile-nav-label">Portale</span>
-  </a>
-  <a href="battle.html" class="mobile-nav-item item-battle" style="color:#f87171; font-weight:bold;">
-    <span class="mobile-nav-icon">⚔️</span>
-    <span class="mobile-nav-label">Battaglia</span>
-  </a>
-  <a href="status.html" class="mobile-nav-item item-status">
-    <span class="mobile-nav-icon">🛡️</span>
-    <span class="mobile-nav-label">Status</span>
-  </a>
-  <a href="shop.html" class="mobile-nav-item item-shop">
-    <span class="mobile-nav-icon">💰</span>
-    <span class="mobile-nav-label">Bottega</span>
-  </a>
-  <a href="market.html" class="mobile-nav-item item-market">
-    <span class="mobile-nav-icon">🏪</span>
-    <span class="mobile-nav-label">Mercato</span>
-  </a>
-</nav>
 
 </body>
 </html>

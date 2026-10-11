@@ -5389,6 +5389,7 @@ function updateGameStatusUI(active, liveData) {
 
 function applyLiveGameData(data) {
   if (!data) return false;
+  if (data && typeof data === 'object') window.__LIVE_GAME_DATA = data;
 
   // Se l'utente sta effettuando un'operazione di drag & drop, rimanda l'aggiornamento
   // per evitare che la distruzione del DOM cancelli il trascinamento in corso!
