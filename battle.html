@@ -1627,7 +1627,7 @@
       if (!hb || hb === 0) return false;
       const diff = Date.now() - hb;
       if (diff < 0) return null;
-      if (diff < 25000) return true;
+      if (diff < 20000) return true;
       return false;
     }
 
@@ -1652,7 +1652,7 @@
       }
 
       const diff = Date.now() - hb;
-      if (diff > 25000 || diff < -10000) return 'offline';
+      if (diff > 20000 || diff < -10000) return 'offline';
 
       const ga = (d.gameActive !== undefined) ? d.gameActive :
                  (window.__LIVE_GAME_DATA ? window.__LIVE_GAME_DATA.gameActive : undefined);
@@ -1822,33 +1822,75 @@
       }
     });
 
-    function initFirebaseStreams() {
-      try {
-        if (typeof EventSource !== 'undefined') {
-          const esBattle = new EventSource(FIREBASE_BATTLE_URL);
-          const handleBattleEvent = (e) => {
-            try {
-              const payload = JSON.parse(e.data);
-              const data = (payload && payload.data !== undefined) ? payload.data : payload;
-              if (data && typeof data === 'object') updateBattleView(data);
-            } catch(err) {}
-          };
-          esBattle.addEventListener('put', handleBattleEvent);
-          esBattle.addEventListener('patch', handleBattleEvent);
+var __btBattleStream = null;
+var __btLiveStream = null;
+var __btLastEventAt = 0;
+var __btWatchdogStarted = false;
+var __btLifecycleBound = false;
 
-          const esLive = new EventSource(FIREBASE_LIVE_URL);
-          const handleLiveEvent = (e) => {
-            try {
-              const payload = JSON.parse(e.data);
-              const data = (payload && payload.data !== undefined) ? payload.data : payload;
-              if (data && typeof data === 'object') handleLiveGameStatus(data);
-            } catch(err) {}
-          };
-          esLive.addEventListener('put', handleLiveEvent);
-          esLive.addEventListener('patch', handleLiveEvent);
+function initFirebaseStreams() {
+  try {
+    if (typeof EventSource === 'undefined') return;
+
+    if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} __btBattleStream = null; }
+    if (__btLiveStream) { try { __btLiveStream.close(); } catch(e){} __btLiveStream = null; }
+
+    __btLastEventAt = Date.now();
+
+    var esBattle = new EventSource(FIREBASE_BATTLE_URL);
+    __btBattleStream = esBattle;
+    var handleBattleEvent = function(e) {
+      try {
+        __btLastEventAt = Date.now();
+        var payload = JSON.parse(e.data);
+        var data = (payload && payload.data !== undefined) ? payload.data : payload;
+        if (data && typeof data === 'object') updateBattleView(data);
+      } catch(err) {}
+    };
+    esBattle.addEventListener('put', handleBattleEvent);
+    esBattle.addEventListener('patch', handleBattleEvent);
+    esBattle.onerror = function() { /* gestito dal watchdog */ };
+
+    var esLive = new EventSource(FIREBASE_LIVE_URL);
+    __btLiveStream = esLive;
+    var handleLiveEvent = function(e) {
+      try {
+        __btLastEventAt = Date.now();
+        var payload = JSON.parse(e.data);
+        var data = (payload && payload.data !== undefined) ? payload.data : payload;
+        if (data && typeof data === 'object') handleLiveGameStatus(data);
+      } catch(err) {}
+    };
+    esLive.addEventListener('put', handleLiveEvent);
+    esLive.addEventListener('patch', handleLiveEvent);
+    esLive.onerror = function() { /* gestito dal watchdog */ };
+
+    if (!__btWatchdogStarted) {
+      __btWatchdogStarted = true;
+      setInterval(function() {
+        if ((Date.now() - __btLastEventAt) > 30000) {
+          console.warn('[Firebase] SSE battle/live muto da >30s, riconnessione');
+          initFirebaseStreams();
         }
-      } catch(e) {}
+      }, 10000);
     }
+
+    if (!__btLifecycleBound) {
+      __btLifecycleBound = true;
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && (Date.now() - __btLastEventAt) > 10000) {
+          initFirebaseStreams();
+        }
+      });
+      var _closeStreams = function() {
+        if (__btBattleStream) { try { __btBattleStream.close(); } catch(e){} }
+        if (__btLiveStream)   { try { __btLiveStream.close(); } catch(e){} }
+      };
+      window.addEventListener('pagehide', _closeStreams);
+      window.addEventListener('beforeunload', _closeStreams);
+    }
+  } catch(e) {}
+}
 
     // ============================================================
     // ⭐ FIX: handleLiveGameStatus memorizza __LIVE_GAME_DATA
@@ -2537,13 +2579,25 @@ const isLimit = !!myActor.isLimit || limitPct >= 100;
     }
 
     window.addEventListener("DOMContentLoaded", () => {
-      pollLocalBattleStatus();
-      setInterval(pollLocalBattleStatus, 2000);
-      initAuth();
-      initFirebaseStreams();
-      fetchBattleState();
-      setInterval(fetchBattleState, 800);
-    });
+  pollLocalBattleStatus();
+  setInterval(pollLocalBattleStatus, 2000);
+  initAuth();
+  initFirebaseStreams();
+  fetchBattleState();
+  setInterval(fetchBattleState, 800);
+
+  // ⭐ WATCHDOG ANTI-STALE: se l'heartbeat è vecchio, forza il re-render
+  // così se SSE muore la vista battaglia passa a "Battaglia Interrotta"/"Offline"
+  setInterval(function() {
+    var live = window.__LIVE_GAME_DATA;
+    if (!live) return;
+    var hb = live.heartbeat || live.timestamp || 0;
+    var stale = !hb || (Date.now() - hb) > 20000;
+    if (stale && window.__LAST_BATTLE_DATA) {
+      updateBattleView(window.__LAST_BATTLE_DATA);
+    }
+  }, 5000);
+});
   </script>
 
 <nav class="mobile-bottom-bar" id="mobileBottomBar">

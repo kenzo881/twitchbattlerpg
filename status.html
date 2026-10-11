@@ -5301,7 +5301,7 @@ function getGameOperationalState(data) {
   const hb = d.heartbeat || d.timestamp || 0;
   if (!hb) return 'offline';
   const diff = now - hb;
-  if (diff > 25000 || diff < -10000) return 'offline';
+  if (diff > 20000 || diff < -10000) return 'offline';
   if (d.gameActive === true && !d.inTitle) return 'live';
   if (d.inTitle === true || d.gameActive === false) return 'menu';
   return 'offline';
@@ -5578,36 +5578,74 @@ function setDatabaseUnavailableUI() {
 }
 
 // STREAMING SSE IN TEMPO REALE DA GOOGLE FIREBASE (Zero secondi di ritardo per spettatori su GitHub Pages)
+var __fbStream = null;
+var __fbLastEventAt = 0;
+var __fbWatchdogStarted = false;
+var __fbLifecycleBound = false;
+
 function initFirebaseRealtimeStream() {
   try {
     if (typeof EventSource === 'undefined') return;
-    const es = new EventSource(FIREBASE_LIVE_URL);
 
-    es.addEventListener('put', function(e) {
+    if (__fbStream) {
+      try { __fbStream.close(); } catch(e){}
+      __fbStream = null;
+    }
+
+    __fbLastEventAt = Date.now();
+    var es = new EventSource(FIREBASE_LIVE_URL);
+    __fbStream = es;
+
+    var onMsg = function(e) {
       try {
-        const payload = JSON.parse(e.data);
+        var payload = JSON.parse(e.data);
         if (payload && payload.data) {
           firebaseConnected = true;
+          __fbLastEventAt = Date.now();
           applyLiveGameData(payload.data);
         }
       } catch(err) {}
-    });
+    };
 
-    es.addEventListener('patch', function(e) {
-      try {
-        const payload = JSON.parse(e.data);
-        if (payload && payload.data) {
-          firebaseConnected = true;
-          applyLiveGameData(payload.data);
-        }
-      } catch(err) {}
-    });
+    es.addEventListener('put', onMsg);
+    es.addEventListener('patch', onMsg);
+
+    es.onopen = function() {
+      console.log('[Firebase] SSE connesso');
+      __fbLastEventAt = Date.now();
+      firebaseConnected = true;
+    };
 
     es.onerror = function() {
-      if (!firebaseConnected && window.location.protocol.startsWith('http')) {
-        setDatabaseUnavailableUI();
-      }
+      console.warn('[Firebase] SSE error, watchdog riconnetterà se serve');
     };
+
+    if (!__fbWatchdogStarted) {
+      __fbWatchdogStarted = true;
+      setInterval(function() {
+        if ((Date.now() - __fbLastEventAt) > 30000) {
+          console.warn('[Firebase] SSE muto da >30s, riconnessione forzata');
+          initFirebaseRealtimeStream();
+        }
+      }, 10000);
+    }
+
+    if (!__fbLifecycleBound) {
+      __fbLifecycleBound = true;
+
+      document.addEventListener('visibilitychange', function() {
+        if (document.visibilityState === 'visible' && (Date.now() - __fbLastEventAt) > 10000) {
+          console.log('[Firebase] Ritorno visibile, riconnessione SSE');
+          initFirebaseRealtimeStream();
+        }
+      });
+
+      var closeStream = function() {
+        if (__fbStream) { try { __fbStream.close(); } catch(e){} }
+      };
+      window.addEventListener('pagehide', closeStream);
+      window.addEventListener('beforeunload', closeStream);
+    }
   } catch(e) {}
 }
 
@@ -5620,6 +5658,7 @@ async function fetchGameDataHttp() {
       const fbData = await resFb.json();
       if (fbData && (fbData.timestamp || fbData.actors || fbData.currency)) {
         firebaseConnected = true;
+          window.__fbFailCount = 0; 
         applyLiveGameData(fbData);
         return true;
       }
@@ -5664,12 +5703,13 @@ async function fetchGameDataHttp() {
         return true;
       }
     } catch(e) {}
-  } else {
-    // Sul web, se Firebase non è raggiungibile, segnala chiaramente che il Database non è disponibile
-    if (!firebaseConnected) {
-      setDatabaseUnavailableUI();
-    }
+ } else {
+  // Non azzerare l'UI al primo fallimento: aspetta qualche ciclo
+  window.__fbFailCount = (window.__fbFailCount || 0) + 1;
+  if (!firebaseConnected && window.__fbFailCount >= 6) {
+    setDatabaseUnavailableUI();
   }
+}
 
   return false;
 }
@@ -6110,6 +6150,19 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ⭐ WATCHDOG ANTI-STALE: se l'heartbeat è vecchio, forza la UI offline
+  setInterval(function() {
+    var live = window.__LIVE_GAME_DATA;
+    if (!live) return;
+    var hb = live.heartbeat || live.timestamp || 0;
+    var stale = !hb || (Date.now() - hb) > 20000;
+    if (stale && isGameCurrentlyActive) {
+      isGameCurrentlyActive = false;
+      updateGameStatusUI(false, live);
+      updateHeroHeader();
+      renderAll(true);
+    }
+  }, 5000);
   // Polling rapido ogni 1.2 secondi per sincronizzazione costante
   setInterval(() => {
     fetchGameDataHttp();
