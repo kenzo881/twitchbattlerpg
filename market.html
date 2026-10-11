@@ -2838,16 +2838,36 @@ function applyIncomingGameData(data) {
   const wasActive = isGameCurrentlyActive;
   updateGameStatusUI(active, data);
 
-  if (active && data.currency) DB_CURRENCY = data.currency;
-  if (active && data.inventory) DB_INVENTORY = data.inventory;
-  if (active && data.owners) DB_OWNERS = data.owners;
+  let dataChanged = false;
 
   if (active && data.market && Array.isArray(data.market.listings)) {
+    const newSig = data.market.listings.map(l => l.uid + ':' + l.price + ':' + l.seller).join('|');
+    const oldSig = (DB_MARKET && DB_MARKET.listings || []).map(l => l.uid + ':' + l.price + ':' + l.seller).join('|');
+    if (newSig !== oldSig) dataChanged = true;
     DB_MARKET = data.market;
   }
 
+  if (active && data.inventory) {
+    const newInv = JSON.stringify(data.inventory);
+    const oldInv = JSON.stringify(DB_INVENTORY);
+    if (newInv !== oldInv) dataChanged = true;
+    DB_INVENTORY = data.inventory;
+  }
+
+  if (active && data.currency) {
+    const newCur = JSON.stringify(data.currency);
+    const oldCur = JSON.stringify(DB_CURRENCY);
+    if (newCur !== oldCur) dataChanged = true;
+    DB_CURRENCY = data.currency;
+  }
+
+  if (active && data.owners) {
+    DB_OWNERS = data.owners;
+  }
+
   updateUserGoldUI();
-  if (active !== wasActive) {
+
+  if (active !== wasActive || dataChanged) {
     refreshAllViews();
   }
 }
