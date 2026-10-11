@@ -2840,11 +2840,12 @@ function applyIncomingGameData(data) {
 
   let dataChanged = false;
 
-  if (active && data.market && Array.isArray(data.market.listings)) {
-    const newSig = data.market.listings.map(l => l.uid + ':' + l.price + ':' + l.seller).join('|');
+  if (active) {
+    const newListings = (data.market && Array.isArray(data.market.listings)) ? data.market.listings : [];
+    const newSig = newListings.map(l => l.uid + ':' + l.price + ':' + l.seller).join('|');
     const oldSig = (DB_MARKET && DB_MARKET.listings || []).map(l => l.uid + ':' + l.price + ':' + l.seller).join('|');
     if (newSig !== oldSig) dataChanged = true;
-    DB_MARKET = data.market;
+    DB_MARKET = { listings: newListings };
   }
 
   if (active && data.inventory) {
