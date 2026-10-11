@@ -3924,7 +3924,7 @@ function openMateriaModal(uid, fromMarket = true) {
 
   const futureEl = document.getElementById("modalMateriaFutureBonuses");
   if (dbData.bonuses && dbData.bonuses.length > 0) {
-    const bList = dbData.bonuses.map(b => "Lv." + b.level + ": " + b.raw.toUpperCase());
+    const bList = dbData.bonuses.map(b => "Lv." + b.level + ": " + ((b.text || b.raw || "")).toUpperCase());
     futureEl.innerHTML = "✨ <b>Bonus maestria essenza:</b> " + bList.join(" • ");
   } else {
     futureEl.innerHTML = "";

@@ -3379,8 +3379,8 @@ function buildCharStateFromUser(username) {
   const className = liveActor ? liveActor.className : (ownerEntry.class ? (ownerEntry.class.charAt(0).toUpperCase() + ownerEntry.class.slice(1)) : "Avventuriero");
   const level = liveActor ? liveActor.level : (ownerEntry.level || 1);
   const isMaxLevel = liveActor ? !!liveActor.isMaxLevel : (level >= 99);
-  const expVal = (liveActor && liveActor.exp) ? liveActor.exp.current : (ownerEntry.exp || 0);
-  const maxExpVal = (liveActor && liveActor.exp) ? liveActor.exp.needed : (level * 30);
+  const expVal = Math.max(0, (liveActor && liveActor.exp) ? liveActor.exp.current : (ownerEntry.exp || 0));
+  const maxExpVal = Math.max(1, (liveActor && liveActor.exp) ? liveActor.exp.needed : (level * 30));
 
   const baseStats = calculateBaseStatsForClass(className, level);
   const hpVal = liveActor ? liveActor.hp : baseStats.mhp;
@@ -3645,8 +3645,8 @@ function renderSocketMetaHtml(sock) {
   if (sock.materia) {
     return `
       <div class="materia-slot-meta">
-        <div class="materia-name-label" title="${sock.materia.name} #${sock.materia.uid}">${sock.materia.name}</div>
-        <div class="materia-uid-pill" title="UID: ${sock.materia.uid}">#${sock.materia.uid}</div>
+        <div class="materia-name-label" style="cursor:pointer;" onclick="openMateriaModal('${sock.materia.uid}')" title="${sock.materia.name} #${sock.materia.uid} - Clicca per dettagli">${sock.materia.name}</div>
+        <div class="materia-uid-pill" style="cursor:pointer;" onclick="openMateriaModal('${sock.materia.uid}')" title="UID: ${sock.materia.uid} - Clicca per dettagli">#${sock.materia.uid}</div>
         <button class="btn-slot-unequip-under" onclick="handleUnequipEssence('${sock.materia.uid}')" title="Smonta ${sock.materia.name} (#${sock.materia.uid})">✕</button>
       </div>
     `;
@@ -3942,6 +3942,7 @@ function attachDragDropListeners() {
 }
 
 function handleSocketClick(e, pieceKey, slotNum) {
+  if (e) e.stopPropagation();
   if (isDraggingActive) return;
   const piece = charState.equipped[pieceKey];
   if (!piece || !piece.sockets) return;
@@ -4212,7 +4213,7 @@ function openMateriaModal(uid) {
 
   const futureEl = document.getElementById("modalMateriaFutureBonuses");
   if (dbData.bonuses && dbData.bonuses.length > 0) {
-    const bList = dbData.bonuses.map(b => "Lv." + b.level + ": " + b.raw.toUpperCase());
+    const bList = dbData.bonuses.map(b => "Lv." + b.level + ": " + ((b.text || b.raw || "")).toUpperCase());
     futureEl.innerHTML = "✨ <b>Bonus maestria essenza:</b> " + bList.join(" • ");
   } else {
     futureEl.innerHTML = "";
@@ -4252,7 +4253,7 @@ function openMateriaModal(uid) {
           const unlocked = currentLv >= lv;
           const curVal = Math.min(100, lv * ratePerLv);
           const bonusObj = (dbData.bonuses || []).find(b => b.level === lv);
-          const bonusNotice = bonusObj ? (' <span style="color:var(--gold);">+ Bonus: ' + bonusObj.raw.toUpperCase() + '</span>') : '';
+          const bonusNotice = bonusObj ? (' <span style="color:var(--gold);">+ Bonus: ' + ((bonusObj.text || bonusObj.raw || "")).toUpperCase() + '</span>') : '';
           itemsHtml.push(
             '<div class="modal-skill-row ' + (unlocked ? '' : 'skill-locked') + '">' +
               '<div class="modal-skill-left">' +
@@ -4276,7 +4277,7 @@ function openMateriaModal(uid) {
           const unlocked = currentLv >= lv;
           const curVal = lv * valPerLv;
           const bonusObj = (dbData.bonuses || []).find(b => b.level === lv);
-          const bonusNotice = bonusObj ? (' <span style="color:var(--gold);">+ Bonus: ' + bonusObj.raw.toUpperCase() + '</span>') : '';
+          const bonusNotice = bonusObj ? (' <span style="color:var(--gold);">+ Bonus: ' + ((bonusObj.text || bonusObj.raw || "")).toUpperCase() + '</span>') : '';
           itemsHtml.push(
             '<div class="modal-skill-row ' + (unlocked ? '' : 'skill-locked') + '">' +
               '<div class="modal-skill-left">' +
@@ -4889,11 +4890,11 @@ function getActiveCharacterArts() {
         dbEntry.bonuses.forEach(b => {
           if (b.level <= matLevel) {
             result.passives.push({
-              name: 'Maestria Lv.' + b.level + ': ' + b.raw.toUpperCase(),
+              name: 'Maestria Lv.' + b.level + ': ' + ((b.text || b.raw || "")).toUpperCase(),
               type: 'Bonus Maestria Essenza',
               icon: '✨',
               badgeColor: '#d4af37',
-              desc: 'Bonus permanente alle statistiche sbloccato al raggiungimento del Livello ' + b.level + ' di ' + mat.name + ': ' + b.raw + '.',
+              desc: 'Bonus permanente alle statistiche sbloccato al raggiungimento del Livello ' + b.level + ' di ' + mat.name + ': ' + (b.text || b.raw || "") + '.',
               source: 'Essenza ' + mat.name + ' (#' + mat.uid + ') (Lv.' + matLevel + ') • ' + piece.name + ' (#' + piece.uid + ') [Slot ' + sock.slotNum + ']'
             });
           }
@@ -5950,7 +5951,7 @@ function updateHeroHeader() {
       expLabel.innerText = `${charState.exp.toLocaleString('it-IT')} / ${charState.maxExp.toLocaleString('it-IT')}`;
     }
   }
-  if (expBar) expBar.style.width = charState.isMaxLevel ? "100%" : (Math.min(100, Math.round((charState.exp / Math.max(1, charState.maxExp)) * 100)) + "%");
+  if (expBar) expBar.style.width = charState.isMaxLevel ? "100%" : (Math.min(100, Math.max(0, Math.round((charState.exp / Math.max(1, charState.maxExp)) * 100))) + "%");
   
   const limitLabelLive = document.getElementById("limitLabel");
   const limitBarLive = document.getElementById("limitBar");
