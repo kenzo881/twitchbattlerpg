@@ -976,6 +976,288 @@
       transform: translateX(2px);
     }
 
+    /* ═══════════════════════════════════════════════════════════
+       ZAINO CONDIVISO & MODALE OGGETTI (MAX 15 SLOT)
+       ═══════════════════════════════════════════════════════════ */
+    .party-backpack-modal {
+      max-width: 580px !important;
+    }
+    .modal-subtitle-bar {
+      padding: 6px 18px 12px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slot-counter-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      color: var(--gold);
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 12px;
+      padding: 2px 10px;
+    }
+    .party-items-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-height: 60vh;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+    .party-item-card {
+      background: rgba(18, 18, 32, 0.9);
+      border: 1px solid var(--border-card);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      position: relative;
+    }
+    .party-item-card:hover {
+      background: rgba(26, 26, 46, 0.98);
+      border-color: var(--gold);
+      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.5);
+      transform: translateY(-1px);
+    }
+    .party-item-icon-box {
+      width: 40px;
+      height: 40px;
+      background-color: #080811;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.6);
+      overflow: hidden;
+    }
+    .item-icon-sprite {
+      width: 32px;
+      height: 32px;
+      background-image: url('img/system/IconSet.png');
+      background-repeat: no-repeat;
+      image-rendering: pixelated;
+    }
+    .party-item-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+    .party-item-topline {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .party-item-name {
+      font-weight: 700;
+      font-size: 0.92rem;
+      color: var(--text-main);
+      letter-spacing: 0.2px;
+    }
+    .party-item-qty {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #34d399;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      border-radius: 6px;
+      padding: 1px 6px;
+    }
+    .scope-tag {
+      font-size: 0.68rem;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .scope-tag.scope-ally {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+    }
+    .scope-tag.scope-all {
+      background: rgba(212, 175, 55, 0.15);
+      color: var(--gold-light);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+    }
+    .scope-tag.scope-revive {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.35);
+    }
+    .scope-tag.scope-enemy {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.35);
+    }
+    .scope-tag.scope-self {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(139, 92, 246, 0.35);
+    }
+    .party-item-desc {
+      font-size: 0.77rem;
+      color: var(--text-muted);
+      line-height: 1.3;
+      white-space: normal;
+    }
+    .party-item-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .target-choice-buttons {
+      display: flex;
+      gap: 5px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+    .btn-target-pill {
+      background: rgba(30, 30, 52, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--text-main);
+      font-size: 0.72rem;
+      font-weight: 600;
+      padding: 5px 9px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+      white-space: nowrap;
+    }
+    .btn-target-pill:hover {
+      background: rgba(212, 175, 55, 0.25);
+      border-color: var(--gold);
+      color: #fff;
+      transform: translateY(-1px);
+    }
+    .btn-target-pill.is-self {
+      background: rgba(59, 130, 246, 0.2);
+      border-color: rgba(59, 130, 246, 0.45);
+      color: #93c5fd;
+    }
+    .btn-target-pill.is-self:hover {
+      background: rgba(59, 130, 246, 0.35);
+      border-color: #60a5fa;
+      color: #fff;
+    }
+    .btn-target-pill.is-all {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--gold);
+      color: var(--gold-light);
+    }
+    .btn-target-pill.is-all:hover {
+      background: rgba(212, 175, 55, 0.35);
+      color: #fff;
+    }
+    .empty-bag-card {
+      text-align: center;
+      padding: 40px 20px;
+      background: rgba(14, 14, 26, 0.6);
+      border: 1px dashed rgba(212, 175, 55, 0.25);
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .empty-bag-icon {
+      font-size: 2.5rem;
+      opacity: 0.8;
+    }
+    .empty-bag-title {
+      font-family: 'Cinzel', serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--gold-light);
+    }
+    .empty-bag-desc {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      max-width: 320px;
+      line-height: 1.4;
+    }
+
+    /* Barra bersaglio rapido oggetto (sotto i ritratti) */
+    .active-item-target-bar {
+      background: rgba(18, 18, 34, 0.95);
+      border: 1px solid var(--gold);
+      border-radius: 10px;
+      padding: 8px 14px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      box-shadow: 0 4px 18px rgba(212, 175, 55, 0.15);
+      margin-bottom: 4px;
+    }
+    .active-item-target-label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--gold-light);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .active-item-target-chips {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .target-quick-chip {
+      background: rgba(30, 30, 52, 0.85);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      color: var(--text-main);
+      font-size: 0.76rem;
+      font-weight: 600;
+      padding: 5px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.2s ease;
+    }
+    .target-quick-chip:hover {
+      background: rgba(212, 175, 55, 0.2);
+      border-color: var(--gold);
+      color: #fff;
+    }
+    .target-quick-chip.active {
+      background: linear-gradient(135deg, rgba(212, 175, 55, 0.35), rgba(212, 175, 55, 0.15));
+      border-color: var(--gold);
+      color: #fff;
+      font-weight: 700;
+      box-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
+    }
+
+    .portrait-card.targetable-ready {
+      cursor: pointer;
+    }
+    .portrait-card.targetable-ready:hover .portrait-frame {
+      border-color: rgba(56, 189, 248, 0.7);
+      box-shadow: 0 0 14px rgba(56, 189, 248, 0.4);
+    }
+
     /* Toast */
     .toast-box {
       position: fixed;
@@ -1153,6 +1435,12 @@
         </div>
       </div>
 
+      <!-- BARRA SELEZIONE RAPIDA BERSAGLIO (Visibile quando si usa un oggetto o azione diretta) -->
+      <div class="active-item-target-bar" id="activeItemTargetBar" style="display:none;">
+        <span class="active-item-target-label">🎯 Bersaglio:</span>
+        <div class="active-item-target-chips" id="activeItemTargetChips"></div>
+      </div>
+
       <!-- SECTION 2: TURN TIMER BAR (Full Width) -->
       <div class="turn-timer-banner">
         <div class="turn-timer-header">
@@ -1232,15 +1520,19 @@
     </div>
   </div>
 
-  <!-- MODAL: OGGETTI -->
+  <!-- MODAL: OGGETTI (ZAINO CONDIVISO - MAX 15 SLOT) -->
   <div class="battle-modal-overlay" id="itemsModalOverlay" onclick="closeItemsModal(event)">
-    <div class="battle-modal-card" onclick="event.stopPropagation()">
+    <div class="battle-modal-card party-backpack-modal" onclick="event.stopPropagation()">
       <div class="modal-head">
-        <h3>Oggetti del Party</h3>
+        <h3>🎒 Zaino Condiviso</h3>
         <button class="btn-close-modal" onclick="closeItemsModal()">✕</button>
       </div>
+      <div class="modal-subtitle-bar">
+        <span>Consumabili del party (seleziona bersaglio: Tu o Alleato)</span>
+        <span class="slot-counter-badge" id="bagSlotsBadge">0/15 Slot</span>
+      </div>
       <div class="modal-body">
-        <div class="action-choice-list" id="itemsChoiceList"></div>
+        <div class="party-items-grid" id="itemsChoiceList"></div>
       </div>
     </div>
   </div>
@@ -1740,12 +2032,22 @@
           playerFrame.classList.remove("is-turn");
         }
 
-        const cleanOwner = (displayActor.owner || displayActor.name).replace(/^@/, '');
-        const isSelected = selectedTargetStr === '@' + cleanOwner || selectedTargetStr === '__player__';
-        if (isSelected) {
+        const cleanOwner = (displayActor.owner || displayActor.name || "").replace(/^@/, '');
+        const myLogin = currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : '';
+        const isPlayerSelected = selectedTargetStr === '__player__' || 
+                                 (cleanOwner && selectedTargetStr.toLowerCase() === ('@' + cleanOwner).toLowerCase()) || 
+                                 (myLogin && selectedTargetStr.toLowerCase() === ('@' + myLogin).toLowerCase());
+        
+        if (isPlayerSelected) {
           playerCard.classList.add("selected-target");
         } else {
           playerCard.classList.remove("selected-target");
+        }
+
+        if (pendingActionType === 'item') {
+          playerCard.classList.add("targetable-ready");
+        } else {
+          playerCard.classList.remove("targetable-ready");
         }
       }
 
@@ -1761,11 +2063,11 @@
       alliesRow.innerHTML = allies.map(ally => {
         const allyOwner = (ally.owner || ally.name || "").replace(/^@/, '');
         const isTurn = ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase());
-        const isSelected = (selectedTargetStr === '@' + allyOwner);
+        const isSelected = (selectedTargetStr.toLowerCase() === ('@' + allyOwner).toLowerCase());
         const faceStyle = getFaceSpriteStyle(ally.faceName, ally.faceIndex);
 
         return `
-          <div class="portrait-card ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''}" 
+          <div class="portrait-card ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''} ${pendingActionType === 'item' ? 'targetable-ready' : ''}" 
                onclick="selectAllyTarget('@${allyOwner}')" 
                title="Seleziona alleato @${allyOwner}">
             <div class="portrait-frame ally-frame ${isTurn ? 'is-turn' : ''}">
@@ -1930,8 +2232,11 @@
       }
 
       const formatted = '@' + targetUser;
-      if (selectedTargetStr === formatted || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
-        selectedTargetStr = "";
+      if (selectedTargetStr.toLowerCase() === formatted.toLowerCase() || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
+        // Se un'azione (es. oggetto) è in corso, non deselezioniamo a vuoto: lasciamolo selezionato!
+        if (!pendingActionType) {
+          selectedTargetStr = "";
+        }
       } else {
         selectedTargetStr = formatted;
       }
@@ -1941,11 +2246,65 @@
 
     function selectTargetOption(option) {
       if (selectedTargetStr === option) {
-        selectedTargetStr = "";
+        if (!pendingActionType) selectedTargetStr = "";
       } else {
         selectedTargetStr = option;
       }
       refreshBattleViews();
+    }
+
+    function renderActiveItemTargetBar() {
+      const bar = document.getElementById("activeItemTargetBar");
+      const chipsContainer = document.getElementById("activeItemTargetChips");
+      if (!bar || !chipsContainer) return;
+
+      if (pendingActionType !== "item") {
+        bar.style.display = "none";
+        return;
+      }
+
+      const party = (battleState && Array.isArray(battleState.party)) ? battleState.party : [];
+      const myActor = getMyCurrentActor();
+      const myCleanName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "Tu");
+      
+      const isPlayerSelected = selectedTargetStr === '__player__' || 
+                               selectedTargetStr.toLowerCase() === ('@' + myCleanName).toLowerCase() ||
+                               (!selectedTargetStr && pendingActionType === 'item');
+
+      let chipsHtml = `
+        <button class="target-quick-chip ${isPlayerSelected ? 'active' : ''}" onclick="selectAllyTarget('__player__')">
+          👤 Tu (${myCleanName})
+        </button>
+      `;
+
+      // Alleati
+      const allies = party.filter(p => {
+        const o = (p.owner || p.name || "").replace(/^@/, '').toLowerCase().trim();
+        return o !== myCleanName.toLowerCase().trim();
+      }).slice(0, 3);
+
+      allies.forEach(ally => {
+        const allyName = (ally.owner || ally.name || "").replace(/^@/, '');
+        const isAllySelected = selectedTargetStr.toLowerCase() === ('@' + allyName).toLowerCase();
+        chipsHtml += `
+          <button class="target-quick-chip ${isAllySelected ? 'active' : ''}" onclick="selectAllyTarget('@${allyName}')">
+            🛡️ @${allyName}
+          </button>
+        `;
+      });
+
+      // Se l'oggetto è ad area o tutti gli alleati
+      if (pendingActionDetail && (pendingActionDetail.scope === 8 || pendingActionDetail.scope === 10)) {
+        const isAllSelected = selectedTargetStr === "tutti alleati";
+        chipsHtml += `
+          <button class="target-quick-chip ${isAllSelected ? 'active' : ''}" onclick="selectTargetOption('tutti alleati')">
+            ✨ Tutti gli Alleati
+          </button>
+        `;
+      }
+
+      chipsContainer.innerHTML = chipsHtml;
+      bar.style.display = "flex";
     }
 
     function updateActionControlPanel() {
@@ -1969,11 +2328,18 @@
       } else if (selectedTargetStr === "tutti alleati") {
         targetDesc = "Tutti gli Alleati (Area) ✨";
       } else if (selectedTargetStr.startsWith("@")) {
-        targetDesc = `Alleato ${selectedTargetStr} 🛡️`;
+        const myActor = getMyCurrentActor();
+        const myClean = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '').toLowerCase() : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '').toLowerCase() : "");
+        const targetClean = selectedTargetStr.replace(/^@/, '').toLowerCase();
+        if (myClean && targetClean === myClean) {
+          targetDesc = "Te stesso (Tu) 🛡️";
+        } else {
+          targetDesc = `Alleato ${selectedTargetStr} 🛡️`;
+        }
       } else if (selectedTargetStr.length === 1) {
         targetDesc = `Nemico ${selectedTargetStr} 🎯`;
       } else if (selectedTargetStr === "__player__") {
-        targetDesc = "Te stesso 🛡️";
+        targetDesc = "Te stesso (Tu) 🛡️";
       } else if (!selectedTargetStr) {
         // Bersaglio casuale o automatico se non scelto manualmente
         if (pendingActionType === "attack" || pendingActionType === "limit" || pendingActionType === "bomb") {
@@ -1981,7 +2347,7 @@
         } else if (pendingActionType === "skill") {
           targetDesc = (pendingActionDetail && pendingActionDetail.isAlly) ? "Te stesso 🛡️" : "Nemico Casuale 🎲";
         } else if (pendingActionType === "item") {
-          targetDesc = "Te stesso 🛡️";
+          targetDesc = "Te stesso (Tu) 🛡️";
         } else if (pendingActionType === "guard") {
           targetDesc = "--";
         }
@@ -1991,6 +2357,7 @@
 
       // Abilitazione tasto Conferma: basta avere un'azione selezionata!
       btnConfirm.disabled = !pendingActionType;
+      renderActiveItemTargetBar();
     }
 
     function cancelAction() {
@@ -2129,29 +2496,150 @@
     }
 
     // ============================================================
-    // MODALE OGGETTI
+    // MODALE OGGETTI (Zaino Condiviso Party - Max 15 Slot)
     // ============================================================
+    let gameItemsDatabase = null;
+    (function loadGameItemsDb() {
+      fetch("data/Items.json")
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { if (Array.isArray(d)) gameItemsDatabase = d; })
+        .catch(() => {});
+    })();
+
+    function getItemMetadata(it) {
+      let iconIndex = (it && it.iconIndex) ? it.iconIndex : 0;
+      let desc = (it && it.desc) ? it.desc : "";
+      let scope = (it && it.scope !== undefined) ? it.scope : 7;
+      let name = (it && it.name) ? it.name : "";
+      let id = (it && it.id) ? it.id : 0;
+
+      if ((!iconIndex || !desc) && gameItemsDatabase) {
+        const found = gameItemsDatabase.find(x => x && (x.id === id || (name && x.name && x.name.toLowerCase() === name.toLowerCase())));
+        if (found) {
+          if (!iconIndex) iconIndex = found.iconIndex || 0;
+          if (!desc) desc = found.description || "";
+          if (it.scope === undefined && found.scope !== undefined) scope = found.scope;
+        }
+      }
+      return { iconIndex, desc, scope };
+    }
+
+    function getItemIconStyle(iconIndex) {
+      if (!iconIndex || iconIndex <= 0) return "background-position: 9999px 9999px;";
+      const col = iconIndex % 16;
+      const row = Math.floor(iconIndex / 16);
+      return `background-position: -${col * 32}px -${row * 32}px;`;
+    }
+
     function openItemsModal() {
       if (!checkCanExecuteBattleCommand()) return;
       const list = document.getElementById("itemsChoiceList");
+      const badge = document.getElementById("bagSlotsBadge");
       if (!list) return;
 
-      const items = (battleState && battleState.items) ? battleState.items : [
-        { name: "Pozione", desc: "Recupera 500 PV" },
-        { name: "Granpozione", desc: "Recupera 1500 PV" },
-        { name: "Etere", desc: "Recupera 100 PM" },
-        { name: "Coda di Fenice", desc: "Rianima un alleato K.O." }
-      ];
+      // Oggetti dello zaino condiviso del party (massimo 15 slot)
+      let items = [];
+      if (battleState && Array.isArray(battleState.partyItems)) {
+        items = battleState.partyItems.filter(it => it && (it.count === undefined || it.count > 0)).slice(0, 15);
+      } else if (window.__LIVE_GAME_DATA && Array.isArray(window.__LIVE_GAME_DATA.partyItems)) {
+        items = window.__LIVE_GAME_DATA.partyItems.filter(it => it && (it.count === undefined || it.count > 0)).slice(0, 15);
+      }
 
-      list.innerHTML = items.map(it => `
-        <div class="action-choice-item" onclick="chooseItemDirectly('${it.name}')">
-          <div>
-            <div style="font-weight:700; color:var(--text-main);">🧪 ${it.name}</div>
-            <div style="font-size:0.8rem; color:var(--text-muted);">${it.desc || ''}</div>
+      if (badge) {
+        badge.innerText = `${items.length}/15 Slot`;
+      }
+
+      if (!items || items.length === 0) {
+        list.innerHTML = `
+          <div class="empty-bag-card">
+            <div class="empty-bag-icon">🎒</div>
+            <div class="empty-bag-title">Zaino Condiviso Vuoto (0/15)</div>
+            <div class="empty-bag-desc">Al momento non ci sono oggetti consumabili nello zaino condiviso del party.</div>
           </div>
-          <div style="color:#34d399; font-weight:700;">Usa</div>
-        </div>
-      `).join("");
+        `;
+        document.getElementById("itemsModalOverlay").classList.add("active");
+        return;
+      }
+
+      // Membri del party per scelta rapida bersaglio (Tu e Alleati)
+      const party = (battleState && Array.isArray(battleState.party)) ? battleState.party : [];
+      const myActor = getMyCurrentActor();
+      const myCleanName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "Tu");
+      const allies = party.filter(p => {
+        const o = (p.owner || p.name || "").replace(/^@/, '').toLowerCase().trim();
+        return o !== myCleanName.toLowerCase().trim();
+      }).slice(0, 3);
+
+      list.innerHTML = items.map((it, idx) => {
+        const meta = getItemMetadata(it);
+        const iconStyle = getItemIconStyle(meta.iconIndex);
+        const isArea = (meta.scope === 8 || meta.scope === 10);
+        const isRevive = (meta.scope === 9);
+        const isEnemy = (meta.scope >= 1 && meta.scope <= 6);
+        const isSelfOnly = (meta.scope === 11);
+
+        let scopeBadge = `<span class="scope-tag scope-ally">💚 Alleato / Tu</span>`;
+        if (isArea) scopeBadge = `<span class="scope-tag scope-all">✨ Tutto il Party</span>`;
+        else if (isRevive) scopeBadge = `<span class="scope-tag scope-revive">💀 Rianima K.O.</span>`;
+        else if (isSelfOnly) scopeBadge = `<span class="scope-tag scope-self">👤 Solo Tu</span>`;
+        else if (isEnemy) scopeBadge = `<span class="scope-tag scope-enemy">⚔️ Nemico</span>`;
+
+        const safeItemName = (it.name || "").replace(/'/g, "\\'");
+
+        // Pulsanti bersaglio dedicati per ciascun alleato e giocatore
+        let targetButtonsHtml = "";
+        if (isEnemy) {
+          targetButtonsHtml = `
+            <button class="btn-target-pill is-all" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '')">
+              ⚔️ Usa su Nemico
+            </button>
+          `;
+        } else if (isArea) {
+          targetButtonsHtml = `
+            <button class="btn-target-pill is-all" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', 'tutti alleati')">
+              ✨ Usa su Tutto il Party
+            </button>
+          `;
+        } else {
+          // Singolo alleato o se stesso
+          targetButtonsHtml = `
+            <button class="btn-target-pill is-self" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '__player__')">
+              👤 Tu
+            </button>
+          `;
+          allies.forEach(ally => {
+            const allyClean = (ally.owner || ally.name || "").replace(/^@/, '');
+            targetButtonsHtml += `
+              <button class="btn-target-pill" onclick="event.stopPropagation(); chooseItemWithTarget('${safeItemName}', '@${allyClean.replace(/'/g, "\\'")}')">
+                🛡️ @${allyClean}
+              </button>
+            `;
+          });
+        }
+
+        const defaultTarget = isArea ? 'tutti alleati' : (isEnemy ? '' : '__player__');
+
+        return `
+          <div class="party-item-card" onclick="chooseItemWithTarget('${safeItemName}', '${defaultTarget}')">
+            <div class="party-item-icon-box">
+              <div class="item-icon-sprite" style="${iconStyle}"></div>
+            </div>
+            <div class="party-item-main">
+              <div class="party-item-topline">
+                <span class="party-item-name">${it.name}</span>
+                <span class="party-item-qty">x${it.count || 1}</span>
+                ${scopeBadge}
+              </div>
+              <div class="party-item-desc">${meta.desc || it.desc || ''}</div>
+            </div>
+            <div class="party-item-actions">
+              <div class="target-choice-buttons">
+                ${targetButtonsHtml}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join("");
 
       document.getElementById("itemsModalOverlay").classList.add("active");
     }
@@ -2161,17 +2649,44 @@
       document.getElementById("itemsModalOverlay").classList.remove("active");
     }
 
-    function chooseItemDirectly(name) {
+    function chooseItemWithTarget(name, targetStr) {
       const myActor = getMyCurrentActor();
+      const myLogin = currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "";
+      const myName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : myLogin;
+
+      // Recupera meta per l'oggetto per determinare lo scope
+      let itemScope = 7;
+      if (battleState && Array.isArray(battleState.partyItems)) {
+        const found = battleState.partyItems.find(x => x && x.name === name);
+        if (found && found.scope !== undefined) itemScope = found.scope;
+      }
+
       pendingActionType = "item";
-      pendingActionDetail = { name: name };
+      pendingActionDetail = { name: name, scope: itemScope };
       document.getElementById("itemsModalOverlay").classList.remove("active");
 
-      if (!selectedTargetStr || !selectedTargetStr.startsWith("@")) {
-        if (myActor) selectedTargetStr = "@" + (myActor.owner || myActor.name);
+      if (targetStr === '__player__') {
+        selectedTargetStr = myName ? ('@' + myName) : '__player__';
+      } else if (targetStr) {
+        selectedTargetStr = targetStr;
+      } else {
+        if (itemScope >= 1 && itemScope <= 6) {
+          selectedTargetStr = ""; // Nemico casuale o automatico
+        } else if (itemScope === 8 || itemScope === 10) {
+          selectedTargetStr = "tutti alleati";
+        } else {
+          selectedTargetStr = myName ? ('@' + myName) : '__player__';
+        }
       }
+
       refreshBattleViews();
-      showToast(`Oggetto ${name} pronto! Premi Conferma ⚔️ per usarlo.`, "🧪");
+
+      let targetLabel = selectedTargetStr;
+      if (selectedTargetStr === '__player__' || selectedTargetStr.toLowerCase() === ('@' + myName).toLowerCase()) targetLabel = "Te stesso (Tu)";
+      else if (selectedTargetStr === 'tutti alleati') targetLabel = "Tutto il Party ✨";
+      else if (!selectedTargetStr) targetLabel = "Nemico Casuale 🎲";
+
+      showToast(`🎒 ${name} pronto per ${targetLabel}! Premi Conferma ⚔️`, "🎒");
     }
 
     // ============================================================
