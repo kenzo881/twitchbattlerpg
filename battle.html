@@ -3,10 +3,10 @@
 <head>
   <script>
 /* ─────────────────────────────────────────────────────────────
-   SSE MERGE HELPER
-   Unisce i payload PATCH parziali (Firebase) con lo stato in cache,
-   evitando che le pagine mostrino "offline/battaglia finita" quando
-   arriva un evento SSE con soli campi heartbeat/gameActive/inTitle.
+   SSE MERGE HELPER v2
+   - Unisce i payload PATCH parziali allo stato in cache
+   - Salva l'ultimo payload live_data in window.__LIVE_GAME_DATA
+     così che getGameOperationalState() funzioni anche senza argomenti
    ───────────────────────────────────────────────────────────── */
 (function() {
   if (typeof EventSource === 'undefined') return;
@@ -32,14 +32,18 @@
         var incoming = payload.data;
 
         if (type === 'put') {
-          // PUT: payload completo → sostituisci interamente
           window[cacheKey] = incoming;
         } else {
-          // PATCH: payload parziale → merge con la cache
           window[cacheKey] = Object.assign({}, window[cacheKey] || {}, incoming);
         }
 
-        // Ri-emetti l'evento con il payload UNIFICATO
+        // ⭐ FIX: popola __LIVE_GAME_DATA così getGameOperationalState()
+        // funziona anche quando viene chiamata senza argomenti
+        // (es. checkCanExecuteBattleCommand, openBuyModal, ecc.)
+        if (sourceUrl.indexOf('live_data') !== -1) {
+          window.__LIVE_GAME_DATA = window[cacheKey];
+        }
+
         var mergedEvent = {
           data: JSON.stringify({ data: window[cacheKey] }),
           type: type,
@@ -54,7 +58,7 @@
     return originalAddEventListener.call(this, type, wrapped, options);
   };
 
-  console.log('[SSE Merge Helper] Attivo');
+  console.log('[SSE Merge Helper v2] Attivo');
 })();
 </script>
   <meta charset="UTF-8">
