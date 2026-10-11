@@ -2136,9 +2136,16 @@
       document.getElementById("myMpVal").innerText = `${mp} / ${maxMp}`;
       document.getElementById("myMpBar").style.width = `${mpPct}%`;
 
-      const tp = myActor.tp || 0;
-      const isLimit = !!myActor.isLimit;
-      const limitPct = Math.min(100, Math.round(tp));
+      let limitPct;
+if (myActor.limitPercent !== undefined) {
+  limitPct = Math.min(100, Math.max(0, Math.round(myActor.limitPercent)));
+} else if (myActor.limit !== undefined) {
+  const max = myActor.limitMax || 255;
+  limitPct = Math.min(100, Math.max(0, Math.round((myActor.limit / max) * 100)));
+} else {
+  limitPct = 0;
+}
+const isLimit = !!myActor.isLimit || limitPct >= 100;
       const limitLabel = document.getElementById("myLimitLabel");
       const limitVal = document.getElementById("myLimitVal");
       const limitBar = document.getElementById("myLimitBar");

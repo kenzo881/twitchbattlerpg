@@ -3356,8 +3356,18 @@ function buildCharStateFromUser(username) {
   const maxMpVal = liveActor ? liveActor.maxMp : baseStats.mmp;
   const faceFile = (liveActor && liveActor.face) ? liveActor.face : (ownerEntry.face || "Actor1");
   const faceIdx = (liveActor && liveActor.faceIndex !== undefined) ? liveActor.faceIndex : (ownerEntry.faceIndex !== undefined ? ownerEntry.faceIndex : 0);
-  const limitVal = (liveActor && liveActor.limit !== undefined) ? liveActor.limit : ((liveActor && liveActor.tp !== undefined) ? Math.min(100, Math.round(liveActor.tp)) : 0);
-  const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActor.isLimit : (limitVal >= 100);
+let limitVal;
+if (liveActor && liveActor.limitPercent !== undefined) {
+  limitVal = Math.min(100, Math.max(0, Math.round(liveActor.limitPercent)));
+} else if (liveActor && liveActor.limit !== undefined) {
+  const max = liveActor.limitMax || 255;
+  limitVal = Math.min(100, Math.max(0, Math.round((liveActor.limit / max) * 100)));
+} else if (liveActor && liveActor.tp !== undefined) {
+  limitVal = Math.min(100, Math.max(0, Math.round(liveActor.tp)));
+} else {
+  limitVal = 0;
+}
+const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActor.isLimit : (limitVal >= 100);
 
   const state = {
     hasCharacter: hasCharacter,
