@@ -2301,7 +2301,7 @@ function buildCharStateFromUser(username) {
   const hasCharacter = !!(DB_OWNERS && DB_OWNERS[cleanU]);
   const ownerEntry = DB_OWNERS[cleanU] || {};
   const invEntry = DB_INVENTORY[cleanU] || { equip: [], essenze: [] };
-  const goldVal = (DB_CURRENCY[cleanU] !== undefined) ? DB_CURRENCY[cleanU] : 0;
+  const goldVal = (hasCharacter && DB_CURRENCY && DB_CURRENCY[cleanU] !== undefined) ? DB_CURRENCY[cleanU] : 0;
   const liveActor = (typeof DB_ACTORS !== 'undefined' && DB_ACTORS && DB_ACTORS[cleanU]) ? DB_ACTORS[cleanU] : null;
 
   const className = liveActor ? liveActor.className : (ownerEntry.class ? (ownerEntry.class.charAt(0).toUpperCase() + ownerEntry.class.slice(1)) : "Avventuriero");
@@ -2606,9 +2606,9 @@ function readLocalWindowGlobals() {
   if (typeof window === 'undefined') return;
 
   if (window.__LIVE_GAME_DATA) {
-    if (window.__LIVE_GAME_DATA.currency) DB_CURRENCY = Object.assign({}, window.__LIVE_GAME_DATA.currency, DB_CURRENCY);
-    if (window.__LIVE_GAME_DATA.inventory) DB_INVENTORY = Object.assign({}, window.__LIVE_GAME_DATA.inventory, DB_INVENTORY);
-    if (window.__LIVE_GAME_DATA.owners) DB_OWNERS = Object.assign({}, window.__LIVE_GAME_DATA.owners, DB_OWNERS);
+    if (window.__LIVE_GAME_DATA.currency) DB_CURRENCY = window.__LIVE_GAME_DATA.currency;
+    if (window.__LIVE_GAME_DATA.inventory) DB_INVENTORY = window.__LIVE_GAME_DATA.inventory;
+    if (window.__LIVE_GAME_DATA.owners) DB_OWNERS = window.__LIVE_GAME_DATA.owners;
     if (window.__LIVE_GAME_DATA.market && Array.isArray(window.__LIVE_GAME_DATA.market.listings)) {
       DB_MARKET = window.__LIVE_GAME_DATA.market;
     }
@@ -2624,13 +2624,13 @@ function readLocalWindowGlobals() {
   }
 
   if (window.__TWITCH_CURRENCY) {
-    DB_CURRENCY = Object.assign({}, window.__TWITCH_CURRENCY, DB_CURRENCY);
+    DB_CURRENCY = window.__TWITCH_CURRENCY;
   }
   if (window.__TWITCH_INVENTORY_OWNERS) {
-    DB_INVENTORY = Object.assign({}, window.__TWITCH_INVENTORY_OWNERS, DB_INVENTORY);
+    DB_INVENTORY = window.__TWITCH_INVENTORY_OWNERS;
   }
   if (window.__TWITCH_OWNERS) {
-    DB_OWNERS = Object.assign({}, window.__TWITCH_OWNERS, DB_OWNERS);
+    DB_OWNERS = window.__TWITCH_OWNERS;
   }
 }
 
@@ -2651,6 +2651,12 @@ function reloadLocalScript(src) {
 }
 
 async function initAuth() {
+  try {
+    Object.keys(localStorage).forEach(k => {
+      if (k.startsWith('tbrpg_gold_')) localStorage.removeItem(k);
+    });
+  } catch(e){}
+
   readLocalWindowGlobals();
 
   // 0. Supporto parametro ?user= nell'URL per testing immediato
@@ -2760,13 +2766,17 @@ async function executeMarketChatCommand(cmd) {
 function getCurrentUserGold() {
   if (!currentUser || !currentUser.login) return 0;
   const u = currentUser.login.toLowerCase().trim();
+  const hasChar = !!(DB_OWNERS && DB_OWNERS[u]);
+  if (!hasChar) return 0;
   return (DB_CURRENCY && DB_CURRENCY[u] !== undefined) ? DB_CURRENCY[u] : 0;
 }
 
 function updateUserGoldUI() {
   const el = document.getElementById("topUserGold");
   if (!el) return;
-  if (!isGameCurrentlyActive) {
+  const u = (currentUser && currentUser.login) ? currentUser.login.toLowerCase().trim() : null;
+  const hasChar = u ? !!(DB_OWNERS && DB_OWNERS[u]) : false;
+  if (!isGameCurrentlyActive || !hasChar) {
     el.innerText = "--";
     return;
   }
@@ -2848,21 +2858,21 @@ function applyIncomingGameData(data) {
     DB_MARKET = { listings: newListings };
   }
 
-  if (active && data.inventory) {
+  if (data.inventory) {
     const newInv = JSON.stringify(data.inventory);
     const oldInv = JSON.stringify(DB_INVENTORY);
     if (newInv !== oldInv) dataChanged = true;
     DB_INVENTORY = data.inventory;
   }
 
-  if (active && data.currency) {
+  if (data.currency) {
     const newCur = JSON.stringify(data.currency);
     const oldCur = JSON.stringify(DB_CURRENCY);
     if (newCur !== oldCur) dataChanged = true;
     DB_CURRENCY = data.currency;
   }
 
-  if (active && data.owners) {
+  if (data.owners) {
     DB_OWNERS = data.owners;
   }
 
@@ -2921,8 +2931,8 @@ async function fetchMarketDataHttp() {
     }
     if (isGameCurrentlyActive) {
       if (mRes && mRes.ok) DB_MARKET = await mRes.json();
-      if (cRes && cRes.ok) DB_CURRENCY = Object.assign({}, DB_CURRENCY, await cRes.json());
-      if (iRes && iRes.ok) DB_INVENTORY = Object.assign({}, DB_INVENTORY, await iRes.json());
+      if (cRes && cRes.ok) DB_CURRENCY = await cRes.json();
+      if (iRes && iRes.ok) DB_INVENTORY = await iRes.json();
       updateUserGoldUI();
       refreshAllViews();
       return true;
@@ -2991,6 +3001,9 @@ function applyMarketFilters() {
 function getFilteredBrowseListings() {
   let list = (DB_MARKET && Array.isArray(DB_MARKET.listings)) ? [...DB_MARKET.listings] : [];
 
+  // Le inserzioni rimangono attive e appartengono all'account Twitch dell'utente anche se il PG viene eliminato
+  list = list.filter(l => !!(l && l.seller));
+
   // Filtro Categoria
   if (activeCategoryFilter !== 'all') {
     list = list.filter(l => {
@@ -3043,7 +3056,10 @@ function renderBrowseListings() {
     return;
   }
 
-  const totalListings = (DB_MARKET && Array.isArray(DB_MARKET.listings)) ? DB_MARKET.listings.length : 0;
+  const validListings = (DB_MARKET && Array.isArray(DB_MARKET.listings))
+    ? DB_MARKET.listings.filter(l => l && l.seller)
+    : [];
+  const totalListings = validListings.length;
   const statTotal = document.getElementById("statTotalCount");
   const badgeBrowse = document.getElementById("badgeBrowseCount");
   if (statTotal) statTotal.innerText = totalListings;
@@ -3225,6 +3241,24 @@ function renderBackpackForSale() {
     return;
   }
 
+  const hasChar = !!(DB_OWNERS && DB_OWNERS[myLogin]);
+  if (!hasChar) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08);">
+        <div class="empty-state-icon">⚠️</div>
+        <div class="empty-state-title" style="color:#f87171;">Nessun Personaggio Attivo</div>
+        <div class="empty-state-desc" style="color:#fca5a5;">
+          Non possiedi un personaggio attivo in gioco o è stato eliminato.<br>
+          Crea prima il tuo eroe in live su Twitch scrivendo ad es. <code style="background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:4px; color:#fef08a;">!crea guerriero</code> (oppure <code style="color:#93c5fd;">mago</code>, <code style="color:#86efac;">ladro</code>, <code style="color:#fdba74;">avventuriero</code>).
+        </div>
+      </div>
+    `;
+    const badgeBackpack = document.getElementById("badgeBackpackCount");
+    if (badgeBackpack) badgeBackpack.innerText = "0";
+    if (countText) countText.innerText = "Nessun personaggio attivo";
+    return;
+  }
+
   const userInv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
   let items = [];
 
@@ -3385,8 +3419,9 @@ function renderMyListings() {
   }
 
   const myLogin = (currentUser && currentUser.login) ? currentUser.login.toLowerCase() : '';
+  const hasChar = !!(DB_OWNERS && DB_OWNERS[myLogin]);
   const myListings = (DB_MARKET && Array.isArray(DB_MARKET.listings))
-    ? DB_MARKET.listings.filter(l => l.seller && l.seller.toLowerCase() === myLogin)
+    ? DB_MARKET.listings.filter(l => l && l.seller && l.seller.toLowerCase() === myLogin)
     : [];
 
   if (countTitle) countTitle.innerText = myListings.length;
@@ -3402,6 +3437,21 @@ function renderMyListings() {
     return;
   }
 
+  if (!hasChar && !myListings.length) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1; border-color: rgba(239, 68, 68, 0.4); background: rgba(239, 68, 68, 0.08);">
+        <div class="empty-state-icon">⚠️</div>
+        <div class="empty-state-title" style="color:#f87171;">Nessun Personaggio Attivo</div>
+        <div class="empty-state-desc" style="color:#fca5a5;">
+          Non possiedi un personaggio attivo in gioco o è stato eliminato.<br>
+          Crea prima il tuo eroe in chat con <code style="background:rgba(0,0,0,0.5); padding:2px 6px; border-radius:4px; color:#fef08a;">!crea guerriero</code>
+        </div>
+      </div>
+    `;
+    if (countTitle) countTitle.innerText = "0";
+    return;
+  }
+
   if (!myListings.length) {
     container.innerHTML = `
       <div class="empty-state-box" style="grid-column: 1 / -1;">
@@ -3414,7 +3464,13 @@ function renderMyListings() {
     return;
   }
 
-  container.innerHTML = myListings.map(l => {
+  const noticeBanner = !hasChar ? `
+    <div style="grid-column: 1 / -1; background: rgba(245, 158, 11, 0.12); border: 1px solid rgba(245, 158, 11, 0.35); border-radius: 10px; padding: 12px 18px; margin-bottom: 8px; color: #fde68a; font-size: 0.9rem;">
+      ℹ️ <b>Annunci Attivi:</b> I tuoi oggetti rimangono regolarmente all'asta e acquistabili dalla community. Quando crei un nuovo personaggio con <code>!crea</code> potrai anche ritirarli nel tuo zaino.
+    </div>
+  ` : '';
+
+  container.innerHTML = noticeBanner + myListings.map(l => {
     const isEss = (l.category === 'essenze' || l.type === 'essenza');
     let iconHtml = '';
     let catBadgeHtml = '';
@@ -3508,6 +3564,16 @@ function openBuyModal(uid) {
     showToast("Mercatino Chiuso 🔴", "Il gioco TBRPG è offline! Gli acquisti sono consentiti solo quando il gioco è attivo.");
     return;
   }
+  if (!currentUser) {
+    showToast("Accesso Richiesto 🔒", "Accedi con Twitch per poter acquistare dal mercatino!");
+    loginWithTwitch();
+    return;
+  }
+  const myLoginBuy = currentUser.login.toLowerCase();
+  if (!DB_OWNERS || !DB_OWNERS[myLoginBuy]) {
+    showToast("⚠️ Nessun Personaggio", "Non possiedi un personaggio attivo! Crea prima il tuo eroe in chat con !crea <classe>");
+    return;
+  }
   if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
   const listing = DB_MARKET.listings.find(l => l.uid === uid);
   if (!listing) return;
@@ -3597,8 +3663,16 @@ function openSellModal(uid, isEssence) {
     }
     return;
   }
-if (!currentUser) return;
+  if (!currentUser) {
+    showToast("Accesso Richiesto 🔒", "Accedi con Twitch per poter mettere all'asta i tuoi oggetti!");
+    loginWithTwitch();
+    return;
+  }
   const myLogin = currentUser.login.toLowerCase();
+  if (!DB_OWNERS || !DB_OWNERS[myLogin]) {
+    showToast("⚠️ Nessun Personaggio", "Non possiedi un personaggio attivo! Crea prima il tuo eroe in chat con !crea <classe>");
+    return;
+  }
   const inv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
   const pool = isEssence ? inv.essenze : inv.equip;
   const item = pool ? pool.find(i => i.uid === uid) : null;
@@ -3697,7 +3771,13 @@ function openWithdrawModal(uid) {
     }
     return;
   }
-if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
+  const myLogin = (currentUser && currentUser.login) ? currentUser.login.toLowerCase() : '';
+  if (!DB_OWNERS || !DB_OWNERS[myLogin]) {
+    showToast("Nessun Personaggio Attivo ⚠️", "Devi possedere un personaggio attivo con uno zaino per ritirare oggetti. Usa !crea in live!");
+    return;
+  }
+
+  if (!DB_MARKET || !Array.isArray(DB_MARKET.listings)) return;
   const listing = DB_MARKET.listings.find(l => l.uid === uid);
   if (!listing) return;
 

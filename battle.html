@@ -474,6 +474,32 @@
       display: block;
     }
 
+    .portrait-card.is-dead .portrait-img {
+      filter: grayscale(100%) brightness(0.38) contrast(1.15);
+    }
+    .portrait-card.is-dead .portrait-frame {
+      border-color: rgba(239, 68, 68, 0.65) !important;
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.4) !important;
+      opacity: 0.75;
+      animation: none !important;
+    }
+    .portrait-dead-tag {
+      position: absolute;
+      top: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: linear-gradient(135deg, #ef4444, #991b1b);
+      color: #fff;
+      font-size: 0.58rem;
+      font-weight: 900;
+      letter-spacing: 0.5px;
+      padding: 1px 6px;
+      border-radius: 8px;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.8);
+      z-index: 3;
+    }
+
     .portrait-label {
       font-size: 0.75rem;
       font-weight: 700;
@@ -1432,6 +1458,7 @@
           <div class="portrait-card is-player" id="playerPortraitCard" onclick="selectAllyTarget('__player__')">
             <div class="portrait-frame player-frame" id="playerPortraitFrame">
               <span class="portrait-turn-tag" id="playerTurnBadge">⚡ IN TURNO</span>
+              <span class="portrait-dead-tag" id="playerDeadBadge" style="display:none;">💀 K.O.</span>
               <div class="portrait-img" id="playerPortraitImg"></div>
             </div>
             <div class="portrait-label" id="playerLabel">Tu</div>
@@ -1761,9 +1788,13 @@
       const goldBox = document.getElementById("userGoldBox");
       const goldVal = document.getElementById("topUserGold");
 
+      const uAuth = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase() : "";
+      const liveD = (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+      const hasCharAuth = !!(uAuth && liveD && liveD.owners && liveD.owners[uAuth]);
+
       if (currentUser && currentUser.login) {
-        if (goldBox) goldBox.style.display = "inline-flex";
-        if (goldVal && !isGameRunning) goldVal.innerText = "--";
+        if (goldBox) goldBox.style.display = (hasCharAuth && isGameRunning) ? "inline-flex" : "none";
+        if (goldVal && (!isGameRunning || !hasCharAuth)) goldVal.innerText = "--";
 
         if (container) {
           const avatarHtml = currentUser.avatar
@@ -1967,16 +1998,20 @@
       }
 
       const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+      const goldBox = document.getElementById("userGoldBox");
+      const u = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase() : "";
+      const hasChar = !!(u && d && d.owners && d.owners[u]);
+
+      if (goldBox) {
+        goldBox.style.display = (hasChar && state === 'live') ? "inline-flex" : "none";
+      }
       if (goldVal) {
-        if (state !== 'live') {
+        if (state !== 'live' || !hasChar) {
           goldVal.innerText = "--";
-        } else if (d && d.currency) {
-          const u = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase() : "";
-          if (u && d.currency[u] !== undefined) {
-            goldVal.innerText = d.currency[u].toLocaleString('it-IT');
-          } else {
-            goldVal.innerText = "--";
-          }
+        } else if (d && d.currency && d.currency[u] !== undefined) {
+          goldVal.innerText = d.currency[u].toLocaleString('it-IT');
+        } else {
+          goldVal.innerText = "--";
         }
       }
     }
@@ -2109,23 +2144,38 @@
       const playerFrame = document.getElementById("playerPortraitFrame");
       const playerImg = document.getElementById("playerPortraitImg");
       const playerLabel = document.getElementById("playerLabel");
+      const playerDeadBadge = document.getElementById("playerDeadBadge");
+      const playerTurnBadge = document.getElementById("playerTurnBadge");
 
       const displayActor = myActor || (party.length > 0 ? party[0] : null);
       if (displayActor) {
-        playerLabel.innerText = myActor ? `Tu (${displayActor.name})` : displayActor.name;
+        const isPlayerDead = (displayActor.hp !== undefined && displayActor.hp <= 0);
+        playerLabel.innerText = (myActor ? `Tu (${displayActor.name})` : displayActor.name) + (isPlayerDead ? " (K.O.)" : "");
         playerImg.style.cssText = getFaceSpriteStyle(displayActor.faceName, displayActor.faceIndex);
 
-        const isPlayerTurn = displayActor.isTurn || (currentTurnUser && displayActor.owner && displayActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
-        if (isPlayerTurn) {
-          playerCard.classList.add("is-turn");
-          playerFrame.classList.add("is-turn");
-        } else {
+        if (isPlayerDead) {
+          playerCard.classList.add("is-dead");
           playerCard.classList.remove("is-turn");
           playerFrame.classList.remove("is-turn");
+          if (playerDeadBadge) playerDeadBadge.style.display = "block";
+          if (playerTurnBadge) playerTurnBadge.style.display = "none";
+        } else {
+          playerCard.classList.remove("is-dead");
+          if (playerDeadBadge) playerDeadBadge.style.display = "none";
+
+          const isPlayerTurn = displayActor.isTurn || (currentTurnUser && displayActor.owner && displayActor.owner.toLowerCase() === currentTurnUser.toLowerCase());
+          if (isPlayerTurn) {
+            playerCard.classList.add("is-turn");
+            playerFrame.classList.add("is-turn");
+            if (playerTurnBadge) playerTurnBadge.style.display = "block";
+          } else {
+            playerCard.classList.remove("is-turn");
+            playerFrame.classList.remove("is-turn");
+            if (playerTurnBadge) playerTurnBadge.style.display = "none";
+          }
         }
 
         const cleanOwner = (displayActor.owner || displayActor.name || "").replace(/^@/, '');
-        const myLogin = currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : '';
         const isPlayerSelected = selectedTargetStr === '__player__' || 
                                  (cleanOwner && selectedTargetStr.toLowerCase() === ('@' + cleanOwner).toLowerCase()) || 
                                  (myLogin && selectedTargetStr.toLowerCase() === ('@' + myLogin).toLowerCase());
@@ -2136,7 +2186,7 @@
           playerCard.classList.remove("selected-target");
         }
 
-        if (pendingActionType === 'item') {
+        if (pendingActionType === 'item' && !isPlayerDead) {
           playerCard.classList.add("targetable-ready");
         } else {
           playerCard.classList.remove("targetable-ready");
@@ -2154,19 +2204,20 @@
 
       alliesRow.innerHTML = allies.map(ally => {
         const allyOwner = (ally.owner || ally.name || "").replace(/^@/, '');
-        const isTurn = ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase());
+        const isDead = (ally.hp !== undefined && ally.hp <= 0);
+        const isTurn = !isDead && (ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase()));
         const isSelected = (selectedTargetStr.toLowerCase() === ('@' + allyOwner).toLowerCase());
         const faceStyle = getFaceSpriteStyle(ally.faceName, ally.faceIndex);
 
         return `
-          <div class="portrait-card ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''} ${pendingActionType === 'item' ? 'targetable-ready' : ''}" 
+          <div class="portrait-card ${isDead ? 'is-dead' : ''} ${isSelected ? 'selected-target' : ''} ${isTurn ? 'is-turn' : ''} ${pendingActionType === 'item' && !isDead ? 'targetable-ready' : ''}" 
                onclick="selectAllyTarget('@${allyOwner}')" 
-               title="Seleziona alleato @${allyOwner}">
+               title="${isDead ? '@' + allyOwner + ' è caduto in battaglia (K.O.)' : 'Seleziona alleato @' + allyOwner}">
             <div class="portrait-frame ally-frame ${isTurn ? 'is-turn' : ''}">
-              <span class="portrait-turn-tag">⚡ TURNO</span>
+              ${isDead ? '<span class="portrait-dead-tag">💀 K.O.</span>' : '<span class="portrait-turn-tag">⚡ TURNO</span>'}
               <div class="portrait-img" style="${faceStyle}"></div>
             </div>
-            <div class="portrait-label">@${allyOwner}</div>
+            <div class="portrait-label" style="${isDead ? 'color:#ef4444;' : ''}">@${allyOwner} ${isDead ? '(K.O.)' : ''}</div>
           </div>
         `;
       }).join("");
@@ -2263,13 +2314,18 @@
     }
 
     function renderCommandButtons() {
+      const myActor = getMyCurrentActor();
+      const isDead = myActor && myActor.hp !== undefined && myActor.hp <= 0;
       const isLimit = isPlayerInLimit();
       const btnAttack = document.getElementById("btnActionAttack");
       const btnAttackIcon = document.getElementById("btnAttackIcon");
       const btnAttackLabel = document.getElementById("btnAttackLabel");
 
-      // ⭐ REQUISITO: In limit diventa "Limit" con la scritta in ROSSO anziché bianco
-      if (isLimit) {
+      if (isDead) {
+        btnAttack.classList.remove("is-limit");
+        btnAttackIcon.innerText = "💀";
+        btnAttackLabel.innerText = "K.O.";
+      } else if (isLimit) {
         btnAttack.classList.add("is-limit");
         btnAttackIcon.innerText = "🔥";
         btnAttackLabel.innerText = "Limit";
@@ -2327,6 +2383,17 @@
         targetUser = targetRaw.replace(/^@/, '');
       }
 
+      // Se il target selezionato è caduto in battaglia (K.O.): non può essere bersagliato
+      const party = (battleState && Array.isArray(battleState.party)) ? battleState.party : [];
+      const targetedActor = party.find(p => {
+        const clean = (p.owner || p.name || "").replace(/^@/, '').toLowerCase();
+        return clean === targetUser.toLowerCase();
+      });
+      if (targetedActor && targetedActor.hp !== undefined && targetedActor.hp <= 0) {
+        showToast(`💀 @${targetUser} è caduto in battaglia (K.O.) e non può essere bersagliato.`, "💀");
+        return;
+      }
+
       const formatted = '@' + targetUser;
       if (selectedTargetStr.toLowerCase() === formatted.toLowerCase() || (targetRaw === '__player__' && selectedTargetStr === '__player__')) {
         // Se un'azione (es. oggetto o attacco) è in corso, lasciamolo selezionato
@@ -2374,21 +2441,26 @@
       const party = (battleState && Array.isArray(battleState.party)) ? battleState.party : [];
       const myActor = getMyCurrentActor();
       const myCleanName = myActor ? (myActor.owner || myActor.name || "").replace(/^@/, '') : (currentUser ? (currentUser.login || currentUser.name || "").replace(/^@/, '') : "Tu");
-      
-      const isPlayerSelected = selectedTargetStr === '__player__' || 
+      const isPlayerDead = (myActor && myActor.hp !== undefined && myActor.hp <= 0);
+
+      const isPlayerSelected = !isPlayerDead && (selectedTargetStr === '__player__' || 
                                selectedTargetStr.toLowerCase() === ('@' + myCleanName).toLowerCase() ||
-                               (!selectedTargetStr && pendingActionType === 'item');
+                               (!selectedTargetStr && pendingActionType === 'item'));
 
-      let chipsHtml = `
-        <button class="target-quick-chip ${isPlayerSelected ? 'active' : ''}" onclick="selectAllyTarget('__player__')">
-          👤 Tu (${myCleanName})
-        </button>
-      `;
+      let chipsHtml = "";
+      if (!isPlayerDead) {
+        chipsHtml += `
+          <button class="target-quick-chip ${isPlayerSelected ? 'active' : ''}" onclick="selectAllyTarget('__player__')">
+            👤 Tu (${myCleanName})
+          </button>
+        `;
+      }
 
-      // Alleati
+      // Solo alleati vivi (chi è morto non può essere bersagliato)
       const allies = party.filter(p => {
         const o = (p.owner || p.name || "").replace(/^@/, '').toLowerCase().trim();
-        return o !== myCleanName.toLowerCase().trim();
+        const isDead = (p.hp !== undefined && p.hp <= 0);
+        return o !== myCleanName.toLowerCase().trim() && !isDead;
       }).slice(0, 3);
 
       allies.forEach(ally => {
@@ -3162,6 +3234,15 @@
       }
       if (!battleState || !battleState.inBattle) {
         showToast("⚔️ I comandi di combattimento sono attivi solo durante una battaglia in gioco!", "⚠️");
+        return false;
+      }
+      const myAct = getMyCurrentActor();
+      if (!myAct) {
+        showToast("⚠️ Non hai un personaggio attivo in questa battaglia. Crea il tuo eroe con !crea in live!", "⚠️");
+        return false;
+      }
+      if (myAct.hp !== undefined && myAct.hp <= 0) {
+        showToast("💀 Sei caduto in battaglia! (K.O.)", "💀");
         return false;
       }
       return true;
