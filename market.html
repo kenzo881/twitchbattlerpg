@@ -1907,6 +1907,11 @@ function findArmor(id) {
   if (DB_ARMORS[id]) return DB_ARMORS[id];
   const live = window.__LIVE_GAME_DATA;
   if (live && live.armors && live.armors[id]) return live.armors[id];
+  // Fallback: cerca in materiaDb per id (materiaDb è indicizzata per nome, non per id)
+  if (live && live.materiaDb) {
+    const found = Object.values(live.materiaDb).find(m => m && m.id === id);
+    if (found) return found;
+  }
   return null;
 }
 
@@ -1922,6 +1927,19 @@ function findMateriaStatBonus(name, armorObj) {
   if (MATERIA_STAT_BONUSES[name]) return MATERIA_STAT_BONUSES[name];
   if (armorObj && armorObj.params) return extractStatBonusFromParams(armorObj.params);
   return {};
+}
+
+function findMateriaIconByType(type) {
+  const t = (type || '').toLowerCase();
+  // Icona 1821 = essenze Fisiche (command)
+  // Icona 1822 = essenze Autonome/Indipendenti
+  // Icona 1807 = essenze Sinergiche (support)
+  // Icona 1805 = essenze Magiche (magic)
+  if (t === 'command') return findItemIcon("Sabotaggio");
+  if (t === 'independent') return findItemIcon("Egida") || findItemIcon("Nemesi");
+  if (t === 'support') return findItemIcon("Omni") || findItemIcon("Elemento");
+  if (t === 'magic') return findItemIcon("Fuoco");
+  return "";
 }
 
 const TRANSPARENT_ICON = "data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7";
@@ -2220,11 +2238,24 @@ function getEssenzaCategory(armorId, armorObj) {
   const live = window.__LIVE_GAME_DATA;
   const item = armorObj || DB_ARMORS[armorId] || (live && live.armors && live.armors[armorId]);
   if (!item) return "Magiche";
+
+  // 1. Se ha una note, usa quella (essenza da DB hardcoded con note)
   const note = (item.note || '').toLowerCase();
-  if (note.includes('type: command') || note.includes('comando')) return "Fisiche";
-  if (note.includes('type: support') || note.includes('supporto')) return "Sinergiche";
-  if (note.includes('type: summon') || note.includes('mitologiche')) return "Mitologiche";
-  if (note.includes('type: independent') || note.includes('autonome') || note.includes('cover') || note.includes('cnt +')) return "Autonome";
+  if (note) {
+    if (note.includes('type: command') || note.includes('comando')) return "Fisiche";
+    if (note.includes('type: support') || note.includes('supporto')) return "Sinergiche";
+    if (note.includes('type: summon') || note.includes('mitologiche')) return "Mitologiche";
+    if (note.includes('type: independent') || note.includes('autonome') || note.includes('cover') || note.includes('cnt +')) return "Autonome";
+  }
+
+  // 2. Altrimenti deriva dal campo `type` (essenza da materiaDb)
+  const t = (item.type || '').toLowerCase();
+  if (t === 'command') return "Fisiche";
+  if (t === 'support') return "Sinergiche";
+  if (t === 'summon') return "Mitologiche";
+  if (t === 'independent') return "Autonome";
+  if (t === 'magic') return "Magiche";
+
   return "Magiche";
 }
 
@@ -2478,7 +2509,7 @@ function buildCharStateFromUser(username) {
     }
 
     const catName = getEssenzaCategory(ess.armorId, dbEss);
-    const iconData = findItemIcon(dbEss.name) || findItemIcon("Fuoco") || "";
+    const iconData = findItemIcon(dbEss.name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "";
     const statBonusObj = findMateriaStatBonus(dbEss.name, dbEss);
 
     const essObj = {
@@ -3184,7 +3215,7 @@ function renderBrowseListings() {
       const dbEss = findArmor(l.armorId) || {};
       const cat = getEssenzaCategory(l.armorId, dbEss) || "Magiche";
       const catColor = MATERIA_COLORS[cat] || "#10b981";
-      const iconData = findItemIcon(l.name) || findItemIcon("Fuoco") || "";
+      const iconData = findItemIcon(l.name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "";
       const statBonus = findMateriaStatBonus(l.name, dbEss);
       const bonusText = formatStatBonusText(statBonus);
 
@@ -3385,7 +3416,7 @@ function renderBackpackForSale() {
       name = it.name || dbEss.name || 'Essenza';
       const cat = getEssenzaCategory(it.armorId, dbEss) || "Magiche";
       const catColor = MATERIA_COLORS[cat] || "#10b981";
-      const iconData = findItemIcon(name) || findItemIcon("Fuoco") || "";
+      const iconData = findItemIcon(name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "";
       const statBonus = findMateriaStatBonus(name, dbEss);
       const bonusText = formatStatBonusText(statBonus);
 
@@ -3559,7 +3590,7 @@ function renderMyListings() {
       const dbEss = findArmor(l.armorId) || {};
       const cat = getEssenzaCategory(l.armorId, dbEss) || "Magiche";
       const catColor = MATERIA_COLORS[cat] || "#10b981";
-      const iconData = findItemIcon(l.name) || findItemIcon("Fuoco") || "";
+      const iconData = findItemIcon(l.name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "";
       iconHtml = `
         <div class="essence-diamond-wrap" style="border-color:${catColor};">
           <img src="${iconData || TRANSPARENT_ICON}" alt="${l.name}">
@@ -3682,7 +3713,8 @@ function openBuyModal(uid) {
 
   // Preview card
   const isEss = (listing.category === 'essenze' || listing.type === 'essenza');
-  let iconData = findItemIcon(listing.name) || (isEss ? findItemIcon("Fuoco") : findItemIcon("Spadone d'acciaio")) || "";
+  const buyDbEss = isEss ? (findArmor(listing.armorId) || {}) : null;
+  let iconData = findItemIcon(listing.name) || (isEss ? (findMateriaIconByType(buyDbEss ? buyDbEss.type : null) || findItemIcon("Fuoco")) : findItemIcon("Spadone d'acciaio")) || "";
   if (preview) {
     preview.innerHTML = `
       <div class="item-icon-wrap" style="width: 44px; height: 44px;">
@@ -3775,7 +3807,7 @@ function openSellModal(uid, isEssence) {
   }
   selectedSellItem.name = name;
 
-  const iconData = findItemIcon(name) || (isEssence ? findItemIcon("Fuoco") : findItemIcon("Spadone d'acciaio")) || "";
+  const iconData = findItemIcon(name) || (isEssence ? (findMateriaIconByType(db ? db.type : null) || findItemIcon("Fuoco")) : findItemIcon("Spadone d'acciaio")) || "";
   if (preview) {
     preview.innerHTML = `
       <div class="item-icon-wrap" style="width: 44px; height: 44px;">
@@ -3909,7 +3941,7 @@ function openMateriaModal(uid, fromMarket = true) {
         level: l.level || 1,
         currentPp: l.ap || 0,
         category: cat,
-        iconData: findItemIcon(l.name) || findItemIcon("Fuoco") || "",
+        iconData: findItemIcon(l.name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "",
         desc: dbEss.desc || dbEss.description || "",
         statBonus: findMateriaStatBonus(l.name, dbEss)
       };
@@ -3937,7 +3969,7 @@ function openMateriaModal(uid, fromMarket = true) {
           level: e.level || 1,
           currentPp: e.ap || 0,
           category: cat,
-          iconData: findItemIcon(dbEss.name || e.name) || findItemIcon("Fuoco") || "",
+          iconData: findItemIcon(dbEss.name || e.name) || findMateriaIconByType(dbEss.type) || findItemIcon("Fuoco") || "",
           desc: dbEss.desc || dbEss.description || "",
           statBonus: findMateriaStatBonus(dbEss.name || e.name, dbEss)
         };
