@@ -4084,7 +4084,48 @@ function openMateriaModal(uid, fromMarket = true) {
     });
   }
 
-  skillsEl.innerHTML = itemsHtml.length ? itemsHtml.join("") : '<div style="font-size:0.75rem; color:var(--text-muted);">Effetto continuo passivo.</div>';
+// === FRENESIA (Impeto id 49): tabella livelli ===
+if (dbData.id === 49 || mat.name === "Impeto") {
+  const frenesiaLevels = [
+    { lv: 1, frz: 10, dex: 10, mag: 5,  hpTurn: 2, malus: 0,  turni: 4 },
+    { lv: 2, frz: 16, dex: 16, mag: 8,  hpTurn: 3, malus: 5,  turni: 5 },
+    { lv: 3, frz: 24, dex: 24, mag: 12, hpTurn: 4, malus: 10, turni: 6 },
+    { lv: 4, frz: 34, dex: 34, mag: 17, hpTurn: 5, malus: 15, turni: 7 },
+    { lv: 5, frz: 50, dex: 50, mag: 25, hpTurn: 6, malus: 25, turni: 8 }
+  ];
+  frenesiaLevels.forEach(f => {
+    const unlocked = currentLv >= f.lv;
+    const malusTxt = f.malus > 0 ? ` • DEF <b style="color:#f87171;">-${f.malus}%</b>` : '';
+    itemsHtml.push(
+      '<div class="modal-skill-row ' + (unlocked ? '' : 'skill-locked') + '">' +
+        '<div class="modal-skill-left">' +
+          '<div class="modal-skill-name-line">' +
+            '<span>🔥 Frenesia Lv.' + f.lv + '</span>' +
+            '<span class="modal-skill-level-badge">Livello ' + f.lv + '</span>' +
+          '</div>' +
+          '<div class="modal-skill-desc">' +
+            '<b style="color:#34d399;">+' + f.frz + '% FRZ</b>, ' +
+            '<b style="color:#34d399;">+' + f.dex + '% DEX</b>, ' +
+            '<b style="color:#34d399;">+' + f.mag + '% MAG</b>' +
+            malusTxt +
+            ' • <span style="color:#f87171;">-' + f.hpTurn + '% HP/turno</span>' +
+            ' • <b>' + f.turni + ' turni</b>' +
+            '<br><small style="color:#9c9488;">Attivazione free: !arti frenesia · Auto-stop al 15% HP</small>' +
+          '</div>' +
+        '</div>' +
+        '<span class="modal-skill-status-tag ' + (unlocked ? 'status-unlocked' : 'status-locked') + '">' +
+          (unlocked ? 'SBLOCCATA ✅' : 'BLOCCATA 🔒') +
+        '</span>' +
+      '</div>'
+    );
+  });
+}
+
+  if (itemsHtml.length > 0) {
+    skillsEl.innerHTML = itemsHtml.join("");
+  } else {
+    skillsEl.innerHTML = '<div style="font-size:0.75rem; color:var(--text-muted);">Effetto continuo passivo.</div>';
+  }
 
 
   overlay.classList.add("active");
