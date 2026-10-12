@@ -800,8 +800,10 @@ h1 {
 }
 
 /* DRAG & DROP STABILITY & ANTI-FLICKER */
-body.is-dragging-gear .equip-slot-card *,
-body.is-dragging-gear #equipSlotsContainer * {
+body.is-dragging-gear .equip-slot-card {
+  pointer-events: auto !important;
+}
+body.is-dragging-gear .equip-slot-card * {
   pointer-events: none !important;
 }
 
@@ -3492,6 +3494,8 @@ const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActo
         itemId: eq.itemId,
         name: eq.name || (isWpn ? ("Arma #" + eq.itemId) : ("Armatura #" + eq.itemId)),
         type: eq.type || (isWpn ? "weapon" : "armor"),
+        etypeId: isWpn ? 1 : 2,
+        isAccessory: false,
         iconData: "",
         stats: "",
         statBonus: {},
@@ -3520,6 +3524,8 @@ const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActo
       itemId: eq.itemId,
       name: dbItem.name,
       type: eq.type,
+      etypeId: dbItem.etypeId || (isWpn ? 1 : 2),
+      isAccessory: (dbItem.etypeId === 3),
       iconData: iconData,
       stats: statsSummaryStr,
       statBonus: statBonusObj,
@@ -4559,7 +4565,7 @@ function openGearModal(uid) {
   
   const typeBadge = document.getElementById("modalGearTypeBadge");
   if (typeBadge) {
-    typeBadge.innerText = (gear.type === 'weapon' ? 'Arma' : (gear.type === 'armor' ? 'Armatura' : 'Accessorio'));
+    typeBadge.innerText = (gear.type === 'weapon' || gear.etypeId === 1) ? 'Arma' : (isItemAccessory(gear) ? 'Accessorio' : 'Armatura');
   }
 
   const locEl = document.getElementById("modalGearLocationText");
@@ -4740,24 +4746,76 @@ function handleUnequipEssence(uid) {
   renderAll(true);
 }
 
+function isItemAccessory(item) {
+  if (!item) return false;
+  if (item.isAccessory === true || item.etypeId === 3) return true;
+  if (item.itemId) {
+    const db = findArmor(item.itemId);
+    if (db && db.etypeId === 3) return true;
+  }
+  return false;
+}
+
+function isItemWeapon(item) {
+  if (!item) return false;
+  if (item.type === 'weapon' || item.etypeId === 1) return true;
+  if (item.itemId && findWeapon(item.itemId)) return true;
+  return false;
+}
+
+function isItemBodyArmor(item) {
+  if (!item) return false;
+  if (isItemWeapon(item) || isItemAccessory(item)) return false;
+  return true;
+}
+
 function handleDropGear(targetSlotKey, src) {
   if (src.source !== "backpack") return;
   const bagIdx = charState.backpack.gear.findIndex(g => g.uid === src.uid);
   if (bagIdx < 0) return;
 
   const itemToEquip = charState.backpack.gear[bagIdx];
+  const isWpn = isItemWeapon(itemToEquip);
+  const isAcc = isItemAccessory(itemToEquip);
+  const isArm = isItemBodyArmor(itemToEquip);
 
-  // Routing intelligente: le armi vanno in 'arma', le armature in 'armatura' (o 'acc1'/'acc2')
   let resolvedSlot = targetSlotKey;
-  if (itemToEquip.type === "weapon") {
-    resolvedSlot = "arma";
-  } else if (itemToEquip.type === "armor") {
-    if (resolvedSlot !== "acc1" && resolvedSlot !== "acc2") {
-      resolvedSlot = "armatura";
+
+  // 1. Se l'utente trascina su uno slot specifico
+  if (targetSlotKey === "arma") {
+    if (!isWpn) {
+      showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> non è un'arma e non può essere equipaggiato nello slot Arma.`);
+      return;
     }
+    resolvedSlot = "arma";
+  } else if (targetSlotKey === "armatura") {
+    if (!isArm) {
+      if (isAcc) {
+        showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> è un accessorio: trascinalo nello slot <b>Accessorio 1</b> o <b>Accessorio 2</b>.`);
+      } else {
+        showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> non può essere equipaggiato come Armatura.`);
+      }
+      return;
+    }
+    resolvedSlot = "armatura";
+  } else if (targetSlotKey === "acc1" || targetSlotKey === "acc2") {
+    if (!isAcc) {
+      showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> non è un accessorio: usa lo slot appropriato (${isWpn ? 'Arma' : 'Armatura'}).`);
+      return;
+    }
+    resolvedSlot = targetSlotKey;
   } else {
-    if (!resolvedSlot || resolvedSlot === "auto" || resolvedSlot === "container") {
-      resolvedSlot = (itemToEquip.type === "weapon") ? "arma" : "armatura";
+    // 2. Se l'utente trascina genericamente sul contenitore o "auto"
+    if (isWpn) {
+      resolvedSlot = "arma";
+    } else if (isArm) {
+      resolvedSlot = "armatura";
+    } else if (isAcc) {
+      if (!charState.equipped.acc1) resolvedSlot = "acc1";
+      else if (!charState.equipped.acc2) resolvedSlot = "acc2";
+      else resolvedSlot = "acc1";
+    } else {
+      resolvedSlot = "armatura";
     }
   }
 
@@ -4773,7 +4831,9 @@ function handleDropGear(targetSlotKey, src) {
   const cmd = `!gear ${resolvedSlot} ${itemToEquip.uid}`;
   executeChatCommand(cmd);
 
-  showToast("Equip Indossato 🛡️", `Hai equipaggiato <b>${itemToEquip.name}</b> in <b>${resolvedSlot.toUpperCase()}</b>.`);
+  const slotLabels = { arma: "ARMA", armatura: "ARMATURA", acc1: "ACCESSORIO 1", acc2: "ACCESSORIO 2" };
+  const label = slotLabels[resolvedSlot] || resolvedSlot.toUpperCase();
+  showToast("Equip Indossato 🛡️", `Hai equipaggiato <b>${itemToEquip.name}</b> in <b>${label}</b>.`);
 
   saveLocalModifications();
   renderAll(true);
@@ -4811,8 +4871,8 @@ function quickEquipGear(uid) {
   if (!item) return;
 
   let targetSlot = "arma";
-  if (item.type === "weapon") targetSlot = "arma";
-  else if (item.type === "armor") targetSlot = "armatura";
+  if (isItemWeapon(item)) targetSlot = "arma";
+  else if (isItemBodyArmor(item)) targetSlot = "armatura";
   else targetSlot = !charState.equipped.acc1 ? "acc1" : "acc2";
 
   handleDropGear(targetSlot, { source: "backpack", uid: uid });
