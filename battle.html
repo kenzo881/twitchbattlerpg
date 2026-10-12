@@ -2877,6 +2877,22 @@
       let html = "";
       if (currentValidSkills.length > 0) {
         html += currentValidSkills.map((s, idx) => {
+          // === FRENESIA: voce speciale con tag ATTIVA / OFF ===
+          if (s && (s.isFrenesia === true || s.id === -49 || (s.name && s.name.toLowerCase().indexOf("frenesia") >= 0))) {
+            const isOn = s.frenesiaActive === true;
+            const tag = isOn
+              ? '<span style="color:#f97316; font-weight:900; font-size:0.88rem; letter-spacing:0.6px;">ATTIVA</span>'
+              : '<span style="color:#9c9488; font-weight:700; font-size:0.82rem;">OFF</span>';
+            const style = isOn ? 'border-color:#f97316; background:rgba(249,115,22,0.10);' : '';
+            return `
+              <div class="action-choice-item" onclick="chooseSkillDirectly(${idx})" style="${style}">
+                <div style="font-weight:700; color:var(--text-main);">${s.name}</div>
+                ${tag}
+              </div>
+            `;
+          }
+          // === FINE FRENESIA ===
+
           const cost = Number(s.mpCost) || 0;
           const hasEnoughMp = currentMp >= cost;
 
@@ -2947,6 +2963,12 @@
       const myActor = getMyCurrentActor();
       if (!currentValidSkills || !currentValidSkills[idx]) return;
       const s = currentValidSkills[idx];
+      // Frenesia: comando speciale, non è una skill normale
+      if (s && (s.isFrenesia === true || s.id === -49 || (s.name && s.name.toLowerCase().indexOf("frenesia") >= 0))) {
+        document.getElementById("skillsModalOverlay").classList.remove("active");
+        executeSendCommand("!arti frenesia");
+        return;
+      }
       const currentMp = (myActor && typeof myActor.mp === "number") ? myActor.mp : 0;
       const cost = Number(s.mpCost) || 0;
       if (currentMp < cost) {
