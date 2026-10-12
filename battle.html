@@ -1495,7 +1495,7 @@
           <div class="allies-sub-row" id="alliesSubRow"></div>
 
           <!-- Quick Chip: Target All Allies (Area) -->
-          <button class="btn-target-all-allies" id="btnTargetAllAllies" onclick="selectTargetOption('tutti alleati')">
+          <button class="btn-target-all-allies" id="btnTargetAllAllies" style="display: none;" onclick="selectTargetOption('tutti alleati')">
             <span>✨ Tutti gli Alleati</span>
           </button>
         </div>
@@ -1540,7 +1540,7 @@
       <div class="enemies-container">
         <div class="enemies-header-row">
           <span class="enemies-title">Nemici in Campo (<span class="count-highlight" id="enemyCountNum">0</span>)</span>
-          <button class="btn-target-all-enemies" id="btnTargetAllEnemies" onclick="selectTargetOption('tutti nemici')">
+          <button class="btn-target-all-enemies" id="btnTargetAllEnemies" style="display: none;" onclick="selectTargetOption('tutti nemici')">
             <span>💥 Tutti i Nemici (Area)</span>
           </button>
         </div>
@@ -2185,6 +2185,39 @@
       return false;
     }
 
+    function canCurrentActionTargetAllAllies() {
+      if (pendingActionType === "skill" && pendingActionDetail) {
+        const s = pendingActionDetail;
+        if (s.isEnemy || (!s.isAlly && s.scope !== 8 && s.scope !== 10 && s.scope !== 7)) return false;
+        if (s.canTargetAll === true || s.isArea === true || (s.hasOmni && (s.omniCharges === undefined || s.omniCharges > 0))) {
+          return true;
+        }
+        if (s.scope === 8 || s.scope === 10) return true;
+        return false;
+      }
+      if (pendingActionType === "item" && pendingActionDetail) {
+        const sc = pendingActionDetail.scope;
+        return (sc === 8 || sc === 10);
+      }
+      return false;
+    }
+
+    function canCurrentActionTargetAllEnemies() {
+      if (pendingActionType === "skill" && pendingActionDetail) {
+        const s = pendingActionDetail;
+        if (s.isAlly) return false;
+        if (s.canTargetAll === true || s.isArea === true || (s.hasOmni && (s.omniCharges === undefined || s.omniCharges > 0))) {
+          return true;
+        }
+        if (s.scope === 2) return true;
+        return false;
+      }
+      if (pendingActionType === "item" && pendingActionDetail) {
+        return (pendingActionDetail.scope === 2);
+      }
+      return false;
+    }
+
     function renderPortraits(party, currentTurnUser) {
       const myActor = getMyCurrentActor();
       const myLogin = currentUser ? (currentUser.login || currentUser.name || "").toLowerCase().trim() : "";
@@ -2252,7 +2285,8 @@
           playerCard.classList.remove("selected-target");
         }
 
-        const canTargetPlayer = (pendingActionType === 'item') && (!isPlayerDead && (!isPlayerStoned || isStoneCure));
+        const isAllySkill = (pendingActionType === 'skill' && pendingActionDetail && pendingActionDetail.isAlly);
+        const canTargetPlayer = (pendingActionType === 'item' || isAllySkill) && (!isPlayerDead && (!isPlayerStoned || isStoneCure));
         if (canTargetPlayer) {
           playerCard.classList.add("targetable-ready");
         } else {
@@ -2276,7 +2310,8 @@
         const isTurn = !isDead && !isStoned && (ally.isTurn || (currentTurnUser && allyOwner.toLowerCase() === currentTurnUser.toLowerCase()));
         const isSelected = (selectedTargetStr.toLowerCase() === ('@' + allyOwner).toLowerCase());
         const faceStyle = getFaceSpriteStyle(ally.faceName, ally.faceIndex);
-        const canTargetThisAlly = (pendingActionType === 'item') && (!isDead && (!isStoned || isStoneCure));
+        const isAllySkill = (pendingActionType === 'skill' && pendingActionDetail && pendingActionDetail.isAlly);
+        const canTargetThisAlly = (pendingActionType === 'item' || isAllySkill) && (!isDead && (!isStoned || isStoneCure));
 
         let badgeHtml = '<span class="portrait-turn-tag">⚡ TURNO</span>';
         let cardTitle = `Seleziona alleato @${allyOwner}`;
@@ -2308,9 +2343,14 @@
         `;
       }).join("");
 
-      // Chip Tutti gli Alleati
+      // Chip Tutti gli Alleati: visibile SOLO se l'azione corrente supporta tutti gli alleati (Omni o area nativa)
+      const canTargetAllAllies = canCurrentActionTargetAllAllies();
+      if (!canTargetAllAllies && selectedTargetStr === "tutti alleati") {
+        selectedTargetStr = "";
+      }
       const btnAllAllies = document.getElementById("btnTargetAllAllies");
       if (btnAllAllies) {
+        btnAllAllies.style.display = canTargetAllAllies ? "inline-flex" : "none";
         if (selectedTargetStr === "tutti alleati") {
           btnAllAllies.classList.add("active");
         } else {
@@ -2354,9 +2394,15 @@
       const countEl = document.getElementById("enemyCountNum");
       countEl.innerText = enemies.length;
 
+      // Chip Tutti i Nemici: visibile SOLO se l'azione corrente supporta tutti i nemici (Omni o area nativa)
+      const canTargetAllEnemies = canCurrentActionTargetAllEnemies();
+      if (!canTargetAllEnemies && selectedTargetStr === "tutti nemici") {
+        selectedTargetStr = "";
+      }
       const isAllEnemies = (selectedTargetStr === "tutti nemici");
       const btnAllEnemies = document.getElementById("btnTargetAllEnemies");
       if (btnAllEnemies) {
+        btnAllEnemies.style.display = canTargetAllEnemies ? "inline-flex" : "none";
         if (isAllEnemies) btnAllEnemies.classList.add("active");
         else btnAllEnemies.classList.remove("active");
       }
@@ -2517,6 +2563,28 @@
     }
 
     function selectTargetOption(option) {
+      if (option === "tutti alleati") {
+        if (!canCurrentActionTargetAllAllies()) {
+          if (pendingActionType === "item") {
+            showToast("❌ Questa pozione o oggetto ha effetto solo su un singolo bersaglio!", "⚠️");
+          } else if (pendingActionType === "skill") {
+            showToast("❌ Serve l'essenza Omni collegata per lanciare questa magia su tutti!", "⚠️");
+          } else {
+            showToast("❌ Non puoi selezionare tutti gli alleati per questa azione!", "⚠️");
+          }
+          return;
+        }
+      } else if (option === "tutti nemici") {
+        if (!canCurrentActionTargetAllEnemies()) {
+          if (pendingActionType === "skill") {
+            showToast("❌ Serve l'essenza Omni collegata per lanciare questa magia su tutti i nemici!", "⚠️");
+          } else {
+            showToast("❌ Non puoi selezionare tutti i nemici per questa azione!", "⚠️");
+          }
+          return;
+        }
+      }
+
       if (selectedTargetStr === option) {
         if (!pendingActionType) selectedTargetStr = "";
       } else {
@@ -2895,12 +2963,18 @@
 
           const cost = Number(s.mpCost) || 0;
           const hasEnoughMp = currentMp >= cost;
+          const omniBadge = (s.hasOmni && s.omniCharges > 0)
+            ? `<span style="background:rgba(56,189,248,0.18); color:#38bdf8; border:1px solid rgba(56,189,248,0.5); font-size:0.72rem; padding:1px 6px; border-radius:4px; font-weight:700; margin-left:6px; display:inline-flex; align-items:center; gap:3px;">✨ Omni (${s.omniCharges})</span>`
+            : '';
 
           if (hasEnoughMp) {
             return `
               <div class="action-choice-item" onclick="chooseSkillDirectly(${idx})">
                 <div>
-                  <div style="font-weight:700; color:var(--text-main);">✨ ${s.name}</div>
+                  <div style="font-weight:700; color:var(--text-main); display:flex; align-items:center; flex-wrap:wrap;">
+                    <span>✨ ${s.name}</span>
+                    ${omniBadge}
+                  </div>
                   <div style="font-size:0.8rem; color:var(--text-muted);">${s.desc || ''}</div>
                 </div>
                 <div style="color:#60a5fa; font-weight:700;">${cost} MP</div>
@@ -2910,8 +2984,9 @@
             return `
               <div class="action-choice-item disabled" title="PM insufficienti: richiede ${cost} PM (attuali: ${currentMp} PM)">
                 <div>
-                  <div style="font-weight:700; color:#9ca3af; display:flex; align-items:center; gap:6px;">
+                  <div style="font-weight:700; color:#9ca3af; display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                     <span>✨ ${s.name}</span>
+                    ${omniBadge}
                     <span class="skill-mp-warning">PM Insufficienti</span>
                   </div>
                   <div style="font-size:0.8rem; color:#6b7280;">${s.desc || ''}</div>
@@ -2969,9 +3044,9 @@
 
         // Blocco attivazione sotto il 15% HP (coerente con auto-stop)
         var meFren = getMyCurrentActor();
-        var frenActive = false;
+        var frenActive = (s.frenesiaActive === true);
         if (meFren && meFren.states && Array.isArray(meFren.states)) {
-          frenActive = meFren.states.some(function(st) {
+          frenActive = frenActive || meFren.states.some(function(st) {
             return st && st.id >= 23 && st.id <= 27;
           });
         }
@@ -2981,6 +3056,7 @@
         }
 
         executeSendCommand("!arti frenesia");
+        showToast(frenActive ? "🔥 Disattivazione Frenesia inviata!" : "🔥 Attivazione Frenesia inviata!", "🔥");
         return;
       }
       const currentMp = (myActor && typeof myActor.mp === "number") ? myActor.mp : 0;
@@ -2996,21 +3072,22 @@
       if (s.isArea) {
         selectedTargetStr = s.isAlly ? "tutti alleati" : "tutti nemici";
       } else if (s.isAlly) {
-        if (!selectedTargetStr || !selectedTargetStr.startsWith("@")) {
+        if (!selectedTargetStr || !selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "tutti nemici") {
           selectedTargetStr = "@" + (myActor ? (myActor.owner || myActor.name) : "");
         }
       } else {
-        // Magia su nemico: se era selezionato un alleato, resettalo a vuoto (casuale)
-        if (selectedTargetStr && (selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "__player__")) {
+        // Magia su nemico: se era selezionato un alleato o un target area non valido, resettalo a vuoto (casuale)
+        if (selectedTargetStr && (selectedTargetStr.startsWith("@") || selectedTargetStr === "tutti alleati" || selectedTargetStr === "tutti nemici" || selectedTargetStr === "__player__")) {
           selectedTargetStr = "";
         }
       }
 
       refreshBattleViews();
+      const omniHint = (s.hasOmni && s.omniCharges > 0) ? ` (Omni pronta: ${s.omniCharges} usi ✨)` : "";
       if (selectedTargetStr) {
-        showToast(`Arte ${s.name} pronta su ${selectedTargetStr}! Premi Conferma ⚔️`, "✨");
+        showToast(`Arte ${s.name} pronta su ${selectedTargetStr}!${omniHint} Premi Conferma ⚔️`, "✨");
       } else {
-        showToast(`Arte ${s.name} pronta (Nemico Casuale 🎲)! Premi Conferma ⚔️ o scegli un bersaglio`, "✨");
+        showToast(`Arte ${s.name} pronta (Nemico Casuale 🎲)!${omniHint} Premi Conferma ⚔️ o scegli un bersaglio`, "✨");
       }
     }
 
