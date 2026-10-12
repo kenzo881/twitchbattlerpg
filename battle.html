@@ -2966,6 +2966,20 @@
       // Frenesia: comando speciale, non è una skill normale
       if (s && (s.isFrenesia === true || s.id === -49 || (s.name && s.name.toLowerCase().indexOf("frenesia") >= 0))) {
         document.getElementById("skillsModalOverlay").classList.remove("active");
+
+        // Blocco attivazione sotto il 15% HP (coerente con auto-stop)
+        var meFren = getMyCurrentActor();
+        var frenActive = false;
+        if (meFren && meFren.states && Array.isArray(meFren.states)) {
+          frenActive = meFren.states.some(function(st) {
+            return st && st.id >= 23 && st.id <= 27;
+          });
+        }
+        if (meFren && !frenActive && meFren.hp !== undefined && meFren.maxHp > 0 && (meFren.hp / meFren.maxHp) < 0.15) {
+          showToast("❌ Sei troppo debole per entrare in Frenesia! (HP sotto il 15%)", "🔥");
+          return;
+        }
+
         executeSendCommand("!arti frenesia");
         return;
       }
