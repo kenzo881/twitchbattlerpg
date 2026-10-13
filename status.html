@@ -829,6 +829,43 @@ body.is-dragging-essence .materia-slot-meta * {
   border-radius: 12px;
 }
 
+/* MODALE SCELTA SLOT ACCESSORIO */
+.acc-picker-slot-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 14px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1.5px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  color: inherit;
+  font-family: inherit;
+}
+.acc-picker-slot-btn:hover {
+  background: rgba(234, 179, 8, 0.12);
+  border-color: rgba(234, 179, 8, 0.5);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(234, 179, 8, 0.2);
+}
+.acc-picker-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(234, 179, 8, 0.2);
+  color: #facc15;
+  border: 1px solid rgba(234, 179, 8, 0.4);
+  letter-spacing: 0.5px;
+}
+.acc-picker-slot-btn:hover .acc-picker-badge {
+  background: #eab308;
+  color: #000;
+  box-shadow: 0 0 10px rgba(234, 179, 8, 0.6);
+}
+
 .equip-card-top {
   display: flex;
   justify-content: space-between;
@@ -2878,6 +2915,69 @@ body.is-dragging-essence .materia-slot-meta * {
   </div>
 </div>
 
+<!-- MODALE SCELTA SLOT ACCESSORIO (ACC1 / ACC2) -->
+<div id="accSlotPickerModalOverlay" class="modal-overlay" onclick="closeAccSlotPickerModal(event)">
+  <div class="materia-modal-card" style="max-width:440px;" onclick="event.stopPropagation()">
+    <div class="modal-header">
+      <div class="modal-title-wrap">
+        <div class="equip-icon-wrap" style="width:44px; height:44px;">
+          <img id="pickerAccIcon" src="" alt="">
+        </div>
+        <div>
+          <div class="modal-materia-name-row">
+            <h2 id="pickerAccName" class="modal-materia-name">Accessorio</h2>
+            <span class="modal-cat-badge" style="background:rgba(234,179,8,0.2); border-color:#eab308; color:#facc15;">Accessorio</span>
+          </div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;" id="pickerAccUid">
+            Scegli dove equipaggiare questo accessorio:
+          </div>
+        </div>
+      </div>
+      <button class="btn-modal-close" onclick="closeAccSlotPickerModal()">✕</button>
+    </div>
+
+    <div class="modal-body" style="padding:16px 20px;">
+      <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:14px; text-align:center;">
+        Seleziona lo slot in cui desideri indossare questo accessorio:
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <!-- Opzione Accessorio 1 -->
+        <button type="button" id="btnPickAcc1" class="acc-picker-slot-btn" onclick="confirmEquipAccessoryToSlot('acc1')">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="equip-icon-wrap" style="width:40px; height:40px; border-color:var(--accent-glow); flex-shrink:0;">
+              <span style="font-size:1.3rem;">💍</span>
+            </div>
+            <div style="text-align:left;">
+              <div style="font-weight:700; font-size:0.95rem; color:#fff;">Accessorio 1</div>
+              <div id="pickerAcc1Current" style="font-size:0.75rem; color:var(--text-muted);">Slot libero</div>
+            </div>
+          </div>
+          <span class="acc-picker-badge">Equipaggia in Acc 1 ➔</span>
+        </button>
+
+        <!-- Opzione Accessorio 2 -->
+        <button type="button" id="btnPickAcc2" class="acc-picker-slot-btn" onclick="confirmEquipAccessoryToSlot('acc2')">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="equip-icon-wrap" style="width:40px; height:40px; border-color:var(--accent-glow); flex-shrink:0;">
+              <span style="font-size:1.3rem;">💎</span>
+            </div>
+            <div style="text-align:left;">
+              <div style="font-weight:700; font-size:0.95rem; color:#fff;">Accessorio 2</div>
+              <div id="pickerAcc2Current" style="font-size:0.75rem; color:var(--text-muted);">Slot libero</div>
+            </div>
+          </div>
+          <span class="acc-picker-badge">Equipaggia in Acc 2 ➔</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="modal-footer" style="justify-content:center;">
+      <button type="button" class="btn-modal-dismiss" onclick="closeAccSlotPickerModal()">Annulla</button>
+    </div>
+  </div>
+</div>
+
 <!-- MODAL REGISTRO ARTI, MAGIE & TRATTI ATTIVI -->
 <div class="modal-overlay" id="activeArtsModalOverlay" onclick="handleActiveArtsBackdropClick(event)">
   <div class="arts-modal-card" id="activeArtsModalCard" onclick="event.stopPropagation()">
@@ -3486,16 +3586,19 @@ const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActo
   // 1. Processa equipaggiamenti utente
   userEquips.forEach(eq => {
     const isWpn = (eq.type === 'weapon');
+    const isAccId = [62, 63, 64, 66, 67, 68, 69, 70, 71, 72, 73, 74].includes(Number(eq.itemId));
+    const isAccSlot = (eq.equippedSlot === 2 || eq.equippedSlot === 3);
     const dbItem = isWpn ? findWeapon(eq.itemId) : findArmor(eq.itemId);
     if (!dbItem) {
       // Fallback: mostra l'equipaggiamento con dati minimi invece di scartarlo
+      const isAccFallback = !isWpn && (isAccId || isAccSlot);
       const fallbackGear = {
         uid: eq.uid,
         itemId: eq.itemId,
-        name: eq.name || (isWpn ? ("Arma #" + eq.itemId) : ("Armatura #" + eq.itemId)),
+        name: eq.name || (isWpn ? ("Arma #" + eq.itemId) : (isAccFallback ? ("Accessorio #" + eq.itemId) : ("Armatura #" + eq.itemId))),
         type: eq.type || (isWpn ? "weapon" : "armor"),
-        etypeId: isWpn ? 1 : 2,
-        isAccessory: false,
+        etypeId: isWpn ? 1 : (isAccFallback ? 3 : 2),
+        isAccessory: isAccFallback,
         iconData: "",
         stats: "",
         statBonus: {},
@@ -3514,7 +3617,8 @@ const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActo
       return;
     }
 
-    const iconData = findItemIcon(dbItem.name) || (isWpn ? findItemIcon("Spadone d'acciaio") : findItemIcon("Cotta di maglia")) || "";
+    const isAccDb = !isWpn && (dbItem.etypeId === 3 || isAccId || isAccSlot);
+    const iconData = findItemIcon(dbItem.name) || (isWpn ? findItemIcon("Spadone d'acciaio") : (isAccDb ? findItemIcon("Anello Arcano") : findItemIcon("Cotta di maglia"))) || "";
     const slotStruct = parseMateriaSlotStructure(dbItem);
     const statBonusObj = extractStatBonusFromParams(dbItem.params);
     const statsSummaryStr = formatParamsSummary(dbItem.params);
@@ -3524,8 +3628,8 @@ const isLimitReady = (liveActor && liveActor.isLimit !== undefined) ? !!liveActo
       itemId: eq.itemId,
       name: dbItem.name,
       type: eq.type,
-      etypeId: dbItem.etypeId || (isWpn ? 1 : 2),
-      isAccessory: (dbItem.etypeId === 3),
+      etypeId: isAccDb ? 3 : (dbItem.etypeId || (isWpn ? 1 : 2)),
+      isAccessory: isAccDb,
       iconData: iconData,
       stats: statsSummaryStr,
       statBonus: statBonusObj,
@@ -3998,6 +4102,18 @@ function attachDragDropListeners() {
             handleDropEssence(slotKey, targetSlotNum, draggedItem);
           }
         }
+      }
+    });
+
+    // Supporto click diretto sullo slot se un equipaggiamento è stato selezionato nello zaino
+    card.addEventListener("click", e => {
+      if (e.target.closest(".btn-unequip-gear") || e.target.closest(".materia-socket")) return;
+      if (selectedItem && selectedItem.categoryType === "gear") {
+        const targetSlotKey = card.dataset.slotKey;
+        const uid = selectedItem.uid;
+        selectedItem = null;
+        renderInventoryGrid();
+        handleDropGear(targetSlotKey, { source: "backpack", uid: uid });
       }
     });
   });
@@ -4640,7 +4756,7 @@ function openGearModal(uid) {
     if (isEquipped) {
       actionEl.innerHTML = `<button class="btn-modal-unequip" onclick="handleUnequipGear('${slotKey}'); closeGearModal();">✕ Smonta nello Zaino</button>`;
     } else {
-      actionEl.innerHTML = `<button class="inv-item-btn" style="padding:8px 16px; font-weight:700;" onclick="quickEquipGear('${gear.uid}'); closeGearModal();">Indossa Subito ⚔️</button>`;
+      actionEl.innerHTML = `<button class="inv-item-btn" style="padding:8px 16px; font-weight:700;" onclick="closeGearModal(); quickEquipGear('${gear.uid}');">Indossa Subito ⚔️</button>`;
     }
   }
 
@@ -4746,12 +4862,24 @@ function handleUnequipEssence(uid) {
   renderAll(true);
 }
 
+const ACCESSORY_ITEM_IDS = [62, 63, 64, 66, 67, 68, 69, 70, 71, 72, 73, 74];
+const ACCESSORY_NAME_KEYWORDS = [
+  "anello", "collana", "orecchino", "bracciali", "cappuccio", "guanti", "scouter"
+];
+
 function isItemAccessory(item) {
   if (!item) return false;
   if (item.isAccessory === true || item.etypeId === 3) return true;
-  if (item.itemId) {
-    const db = findArmor(item.itemId);
-    if (db && db.etypeId === 3) return true;
+  if (item.slotKey === 'acc1' || item.slotKey === 'acc2') return true;
+  const numId = Number(item.itemId);
+  if (numId) {
+    if (ACCESSORY_ITEM_IDS.includes(numId)) return true;
+    const db = findArmor(numId);
+    if (db && db.etypeId === 3 && !db.isMateria) return true;
+  }
+  if (item.name) {
+    const lowerName = item.name.toLowerCase();
+    if (ACCESSORY_NAME_KEYWORDS.some(kw => lowerName.includes(kw))) return true;
   }
   return false;
 }
@@ -4759,13 +4887,20 @@ function isItemAccessory(item) {
 function isItemWeapon(item) {
   if (!item) return false;
   if (item.type === 'weapon' || item.etypeId === 1) return true;
-  if (item.itemId && findWeapon(item.itemId)) return true;
+  const numId = Number(item.itemId);
+  if (numId && findWeapon(numId)) return true;
   return false;
 }
 
 function isItemBodyArmor(item) {
   if (!item) return false;
   if (isItemWeapon(item) || isItemAccessory(item)) return false;
+  if (item.type === 'armor' || item.etypeId === 2) return true;
+  const numId = Number(item.itemId);
+  if (numId) {
+    const db = findArmor(numId);
+    if (db && db.etypeId === 2) return true;
+  }
   return true;
 }
 
@@ -4784,12 +4919,16 @@ function handleDropGear(targetSlotKey, src) {
   // 1. Se l'utente trascina su uno slot specifico
   if (targetSlotKey === "arma") {
     if (!isWpn) {
-      showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> non è un'arma e non può essere equipaggiato nello slot Arma.`);
+      if (isAcc) {
+        showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> è un accessorio: trascinalo nello slot <b>Accessorio 1</b> o <b>Accessorio 2</b>.`);
+      } else {
+        showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> non è un'arma e non può essere equipaggiato nello slot Arma.`);
+      }
       return;
     }
     resolvedSlot = "arma";
   } else if (targetSlotKey === "armatura") {
-    if (!isArm) {
+    if (!isArm || isAcc) {
       if (isAcc) {
         showToast("Slot Non Compatibile ❌", `<b>${itemToEquip.name}</b> è un accessorio: trascinalo nello slot <b>Accessorio 1</b> o <b>Accessorio 2</b>.`);
       } else {
@@ -4805,15 +4944,20 @@ function handleDropGear(targetSlotKey, src) {
     }
     resolvedSlot = targetSlotKey;
   } else {
-    // 2. Se l'utente trascina genericamente sul contenitore o "auto"
+    // 2. Drop generico sul contenitore o "auto"
     if (isWpn) {
       resolvedSlot = "arma";
+    } else if (isAcc) {
+      if (!charState.equipped.acc1) {
+        resolvedSlot = "acc1";
+      } else if (!charState.equipped.acc2) {
+        resolvedSlot = "acc2";
+      } else {
+        openAccessorySlotPickerModal(itemToEquip);
+        return;
+      }
     } else if (isArm) {
       resolvedSlot = "armatura";
-    } else if (isAcc) {
-      if (!charState.equipped.acc1) resolvedSlot = "acc1";
-      else if (!charState.equipped.acc2) resolvedSlot = "acc2";
-      else resolvedSlot = "acc1";
     } else {
       resolvedSlot = "armatura";
     }
@@ -4866,16 +5010,79 @@ function handleUnequipGear(slotKey) {
   renderAll(true);
 }
 
+// LOGICA SCELTA SLOT ACCESSORIO (ACC1 / ACC2)
+let pendingAccessoryForSlotPicker = null;
+
+function openAccessorySlotPickerModal(item) {
+  if (!item) return;
+  pendingAccessoryForSlotPicker = item;
+
+  const overlay = document.getElementById("accSlotPickerModalOverlay");
+  const iconEl = document.getElementById("pickerAccIcon");
+  const nameEl = document.getElementById("pickerAccName");
+  const uidEl = document.getElementById("pickerAccUid");
+  const acc1CurrentEl = document.getElementById("pickerAcc1Current");
+  const acc2CurrentEl = document.getElementById("pickerAcc2Current");
+
+  if (iconEl) iconEl.src = item.iconData || 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';
+  if (nameEl) nameEl.innerText = item.name;
+  if (uidEl) uidEl.innerText = `Scegli dove equipaggiare ${item.name} (#${item.uid}):`;
+
+  const currAcc1 = charState.equipped.acc1;
+  const currAcc2 = charState.equipped.acc2;
+
+  if (acc1CurrentEl) {
+    acc1CurrentEl.innerHTML = currAcc1
+      ? `Attualmente: <b style="color:#facc15;">${escapeHtml(currAcc1.name)}</b> (verrà sostituito)`
+      : `<span style="color:#4ade80;">Slot Libero</span>`;
+  }
+  if (acc2CurrentEl) {
+    acc2CurrentEl.innerHTML = currAcc2
+      ? `Attualmente: <b style="color:#facc15;">${escapeHtml(currAcc2.name)}</b> (verrà sostituito)`
+      : `<span style="color:#4ade80;">Slot Libero</span>`;
+  }
+
+  if (overlay) {
+    overlay.classList.add("active");
+    overlay.classList.add("modal-active");
+  }
+}
+
+function closeAccSlotPickerModal(e) {
+  if (e && e.target && e.target.id !== "accSlotPickerModalOverlay" && !e.target.classList.contains("btn-modal-close") && !e.target.classList.contains("btn-modal-dismiss")) {
+    return;
+  }
+  const overlay = document.getElementById("accSlotPickerModalOverlay");
+  if (overlay) {
+    overlay.classList.remove("active");
+    overlay.classList.remove("modal-active");
+  }
+  pendingAccessoryForSlotPicker = null;
+}
+
+function confirmEquipAccessoryToSlot(slotKey) {
+  const item = pendingAccessoryForSlotPicker;
+  closeAccSlotPickerModal();
+  if (!item) return;
+
+  handleDropGear(slotKey, { source: "backpack", uid: item.uid });
+}
+
 function quickEquipGear(uid) {
   const item = charState.backpack.gear.find(g => g.uid === uid);
   if (!item) return;
 
-  let targetSlot = "arma";
-  if (isItemWeapon(item)) targetSlot = "arma";
-  else if (isItemBodyArmor(item)) targetSlot = "armatura";
-  else targetSlot = !charState.equipped.acc1 ? "acc1" : "acc2";
+  if (isItemAccessory(item)) {
+    openAccessorySlotPickerModal(item);
+    return;
+  }
 
-  handleDropGear(targetSlot, { source: "backpack", uid: uid });
+  if (isItemWeapon(item)) {
+    handleDropGear("arma", { source: "backpack", uid: uid });
+    return;
+  }
+
+  handleDropGear("armatura", { source: "backpack", uid: uid });
 }
 
 // CALCOLO STATISTICHE
@@ -6473,7 +6680,9 @@ window.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
       closeMateriaModal();
+      closeGearModal();
       closeActiveArtsModal();
+      closeAccSlotPickerModal();
     }
   });
 });
