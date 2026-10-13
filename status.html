@@ -3040,8 +3040,58 @@ function findArmor(id) {
   return null;
 }
 
+// SINCRONIZZAZIONE CATALOGO CUMULATIVO ICONE DA SHOP.HTML (CON CACHE E FALLBACK)
+window.__SHOP_ICONS = window.__SHOP_ICONS || {};
+(function initShopIconsCatalog() {
+  if (typeof window === 'undefined') return;
+  try {
+    const cached = localStorage.getItem('tbrpg_shop_icons');
+    if (cached) Object.assign(window.__SHOP_ICONS, JSON.parse(cached));
+  } catch(e) {}
+
+  if (typeof fetch === 'function') {
+    fetch('shop.html', { cache: 'no-cache' })
+      .then(function(res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.text();
+      })
+      .then(function(html) {
+        let extracted = {};
+        const matchAll = html.match(/const\s+ALL_ICONS\s*=\s*(\{[\s\S]*?\});/);
+        if (matchAll) {
+          try { extracted = JSON.parse(matchAll[1]); } catch(e){}
+        }
+        if (!extracted || Object.keys(extracted).length === 0) {
+          const matchData = html.match(/const\s+DATA\s*=\s*(\{[\s\S]*?\});\s*(?:var|const)\s+DB_CURRENCY/);
+          if (matchData) {
+            try {
+              const d = JSON.parse(matchData[1]);
+              ['armi', 'armature', 'accessori', 'essenze', 'consumabili'].forEach(function(cat) {
+                if (Array.isArray(d[cat])) {
+                  d[cat].forEach(function(it) {
+                    if (it && it.name && it.iconData) extracted[it.name] = it.iconData;
+                  });
+                }
+              });
+              if (d.iconsCatalog) Object.assign(extracted, d.iconsCatalog);
+            } catch(e){}
+          }
+        }
+        if (extracted && Object.keys(extracted).length > 0) {
+          Object.assign(window.__SHOP_ICONS, extracted);
+          try { localStorage.setItem('tbrpg_shop_icons', JSON.stringify(window.__SHOP_ICONS)); } catch(e){}
+          if (typeof renderAll === 'function') {
+            try { renderAll(); } catch(e){}
+          }
+        }
+      })
+      .catch(function(err) {});
+  }
+})();
+
 function findItemIcon(name) {
   if (!name) return "";
+  if (window.__SHOP_ICONS && window.__SHOP_ICONS[name]) return window.__SHOP_ICONS[name];
   if (ICONS[name]) return ICONS[name];
   const live = window.__LIVE_GAME_DATA;
   if (live && live.itemIcons && live.itemIcons[name]) return live.itemIcons[name];
@@ -3219,7 +3269,7 @@ const MATERIA_PASSIVES_DB = {
     type: "Arte Autonoma / Contrattacco",
     icon: "⚔️",
     badgeColor: "#a855f7",
-    desc: "Conferisce probabilità di rispondere immediatamente a qualsiasi attacco fisico subito con un potente fendente di contrattacco."
+    desc: "Conferisce probabilità di rispondere immediatamente a qualsiasi attacco fisico subito con un potente fendente di contrattacco. Massimo 2 contrattacchi al 100% con 2 Nemesi masterate."
   },
   "Vita Plus": {
     name: "Vitalità Amplificata (+HP)",
@@ -5237,7 +5287,7 @@ function getActiveCharacterArts() {
             const statLabels = { cnt: 'Contrattacco', hp: 'Vitalità (+HP)', mp: 'Riserva Astrale (+MP)', agi: 'Riflessi Fulminei (+DEX)', luk: 'Sorte Favorevole (+LUK)', mat: 'Intensità Arcana (+MAG)' };
             const statIcons = { cnt: '⚔️', hp: '❤️', mp: '💙', agi: '⚡', luk: '🍀', mat: '✨' };
             const statDescs = {
-              cnt: 'Conferisce il ' + totalVal + '% di probabilità di rispondere con un fendente di contrattacco in reazione a qualsiasi attacco fisico subito (Lv.' + matLevel + ').',
+              cnt: 'Conferisce il ' + totalVal + '% di probabilità di rispondere con un fendente di contrattacco in reazione a qualsiasi attacco fisico subito (Lv.' + matLevel + '). Massimo 2 contrattacchi al 100% con 2 Nemesi masterate.',
               hp: 'Incrementa i Punti Vita massimi del personaggio del +' + totalVal + '% (Lv.' + matLevel + ').',
               mp: 'Incrementa i Punti Magia massimi del personaggio del +' + totalVal + '% (Lv.' + matLevel + ').',
               agi: 'Incrementa la Destrezza del personaggio del +' + totalVal + '% (Lv.' + matLevel + ').',
