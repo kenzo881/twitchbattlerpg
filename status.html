@@ -4575,18 +4575,27 @@ function openMateriaModal(uid) {
           '</div>'
         );
       } else if (eff.type === 'bombammo') {
-        itemsHtml.push(
-          '<div class="modal-skill-row">' +
-            '<div class="modal-skill-left">' +
-              '<div class="modal-skill-name-line">' +
-                '<span>💣 Munizioni Bomba</span>' +
-                '<span class="modal-skill-level-badge" style="background:rgba(239,68,68,0.2); color:#ef4444; border-color:rgba(239,68,68,0.4);">Tratto Speciale</span>' +
+        const baseCap = 3;
+        const maxCapVal = 7;
+        for (let lv = 1; lv <= maxLv; lv++) {
+          const unlocked = currentLv >= lv;
+          const cap = Math.min(baseCap + (lv - 1), maxCapVal);
+          itemsHtml.push(
+            '<div class="modal-skill-row ' + (unlocked ? '' : 'skill-locked') + '">' +
+              '<div class="modal-skill-left">' +
+                '<div class="modal-skill-name-line">' +
+                  '<span>💣 Capienza Munizioni Lv.' + lv + '</span>' +
+                  '<span class="modal-skill-level-badge">Livello ' + lv + '</span>' +
+                  '<span class="modal-skill-mp" style="color:var(--gold); font-weight:700;">Max ' + cap + ' Bombe</span>' +
+                '</div>' +
+                '<div class="modal-skill-desc">Consente l\'uso e il trasporto fino a un massimo di ' + cap + ' bombe in combattimento.</div>' +
               '</div>' +
-              '<div class="modal-skill-desc">Consente l\'uso e il lancio delle bombe e munizioni esplosive dall\'inventario durante la battaglia.</div>' +
-            '</div>' +
-            '<span class="modal-skill-status-tag status-unlocked">ATTIVO ✅</span>' +
-          '</div>'
-        );
+              '<span class="modal-skill-status-tag ' + (unlocked ? 'status-unlocked' : 'status-locked') + '">' +
+                (unlocked ? 'SBLOCCATA ✅' : 'BLOCCATA 🔒') +
+              '</span>' +
+            '</div>'
+          );
+        }
       } else if (eff.type === 'hpabsorb') {
         itemsHtml.push(
           '<div class="modal-skill-row">' +
@@ -5272,12 +5281,13 @@ function getActiveCharacterArts() {
 
           } else if (eff.type === 'bombammo') {
             hadSpecificEffect = true;
+            const curCap = Math.min(3 + (matLevel - 1), 7);
             result.passives.push({
-              name: 'Munizioni Bomba',
+              name: 'Munizioni Bomba (Max ' + curCap + ')',
               type: 'Tratto Tattico',
               icon: '💣',
               badgeColor: '#ef4444',
-              desc: 'Consente l\'uso e il lancio delle bombe e munizioni esplosive dall\'inventario in combattimento.' + (statBonusStr ? ' [' + statBonusStr + ']' : ''),
+              desc: 'Consente l\'uso e il lancio delle bombe dall\'inventario in combattimento. Capienza attuale: ' + curCap + ' bombe (Lv.' + matLevel + ').' + (statBonusStr ? ' [' + statBonusStr + ']' : ''),
               source: 'Essenza ' + mat.name + ' (#' + mat.uid + ') (Lv.' + matLevel + ') • ' + piece.name + ' (#' + piece.uid + ') [Slot ' + sock.slotNum + ']'
             });
           } else if (eff.type === 'stat_effect') {

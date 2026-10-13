@@ -4172,6 +4172,31 @@ if (dbData.id === 49 || mat.name === "Impeto") {
   });
 }
 
+// === BOMBARDIERE (id 18): tabella livelli capienza munizioni ===
+if (dbData.id === 18 || mat.name === "Bombardiere") {
+  const baseCap = 3;
+  const maxCap = 7;
+  for (let lv = 1; lv <= 5; lv++) {
+    const unlocked = currentLv >= lv;
+    const cap = Math.min(baseCap + (lv - 1), maxCap);
+    itemsHtml.push(
+      '<div class="modal-skill-row ' + (unlocked ? '' : 'skill-locked') + '">' +
+        '<div class="modal-skill-left">' +
+          '<div class="modal-skill-name-line">' +
+            '<span>💣 Capienza Munizioni Lv.' + lv + '</span>' +
+            '<span class="modal-skill-level-badge">Livello ' + lv + '</span>' +
+            '<span class="modal-skill-mp" style="color:var(--gold); font-weight:700;">Max ' + cap + ' Bombe</span>' +
+          '</div>' +
+          '<div class="modal-skill-desc">Consente l\'uso e il trasporto fino a un massimo di ' + cap + ' bombe in combattimento.</div>' +
+        '</div>' +
+        '<span class="modal-skill-status-tag ' + (unlocked ? 'status-unlocked' : 'status-locked') + '">' +
+          (unlocked ? 'SBLOCCATA ✅' : 'BLOCCATA 🔒') +
+        '</span>' +
+      '</div>'
+    );
+  }
+}
+
   if (itemsHtml.length > 0) {
     skillsEl.innerHTML = itemsHtml.join("");
   } else {
