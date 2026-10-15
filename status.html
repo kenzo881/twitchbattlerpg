@@ -3057,47 +3057,88 @@ function applyShopDataToLocalDatabases(d) {
   if (d.iconsCatalog) Object.assign(window.__SHOP_ICONS, d.iconsCatalog);
   try { localStorage.setItem('tbrpg_shop_icons', JSON.stringify(window.__SHOP_ICONS)); } catch(e){}
 
-  // 2. Sincronizzazione Armi
-  if (Array.isArray(d.armi) && typeof DB_WEAPONS !== 'undefined') {
-    d.armi.forEach(function(it) {
-      if (!it || !it.name) return;
-      var found = Object.values(DB_WEAPONS).find(function(w) { return w && w.name === it.name; });
-      if (found) {
-        if (it.params) found.params = it.params;
-        if (it.desc) found.desc = it.desc;
-        if (it.price !== undefined) found.price = it.price;
-        if (it.icon) found.iconIndex = it.icon;
-      }
-    });
+  // Helper per registrare o aggiornare un'arma
+  function registerOrUpdateWeapon(it) {
+    if (!it || !it.name || typeof DB_WEAPONS === 'undefined' || !DB_WEAPONS) return;
+    var w = null;
+    if (it.id && DB_WEAPONS[it.id]) w = DB_WEAPONS[it.id];
+    if (!w) w = Object.values(DB_WEAPONS).find(function(x) { return x && x.name === it.name; });
+    if (w) {
+      if (it.params) w.params = it.params;
+      if (it.desc) w.desc = it.desc;
+      if (it.price !== undefined) w.price = it.price;
+      if (it.icon) w.iconIndex = it.icon;
+    } else if (it.id) {
+      DB_WEAPONS[it.id] = {
+        id: it.id,
+        name: it.name,
+        iconIndex: it.icon || 0,
+        desc: it.desc || '',
+        params: it.params || [0, 0, 0, 0, 0, 0, 0, 0],
+        price: it.price || 0
+      };
+    }
+    if (it.iconData) window.__SHOP_ICONS[it.name] = it.iconData;
   }
 
-  // 3. Sincronizzazione Armature & Accessori
-  if (typeof DB_ARMORS !== 'undefined') {
-    ['armature', 'accessori'].forEach(function(cat) {
-      if (Array.isArray(d[cat])) {
-        d[cat].forEach(function(it) {
-          if (!it || !it.name) return;
-          var found = Object.values(DB_ARMORS).find(function(a) { return a && a.name === it.name; });
-          if (found) {
-            if (it.params) found.params = it.params;
-            if (it.desc) found.desc = it.desc;
-            if (it.price !== undefined) found.price = it.price;
-            if (it.icon) found.iconIndex = it.icon;
-            if (cat === 'accessori') found.etypeId = 3;
-          }
-        });
-      }
-    });
+  // Helper per registrare o aggiornare un'armatura / accessorio / essenza
+  function registerOrUpdateArmor(it, defaultEtype, isMat) {
+    if (!it || !it.name || typeof DB_ARMORS === 'undefined' || !DB_ARMORS) return;
+    var a = null;
+    if (it.id && DB_ARMORS[it.id]) a = DB_ARMORS[it.id];
+    if (!a) a = Object.values(DB_ARMORS).find(function(x) { return x && x.name === it.name; });
+    if (a) {
+      if (it.params) a.params = it.params;
+      if (it.desc) a.desc = it.desc;
+      if (it.price !== undefined) a.price = it.price;
+      if (it.icon) a.iconIndex = it.icon;
+      if (defaultEtype && !a.etypeId) a.etypeId = defaultEtype;
+    } else if (it.id) {
+      DB_ARMORS[it.id] = {
+        id: it.id,
+        name: it.name,
+        etypeId: it.etypeId || defaultEtype || 2,
+        iconIndex: it.icon || 0,
+        desc: it.desc || '',
+        note: '',
+        params: it.params || [0, 0, 0, 0, 0, 0, 0, 0],
+        price: it.price || 0,
+        isMateria: isMat !== undefined ? isMat : !!it.isMateria
+      };
+    }
+    if (it.iconData) window.__SHOP_ICONS[it.name] = it.iconData;
+  }
 
+  // 2. Catalogo Cumulativo (Memorizzazione permanente anche di oggetti non più in vendita)
+  if (d.itemsCatalog && typeof d.itemsCatalog === 'object') {
+    if (d.itemsCatalog.armi) {
+      Object.values(d.itemsCatalog.armi).forEach(function(it) { registerOrUpdateWeapon(it); });
+    }
+    if (d.itemsCatalog.armature) {
+      Object.values(d.itemsCatalog.armature).forEach(function(it) { registerOrUpdateArmor(it, 2, false); });
+    }
+    if (d.itemsCatalog.accessori) {
+      Object.values(d.itemsCatalog.accessori).forEach(function(it) { registerOrUpdateArmor(it, 3, false); });
+    }
+    if (d.itemsCatalog.essenze) {
+      Object.values(d.itemsCatalog.essenze).forEach(function(it) { registerOrUpdateArmor(it, 2, true); });
+    }
+  }
+
+  // 3. Sincronizzazione da array diretti dello shop
+  if (Array.isArray(d.armi) && typeof DB_WEAPONS !== 'undefined') {
+    d.armi.forEach(function(it) { registerOrUpdateWeapon(it); });
+  }
+
+  if (typeof DB_ARMORS !== 'undefined') {
+    if (Array.isArray(d.armature)) {
+      d.armature.forEach(function(it) { registerOrUpdateArmor(it, 2, false); });
+    }
+    if (Array.isArray(d.accessori)) {
+      d.accessori.forEach(function(it) { registerOrUpdateArmor(it, 3, false); });
+    }
     if (Array.isArray(d.essenze)) {
-      d.essenze.forEach(function(it) {
-        if (!it || !it.name) return;
-        var found = Object.values(DB_ARMORS).find(function(a) { return a && a.name === it.name; });
-        if (found) {
-          if (it.desc) found.desc = it.desc;
-          if (it.price !== undefined) found.price = it.price;
-        }
-      });
+      d.essenze.forEach(function(it) { registerOrUpdateArmor(it, 2, true); });
     }
   }
 
@@ -3154,12 +3195,27 @@ function applyShopDataToLocalDatabases(d) {
       .then(function(armorsList) {
         if (Array.isArray(armorsList) && typeof DB_ARMORS !== 'undefined') {
           armorsList.forEach(function(a) {
-            if (!a || !a.id || !DB_ARMORS[a.id]) return;
-            var target = DB_ARMORS[a.id];
-            if (a.params) target.params = a.params;
-            if (a.description) target.desc = a.description;
-            if (a.price !== undefined) target.price = a.price;
-            if (a.etypeId !== undefined) target.etypeId = a.etypeId;
+            if (!a || !a.id) return;
+            if (!DB_ARMORS[a.id]) {
+              DB_ARMORS[a.id] = {
+                id: a.id,
+                name: a.name,
+                etypeId: a.etypeId || 2,
+                iconIndex: a.iconIndex || 0,
+                desc: a.description || '',
+                note: a.note || '',
+                params: a.params || [0, 0, 0, 0, 0, 0, 0, 0],
+                price: a.price || 0,
+                isMateria: !!(a.isMateria || (a.note && /<materia>/i.test(a.note)))
+              };
+            } else {
+              var target = DB_ARMORS[a.id];
+              if (a.params) target.params = a.params;
+              if (a.description) target.desc = a.description;
+              if (a.price !== undefined) target.price = a.price;
+              if (a.etypeId !== undefined) target.etypeId = a.etypeId;
+              if (a.iconIndex !== undefined) target.iconIndex = a.iconIndex;
+            }
           });
           if (typeof charState !== 'undefined' && charState && charState.login) {
             charState = buildCharStateFromUser(charState.login);
@@ -3168,6 +3224,33 @@ function applyShopDataToLocalDatabases(d) {
           if (typeof renderAll === 'function') {
             try { renderAll(true); } catch(e){}
           }
+        }
+      })
+      .catch(function() {});
+
+    fetch('data/Weapons.json', { cache: 'no-cache' })
+      .then(function(res) { return res.ok ? res.json() : null; })
+      .then(function(weaponsList) {
+        if (Array.isArray(weaponsList) && typeof DB_WEAPONS !== 'undefined') {
+          weaponsList.forEach(function(w) {
+            if (!w || !w.id) return;
+            if (!DB_WEAPONS[w.id]) {
+              DB_WEAPONS[w.id] = {
+                id: w.id,
+                name: w.name,
+                iconIndex: w.iconIndex || 0,
+                desc: w.description || '',
+                params: w.params || [0, 0, 0, 0, 0, 0, 0, 0],
+                price: w.price || 0
+              };
+            } else {
+              var target = DB_WEAPONS[w.id];
+              if (w.params) target.params = w.params;
+              if (w.description) target.desc = w.description;
+              if (w.price !== undefined) target.price = w.price;
+              if (w.iconIndex !== undefined) target.iconIndex = w.iconIndex;
+            }
+          });
         }
       })
       .catch(function() {});
