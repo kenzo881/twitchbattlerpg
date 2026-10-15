@@ -2693,8 +2693,8 @@ body.is-dragging-essence .materia-slot-meta * {
       <div class="hero-name-row">
         <div class="hero-name" id="heroName">-</div>
         <div class="hero-level-wrap">
-          <div class="hero-level" id="heroLevel">-</div>
-          <button type="button" class="btn-hero-active-arts" id="btnHeroActiveArts" onclick="openActiveArtsModal()" title="Visualizza tutte le arti, magie e tratti speciali attivi">
+          <div class="hero-level" id="heroLevel" style="display:none;">-</div>
+          <button type="button" class="btn-hero-active-arts" id="btnHeroActiveArts" style="display:none;" onclick="openActiveArtsModal()" title="Visualizza tutte le arti, magie e tratti speciali attivi">
             <span class="btn-arts-icon">⚡</span>
             <span class="btn-arts-label">Arti & Bonus Attivi</span>
             <span class="btn-arts-pill" id="heroArtsPill">0</span>
@@ -5440,9 +5440,13 @@ function getActiveCharacterArts() {
 }
 
 function updateActiveArtsBadge() {
+  const pill = document.getElementById("heroArtsPill");
+  if (!isGameCurrentlyActive) {
+    if (pill) pill.innerText = "-";
+    return;
+  }
   const arts = getActiveCharacterArts();
   const total = arts.spells.length + arts.passives.length + arts.gearTraits.length + arts.synergies.length;
-  const pill = document.getElementById("heroArtsPill");
   if (pill) {
     pill.innerText = total;
   }
@@ -5453,6 +5457,10 @@ window.openActiveArtsModal = openActiveArtsModal;
 window.closeActiveArtsModal = closeActiveArtsModal;
 
 function openActiveArtsModal() {
+  if (!isGameCurrentlyActive) {
+    showToast("Gioco Offline 🔴", "Le arti e i bonus attivi saranno disponibili appena il gioco sarà online.");
+    return;
+  }
   const arts = getActiveCharacterArts();
   const contentEl = document.getElementById("activeArtsModalContent");
   if (!contentEl) return;
@@ -6288,6 +6296,7 @@ function updateHeroHeader() {
   const noCharUserSpan = document.getElementById("noCharUserSpan");
   const heroCard = document.getElementById("heroCard");
   const workbench = document.querySelector(".workbench");
+  const btnHeroArts = document.getElementById("btnHeroActiveArts");
 
   // SE L'UTENTE NON HA UN PERSONAGGIO ATTIVO (o è stato cancellato dal gioco)
   if (!charState || !charState.hasCharacter) {
@@ -6307,7 +6316,11 @@ function updateHeroHeader() {
     // Resetta e azzera completamente tutti i campi per non lasciare nessun residuo o ritratto
     if (nameEl) nameEl.innerText = "-";
     if (classEl) classEl.innerText = "-";
-    if (lvEl) lvEl.innerText = "-";
+    if (lvEl) {
+      lvEl.innerText = "-";
+      lvEl.style.display = "none";
+    }
+    if (btnHeroArts) btnHeroArts.style.display = "none";
     if (hpLabel) hpLabel.innerText = "- / -";
     if (hpBar) hpBar.style.width = "0%";
     if (mpLabel) mpLabel.innerText = "- / -";
@@ -6352,7 +6365,11 @@ function updateHeroHeader() {
   if (!isGameCurrentlyActive) {
     if (nameEl) nameEl.innerHTML = `<span style="color:var(--text-dim); font-size:1.15rem; font-style:italic;">In attesa dell'avvio del gioco...</span>`;
     if (classEl) classEl.innerText = charState.className || "-";
-    if (lvEl) lvEl.innerText = "Lv " + (charState.level || "-");
+    if (lvEl) {
+      lvEl.style.display = "none";
+      lvEl.innerText = "-";
+    }
+    if (btnHeroArts) btnHeroArts.style.display = "none";
     if (hpLabel) hpLabel.innerText = "- / -";
     if (hpBar) hpBar.style.width = "0%";
     if (mpLabel) mpLabel.innerText = "- / -";
@@ -6375,6 +6392,7 @@ function updateHeroHeader() {
 
     const pill = document.getElementById("heroArtsPill");
     if (pill) pill.innerText = "-";
+    closeActiveArtsModal();
     return;
   }
 
@@ -6384,7 +6402,13 @@ function updateHeroHeader() {
 
   if (nameEl) nameEl.innerText = charState.name;
   if (classEl) classEl.innerText = charState.className;
-  if (lvEl) lvEl.innerText = "Lv " + charState.level;
+  if (lvEl) {
+    lvEl.style.display = "";
+    lvEl.innerText = "Lv " + charState.level;
+  }
+  if (btnHeroArts) {
+    btnHeroArts.style.display = "inline-flex";
+  }
   if (hpLabel) hpLabel.innerText = `${charState.hp.toLocaleString('it-IT')} / ${charState.maxHp.toLocaleString('it-IT')}`;
   if (hpBar) hpBar.style.width = Math.round((charState.hp / Math.max(1, charState.maxHp)) * 100) + "%";
   if (mpLabel) mpLabel.innerText = `${charState.mp.toLocaleString('it-IT')} / ${charState.maxMp.toLocaleString('it-IT')}`;
