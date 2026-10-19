@@ -2038,6 +2038,16 @@ function findItemIcon(name) {
   return "";
 }
 
+function findMateriaIconByType(type) {
+  if (!type) return null;
+  const t = type.toLowerCase();
+  if (t === 'command') return findItemIcon("Assalto") || findItemIcon("Sabotaggio");
+  if (t === 'support') return findItemIcon("Omni");
+  if (t === 'independent') return findItemIcon("Vita Plus");
+  if (t === 'summon') return findItemIcon("Vampiro") || findItemIcon("Sifone");
+  return findItemIcon("Fuoco");
+}
+
 function findMateriaStatBonus(name, armorObj) {
   if (typeof MATERIA_STAT_BONUSES !== 'undefined' && MATERIA_STAT_BONUSES[name]) return MATERIA_STAT_BONUSES[name];
   if (armorObj && armorObj.params && typeof extractStatBonusFromParams === 'function') return extractStatBonusFromParams(armorObj.params);
