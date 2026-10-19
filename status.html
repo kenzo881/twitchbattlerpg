@@ -4256,12 +4256,41 @@ function handleUnequipEssence(uid) {
   renderAll();
 }
 
+function getGearSlotType(item) {
+  if (!item) return 'unknown';
+  if (item.type === 'weapon') return 'arma';
+  if (item.type === 'armor') {
+    const dbItem = DB_ARMORS[item.itemId];
+    // etypeId 2 = Armatura, etypeId 3 = Accessorio (in RPG Maker MV)
+    if (dbItem && dbItem.etypeId === 3) return 'accessorio';
+    return 'armatura';
+  }
+  return 'unknown';
+}
+
 function handleDropGear(targetSlotKey, src) {
   if (src.source !== "backpack") return;
   const bagIdx = charState.backpack.gear.findIndex(g => g.uid === src.uid);
   if (bagIdx < 0) return;
 
-  const itemToEquip = charState.backpack.gear.splice(bagIdx, 1)[0];
+  const itemToEquip = charState.backpack.gear[bagIdx];
+  const itemType = getGearSlotType(itemToEquip);
+
+  // VALIDAZIONE SLOT
+  if (targetSlotKey === "arma" && itemType !== "arma") {
+    showToast("Equipaggiamento non valido ❌", "Puoi equipaggiare solo armi nello slot Arma.");
+    return;
+  }
+  if (targetSlotKey === "armatura" && itemType !== "armatura") {
+    showToast("Equipaggiamento non valido ❌", "Puoi equipaggiare solo armature nello slot Armatura.");
+    return;
+  }
+  if ((targetSlotKey === "acc1" || targetSlotKey === "acc2") && itemType !== "accessorio") {
+    showToast("Equipaggiamento non valido ❌", "Puoi equipaggiare solo accessori negli slot Accessorio.");
+    return;
+  }
+
+  charState.backpack.gear.splice(bagIdx, 1);
   const oldItem = charState.equipped[targetSlotKey];
   if (oldItem && !charState.backpack.gear.some(g => g.uid === oldItem.uid)) {
     charState.backpack.gear.push(oldItem);
@@ -4308,11 +4337,18 @@ function quickEquipGear(uid) {
   const item = charState.backpack.gear.find(g => g.uid === uid);
   if (!item) return;
 
-  let targetSlot = "arma";
-  if (item.type === "weapon") targetSlot = "arma";
-  else if (item.type === "armor") targetSlot = "armatura";
-  else targetSlot = !charState.equipped.acc1 ? "acc1" : "acc2";
+  const itemType = getGearSlotType(item);
+  let targetSlot = "";
 
+  if (itemType === "arma") {
+    targetSlot = "arma";
+  } else if (itemType === "armatura") {
+    targetSlot = "armatura";
+  } else if (itemType === "accessorio") {
+    targetSlot = !charState.equipped.acc1 ? "acc1" : "acc2";
+  }
+
+  if (!targetSlot) return;
   handleDropGear(targetSlot, { source: "backpack", uid: uid });
 }
 
