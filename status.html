@@ -60,7 +60,7 @@ body {
 }
 
 .container {
-  max-width: 1140px;
+  max-width: 1300px; width: 96%;
   margin: 0 auto;
 }
 
@@ -2088,13 +2088,13 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
-  gap: 14px;
+  flex-wrap: nowrap;
+  gap: 10px;
   background: rgba(18, 18, 32, 0.9);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(212, 175, 55, 0.25);
   border-radius: 14px;
-  padding: 10px 18px;
+  padding: 8px 14px;
   margin-bottom: 24px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
@@ -2102,8 +2102,34 @@ h1 {
 .top-nav-left {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-wrap: nowrap;
+  flex-shrink: 1;
+}
+
+.nav-links-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: nowrap;
+}
+
+.nav-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.78rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .nav-brand-title {
@@ -2188,8 +2214,61 @@ h1 {
 .top-nav-right {
   display: flex;
   align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
+  gap: 8px;
+  flex-shrink: 0;
+  margin-left: auto;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.twitch-party-actions {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex-shrink: 0;
+}
+
+.btn-cmd-action {
+  padding: 4px 8px !important;
+  font-size: 0.75rem !important;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.user-gold-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 4px 10px;
+  border-radius: 20px;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.twitch-user-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(145, 70, 255, 0.14);
+  border: 1px solid rgba(145, 70, 255, 0.4);
+  padding: 3px 12px 3px 6px;
+  border-radius: 20px;
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+@media (max-width: 1080px) {
+  .top-nav {
+    flex-wrap: wrap;
+  }
+  .twitch-party-actions {
+    width: 100%;
+    margin-top: 6px;
+    justify-content: flex-end;
+  }
 }
 
 .user-gold-badge {
@@ -4755,7 +4834,7 @@ function updateGameStatusUI(active, data) {
     }
     if (topSyncPill) {
       topSyncPill.className = "twitch-status-pill sync-pill synced";
-      if (topSyncText) topSyncText.innerText = inBattle ? `In Battaglia ⚔️ [${new Date().toLocaleTimeString('it-IT')}]` : `Gioco Attivo [${new Date().toLocaleTimeString('it-IT')}]`;
+      if (topSyncText) topSyncText.innerText = inBattle ? "In Battaglia ⚔️" : "Gioco Attivo";
     }
   } else if (liveData && liveData.inTitle) {
     if (banner) {
@@ -4835,12 +4914,9 @@ function updateSyncStatusBadge(synced) {
   const text = document.getElementById("syncStatusText");
   if (!badge || !text) return;
 
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString('it-IT');
-
   if (synced && isGameCurrentlyActive) {
     badge.className = "twitch-status-pill sync-pill synced";
-    text.innerText = `Gioco Attivo [${timeStr}]`;
+    text.innerText = "Gioco Attivo";
   } else {
     badge.className = "twitch-status-pill sync-pill offline";
     text.innerText = "Gioco Chiuso (Offline)";
