@@ -4326,45 +4326,46 @@ function updateCalculatedStats() {
     return;
   }
 
+  // Usa i parametri esatti calcolati dal gioco (RPG Maker)
   let stats = {
-    frz: charState.baseStats.frz,
-    cos: charState.baseStats.cos,
-    mag: charState.baseStats.mag,
-    res: charState.baseStats.res,
-    dex: charState.baseStats.dex,
-    luk: charState.baseStats.luk
+    frz: charState.liveParams ? charState.liveParams.frz : charState.baseStats.frz,
+    cos: charState.liveParams ? charState.liveParams.cos : charState.baseStats.cos,
+    mag: charState.liveParams ? charState.liveParams.mag : charState.baseStats.mag,
+    res: charState.liveParams ? charState.liveParams.res : charState.baseStats.res,
+    dex: charState.liveParams ? charState.liveParams.dex : charState.baseStats.dex,
+    luk: charState.liveParams ? charState.liveParams.luk : charState.baseStats.luk
   };
 
+  // Fallback per HP/MP (usiamo i valori live se presenti, altrimenti base + bonus)
   let maxHpBonus = 0;
   let maxMpBonus = 0;
 
-  Object.values(charState.equipped).forEach(eq => {
-    if (eq && eq.statBonus) {
-      Object.keys(eq.statBonus).forEach(k => {
-        if (stats[k] !== undefined) stats[k] += eq.statBonus[k];
-      });
-      if (eq.statBonus.hp) maxHpBonus += eq.statBonus.hp;
-      if (eq.statBonus.mp) maxMpBonus += eq.statBonus.mp;
-    }
-  });
+  if (!charState.liveParams) {
+    // Se mancano i dati live, facciamo un calcolo di fallback approssimativo
+    Object.values(charState.equipped).forEach(eq => {
+      if (eq && eq.statBonus) {
+        if (eq.statBonus.hp) maxHpBonus += eq.statBonus.hp;
+        if (eq.statBonus.mp) maxMpBonus += eq.statBonus.mp;
+      }
+    });
+    ['arma', 'armatura'].forEach(piece => {
+      const eq = charState.equipped[piece];
+      if (eq && eq.sockets) {
+        eq.sockets.forEach(sock => {
+          if (sock.materia && sock.materia.statBonus) {
+            if (sock.materia.statBonus.hp) maxHpBonus += sock.materia.statBonus.hp;
+            if (sock.materia.statBonus.mp) maxMpBonus += sock.materia.statBonus.mp;
+          }
+        });
+      }
+    });
+  }
 
-  ['arma', 'armatura'].forEach(piece => {
-    const eq = charState.equipped[piece];
-    if (eq && eq.sockets) {
-      eq.sockets.forEach(sock => {
-        if (sock.materia && sock.materia.statBonus) {
-          Object.keys(sock.materia.statBonus).forEach(k => {
-            if (stats[k] !== undefined) stats[k] += sock.materia.statBonus[k];
-          });
-          if (sock.materia.statBonus.hp) maxHpBonus += sock.materia.statBonus.hp;
-          if (sock.materia.statBonus.mp) maxMpBonus += sock.materia.statBonus.mp;
-        }
-      });
-    }
-  });
-
-  charState.maxHp = charState.baseStats.mhp + maxHpBonus;
-  charState.maxMp = charState.baseStats.mmp + maxMpBonus;
+  if (!charState.liveParams || !charState.maxHp) {
+      charState.maxHp = charState.baseStats.mhp + maxHpBonus;
+      charState.maxMp = charState.baseStats.mmp + maxMpBonus;
+  }
+  
   if (charState.hp > charState.maxHp) charState.hp = charState.maxHp;
   if (charState.mp > charState.maxMp) charState.mp = charState.maxMp;
 
