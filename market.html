@@ -4361,23 +4361,33 @@ function showToast(title, msg) {
 // AVVIO ALLA CARICA PAGINA
 // -------------------------------------------------------------
 window.addEventListener('DOMContentLoaded', () => {
+  // 1. Carica l'utente sincronamente da localStorage per evitare il flash "Accesso Richiesto"
+  const savedUser = localStorage.getItem(STORAGE_USER_KEY);
+  if (savedUser) {
+    try { currentUser = JSON.parse(savedUser); } catch(e){}
+  }
+
+  // 2. Applica i dati live cachati (se presenti) per settare isGameCurrentlyActive = true
   if (window.__LIVE_GAME_DATA) {
-    // Aggiorna subito il badge visivo per evitare il flash Offline
-    if (typeof updateGameStatusUI === 'function') updateGameStatusUI(window.__LIVE_GAME_DATA);
-    // Applica subito i dati in cache per popolare la pagina
     if (typeof applyLiveGameData === 'function') applyLiveGameData(window.__LIVE_GAME_DATA);
     if (typeof applyIncomingGameData === 'function') applyIncomingGameData(window.__LIVE_GAME_DATA);
+  } else {
+    // Forza offline SOLO se non ci sono dati in cache
+    updateGameStatusUI(false);
   }
+
+  // 3. Inizializza auth, viste e stream
   initAuth();
-  updateGameStatusUI(false);
   refreshAllViews();
   initMarketRealtimeStream();
   fetchMarketDataHttp();
 
+  // 4. Polling di sicurezza
   setInterval(() => {
     fetchMarketDataHttp();
   }, 1500);
 
+  // 5. Tasto Escape per chiudere le modali
   window.addEventListener('keydown', e => {
     if (e.key === 'Escape') {
       closeBuyModal();
