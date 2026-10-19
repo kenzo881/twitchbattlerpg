@@ -1452,6 +1452,93 @@ body.game-offline .controls-bar .filter-chip {
   body { padding-bottom: 70px !important; }
 }
 
+
+  /* AUTH LOCK CARD (LOGIN RICHIESTO) */
+  .auth-lock-card {
+    background: linear-gradient(135deg, rgba(20, 24, 38, 0.95), rgba(12, 14, 24, 0.98));
+    border: 1px solid rgba(168, 85, 247, 0.4);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(168, 85, 247, 0.15);
+    border-radius: 20px;
+    padding: 60px 30px;
+    margin: 30px auto;
+    max-width: 680px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    backdrop-filter: blur(12px);
+  }
+  .auth-lock-emblem {
+    font-size: 3.5rem;
+    filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.5));
+    animation: pulse-lock 3s ease-in-out infinite;
+  }
+  @keyframes pulse-lock {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .auth-lock-title {
+    font-family: 'Cinzel', serif;
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #f1f5f9;
+    letter-spacing: 1px;
+    margin: 0;
+  }
+  .auth-lock-desc {
+    color: #94a3b8;
+    font-size: 1rem;
+    line-height: 1.6;
+    max-width: 520px;
+    margin: 0;
+  }
+  .auth-lock-action {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    margin-top: 15px;
+  }
+  .btn-twitch-login-hero {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #9146ff;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(145, 70, 255, 0.4);
+    transition: all 0.25s ease;
+    text-decoration: none;
+  }
+  .btn-twitch-login-hero:hover {
+    background: #772ce8;
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(145, 70, 255, 0.6);
+  }
+  .btn-back-portal {
+    display: inline-flex;
+    align-items: center;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.15);
+    color: #e2e8f0;
+    padding: 12px 20px;
+    border-radius: 12px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.2s ease;
+  }
+  .btn-back-portal:hover {
+    background: rgba(255,255,255,0.15);
+    color: #fff;
+  }
+
 </style>
 </head>
 <body>
@@ -1513,7 +1600,28 @@ body.game-offline .controls-bar .filter-chip {
   </div>
 
   <!-- HERO SECTION -->
-  <div class="market-hero">
+  
+  <!-- SCHERMATA ACCESSO RICHIESTO (VISIBILE SOLO SE NON LOGGATO) -->
+  <div class="auth-lock-card" id="authLockCard" style="display:none;">
+    <div class="auth-lock-emblem">🔒</div>
+    <h2 class="auth-lock-title">Accesso Mercato Riservato</h2>
+    <p class="auth-lock-desc">
+      L'accesso al mercatino dei giocatori, l'acquisto e la vendita di armi, armature ed essenze sono riservati agli spettatori autenticati.
+    </p>
+    <div class="auth-lock-action">
+      <button class="btn-twitch-login-hero" onclick="loginWithTwitch()">
+        <svg style="width:18px;height:18px;fill:#fff;" viewBox="0 0 24 24">
+          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v14.571h4.286V24l4.286-5.143h3.428L24 13.714V0zm10.714 12.429l-2.571 2.571h-3.857L8.571 16.714v-1.714H4.286V1.714h18.428v10.715z"/>
+        </svg>
+        <span>Accedi con il tuo Account Twitch</span>
+      </button>
+      <a href="main.html" class="btn-back-portal">Torna al Portale</a>
+    </div>
+  </div>
+
+  <!-- CONTENITORE PRINCIPALE MERCATINO (VISIBILE SOLO SE LOGGATO) -->
+  <div id="mainMarketContainer">
+    <div class="market-hero">
     <div class="market-emblem">🏪</div>
     <h1>MERCATINO DEI GIOCATORI</h1>
     <p>Bancarella della community: compra o ritira armi, armature ed essenze messe in vendita dagli spettatori, o metti all'asta i tuoi oggetti per guadagnare oro in gioco.</p>
@@ -2482,6 +2590,17 @@ async function fetchTwitchUserProfile(token) {
 
 function renderUserBar() {
   const container = document.getElementById('twitchAuthContainer');
+  const lockCard = document.getElementById('authLockCard');
+  const mainMarket = document.getElementById('mainMarketContainer');
+
+  if (currentUser) {
+    if (lockCard) lockCard.style.display = 'none';
+    if (mainMarket) mainMarket.style.display = 'block';
+  } else {
+    if (lockCard) lockCard.style.display = 'flex';
+    if (mainMarket) mainMarket.style.display = 'none';
+  }
+
   if (!container) return;
 
   if (currentUser) {
@@ -2591,6 +2710,10 @@ async function initAuth() {
   const qUser = urlParams.get('user');
   if (qUser) {
     currentUser = { id: '00000000', login: qUser.toLowerCase().trim(), name: qUser.trim(), avatar: '' };
+    const lockCard = document.getElementById('authLockCard');
+    const mainMarket = document.getElementById('mainMarketContainer');
+    if (lockCard) lockCard.style.display = 'none';
+    if (mainMarket) mainMarket.style.display = 'block';
     renderUserBar();
     updateUserGoldUI();
     refreshAllViews();
