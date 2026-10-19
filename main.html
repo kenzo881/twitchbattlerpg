@@ -1,6 +1,64 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
+  <script>
+/* ═════════════════════════════════════════════════════════════
+   SSE MERGE HELPER v2
+   - Unisce i payload PATCH parziali allo stato in cache
+   - Salva l'ultimo payload live_data in window.__LIVE_GAME_DATA
+     così che getGameOperationalState() funzioni anche senza argomenti
+   ═════════════════════════════════════════════════════════════ */
+(function() {
+  if (typeof EventSource === 'undefined') return;
+
+  var originalAddEventListener = EventSource.prototype.addEventListener;
+
+  EventSource.prototype.addEventListener = function(type, listener, options) {
+    if (type !== 'patch' && type !== 'put') {
+      return originalAddEventListener.call(this, type, listener, options);
+    }
+
+    var sourceUrl = this.url || 'default';
+    var cacheKey  = '__SSE_CACHE_' + sourceUrl;
+    var self      = this;
+
+    var wrapped = function(e) {
+      try {
+        var payload = JSON.parse(e.data);
+        if (!payload || typeof payload.data !== 'object' || payload.data === null) {
+          return listener.call(self, e);
+        }
+
+        var incoming = payload.data;
+
+        if (type === 'put') {
+          window[cacheKey] = incoming;
+        } else {
+          window[cacheKey] = Object.assign({}, window[cacheKey] || {}, incoming);
+        }
+
+        if (sourceUrl.indexOf('live_data') !== -1) {
+          window.__LIVE_GAME_DATA = window[cacheKey];
+        }
+
+        var mergedEvent = {
+          data: JSON.stringify({ data: window[cacheKey] }),
+          type: type,
+          target: self
+        };
+        return listener.call(self, mergedEvent);
+      } catch(err) {
+        return listener.call(self, e);
+      }
+    };
+
+    return originalAddEventListener.call(this, type, wrapped, options);
+  };
+
+  console.log('[SSE Merge Helper v2] Attivo');
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Twitch Battle RPG — Portale Ufficiale</title>
@@ -985,18 +1043,24 @@
   const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
   let firebaseConnected = false;
 
-      function getGameOperationalState(data) {
-    const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-    if (!d) return 'offline';
-    const now = Date.now();
-    const hb = d.heartbeat || d.timestamp || 0;
-    if (!hb) return 'offline';
-    const diff = now - hb;
-    if (diff > 25000 || diff < -10000) return 'offline';
-    if (d.gameActive === true && !d.inTitle) return 'live';
-    if (d.inTitle === true || d.gameActive === false) return 'menu';
+function getGameOperationalState(data) {
+  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  if (!d) return 'offline';
+
+  const hb = d.heartbeat || d.timestamp || 0;
+  if (!hb) return 'offline';
+
+  const diff = Date.now() - hb;
+
+  if (diff > 20000) {
+    if (document.hidden) return (d.gameActive === false || d.inTitle) ? 'menu' : 'live';
     return 'offline';
   }
+
+  if (d.gameActive === true && !d.inTitle) return 'live';
+  if (d.inTitle === true || d.gameActive === false) return 'menu';
+  return 'menu';
+}
 
   function updateMainGameStatus(data) {
     const pill = document.getElementById('mainStatusPill');

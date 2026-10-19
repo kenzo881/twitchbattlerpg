@@ -1725,51 +1725,38 @@
     // ============================================================
     // STATO OPERATIVO DEL GIOCO (Heartbeat & Live Check)
     // ============================================================
-    function isGameAlive() {
-      const live = window.__LIVE_GAME_DATA;
-      if (!live) return null;
-      const hb = live.heartbeat || live.timestamp || 0;
-      if (!hb || hb === 0) return false;
-      const diff = Date.now() - hb;
-      if (diff < 0) return null;
-      if (diff < 20000) return true;
-      return false;
-    }
+function isGameAlive() {
+  const live = window.__LIVE_GAME_DATA;
+  if (!live) return null;
+  const hb = live.heartbeat || live.timestamp || 0;
+  if (!hb || hb === 0) return false;
+  const diff = Date.now() - hb;
+  if (diff < 0) return null;
+  if (diff > 20000) {
+    if (document.hidden) return true;
+    return false;
+  }
+  return true;
+}
 
-    function getGameOperationalState(data) {
-      const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-      if (!d) return 'offline';
+function getGameOperationalState(data) {
+  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
+  if (!d) return 'offline';
 
-      let hb = d.heartbeat;
-      if (!hb && typeof window !== 'undefined' && window.__LIVE_GAME_DATA) {
-        hb = window.__LIVE_GAME_DATA.heartbeat || window.__LIVE_GAME_DATA.timestamp;
-      }
-      hb = hb || d.timestamp || 0;
+  const hb = d.heartbeat || d.timestamp || 0;
+  if (!hb) return 'offline';
 
-      if (!hb) {
-        if (typeof window !== 'undefined' && window.__LAST_KNOWN_STATE) {
-          return window.__LAST_KNOWN_STATE;
-        }
-        return 'offline';
-      }
+  const diff = Date.now() - hb;
 
-      const diff = Date.now() - hb;
-      if (diff > 20000 || diff < -10000) return 'offline';
+  if (diff > 20000) {
+    if (document.hidden) return (d.gameActive === false || d.inTitle) ? 'menu' : 'live';
+    return 'offline';
+  }
 
-      const ga = (d.gameActive !== undefined) ? d.gameActive :
-                 (window.__LIVE_GAME_DATA ? window.__LIVE_GAME_DATA.gameActive : undefined);
-      const ti = (d.inTitle !== undefined) ? d.inTitle :
-                 (window.__LIVE_GAME_DATA ? window.__LIVE_GAME_DATA.inTitle : undefined);
-
-      let state = 'offline';
-      if (ga === true && !ti) state = 'live';
-      else if (ti === true || ga === false) state = 'menu';
-
-      if (typeof window !== 'undefined' && state !== 'offline') {
-        window.__LAST_KNOWN_STATE = state;
-      }
-      return state;
-    }
+  if (d.gameActive === true && !d.inTitle) return 'live';
+  if (d.inTitle === true || d.gameActive === false) return 'menu';
+  return 'menu';
+}
 
     // ============================================================
     // GESTIONE AUTENTICAZIONE TWITCH

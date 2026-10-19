@@ -2873,14 +2873,7 @@ function updateUserGoldUI() {
 const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
 
 function checkGameActive(data) {
-  const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-  if (!d) return false;
-  if (d.gameActive === false) return false;
-  if (d.inTitle === true) return false;
-  const ts = d.heartbeat || d.timestamp || 0;
-  if (!ts) return false;
-  const diff = Date.now() - ts;
-  return diff < 20000 && diff > -10000;
+  return getGameOperationalState(data) === 'live';
 }
 
 function updateGameStatusUI(active, data) {
@@ -4268,14 +4261,20 @@ function renderSlotsSchematic(groups) {
 function getGameOperationalState(data) {
   const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
   if (!d) return 'offline';
-  const now = Date.now();
+
   const hb = d.heartbeat || d.timestamp || 0;
   if (!hb) return 'offline';
-  const diff = now - hb;
-  if (diff > 20000 || diff < -10000) return 'offline';
+
+  const diff = Date.now() - hb;
+
+  if (diff > 20000) {
+    if (document.hidden) return (d.gameActive === false || d.inTitle) ? 'menu' : 'live';
+    return 'offline';
+  }
+
   if (d.gameActive === true && !d.inTitle) return 'live';
   if (d.inTitle === true || d.gameActive === false) return 'menu';
-  return 'offline';
+  return 'menu';
 }
 
 function showToast(title, msg) {

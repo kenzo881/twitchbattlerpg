@@ -4846,10 +4846,15 @@ function checkGameActive(data) {
   const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
   if (!d) return false;
   if (d.gameActive === false) return false;
+  if (d.inTitle === true) return false;
   const ts = d.heartbeat || d.timestamp || 0;
   if (!ts) return false;
   const diff = Date.now() - ts;
-  return diff < 20000 && diff > -10000;
+  if (diff > 20000) {
+    if (document.hidden) return true;
+    return false;
+  }
+  return true;
 }
 
 function updateGameStatusUI(active, data) {

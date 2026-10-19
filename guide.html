@@ -350,11 +350,6 @@ a.top:hover{text-decoration:underline}
       <span>TBRPG</span>
     </a>
 
-    <div class="sync-status-pill offline" id="syncStatusBadge">
-      <span class="sync-dot"></span>
-      <span id="syncStatusText">Offline</span>
-    </div>
-
     <div class="nav-links-row">
         <a href="main.html" class="nav-pill-btn">← Portale</a>
         <a href="battle.html" class="nav-pill-btn pill-battle" id="topNavBattleLink">Battaglia ⚔️</a>
@@ -365,13 +360,6 @@ a.top:hover{text-decoration:underline}
   </div>
 
   <div class="top-nav-right">
-    <!-- SALDO ORO UTENTE -->
-    <div class="user-gold-badge" id="userGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
-      <span class="coin-icon">🪙</span>
-      <span class="gold-val" id="topUserGold">--</span>
-      <span style="font-size: 0.72rem; color: #c9a227; text-transform: uppercase;">Oro</span>
-    </div>
-
     <!-- BADGE UTENTE TWITCH ALL'ESTREMO MARGINE DESTRO -->
     <div id="twitchAuthContainer"></div>
   </div>
@@ -808,68 +796,8 @@ Guida ufficiale - Twitch Battle RPG<br>
     }
   }
 
-  const FIREBASE_LIVE_URL = "https://twitch-battle-rpg-default-rtdb.europe-west1.firebasedatabase.app/live_data.json";
-
-    function getGameOperationalState(data) {
-    const d = data || (typeof window !== 'undefined' ? window.__LIVE_GAME_DATA : null);
-    if (!d) return 'offline';
-    const now = Date.now();
-    const hb = d.heartbeat || d.timestamp || 0;
-    if (!hb) return 'offline';
-    const diff = now - hb;
-    if (diff > 25000 || diff < -10000) return 'offline';
-    if (d.gameActive === true && !d.inTitle) return 'live';
-    if (d.inTitle === true || d.gameActive === false) return 'menu';
-    return 'offline';
-  }
-
-  function updateGuideGameStatus(data) {
-    const pill = document.getElementById("syncStatusBadge");
-    const text = document.getElementById("syncStatusText");
-    const goldVal = document.getElementById("topUserGold");
-    if (!pill || !text) return;
-
-    const state = getGameOperationalState(data);
-    if (state === 'live') {
-      pill.className = "sync-status-pill live";
-      text.innerText = "Live";
-    } else if (state === 'menu') {
-      pill.className = "sync-status-pill menu";
-      text.innerText = "Menu";
-    } else {
-      pill.className = "sync-status-pill offline";
-      text.innerText = "Offline";
-    }
-
-    if (goldVal) {
-      if (state !== 'live') {
-        goldVal.innerText = '--';
-      } else if (data && data.currency) {
-        const u = (currentUser ? (currentUser.login || currentUser.name || "") : "").toLowerCase();
-        if (u && data.currency[u] !== undefined) {
-          goldVal.innerText = data.currency[u].toLocaleString('it-IT');
-        } else {
-          goldVal.innerText = '--';
-        }
-      }
-    }
-  }
-
-  async function checkGuideLiveStatus() {
-    try {
-      const res = await fetch(FIREBASE_LIVE_URL + "?t=" + Date.now());
-      if (res.ok) {
-        const d = await res.json();
-        if (d && typeof d === 'object') window.__LIVE_GAME_DATA = d;
-        updateGuideGameStatus(d);
-      }
-    } catch(e) {}
-  }
-
   async function renderUserBar() {
     const container = document.getElementById('twitchAuthContainer');
-    const goldBox = document.getElementById('userGoldBox');
-    const goldVal = document.getElementById('topUserGold');
     if (!container) return;
     const stored = localStorage.getItem(STORAGE_USER_KEY);
 
@@ -887,28 +815,12 @@ Guida ufficiale - Twitch Battle RPG<br>
             <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
           </div>
         `;
-
-        if (goldBox && goldVal) {
-          goldBox.style.display = 'inline-flex';
-          const opState = getGameOperationalState(window.__LIVE_GAME_DATA);
-          const liveData = window.__LIVE_GAME_DATA;
-          if (opState === 'live' && liveData && liveData.currency) {
-            const myUser = (user.login || user.name || "").toLowerCase();
-            if (liveData.currency[myUser] !== undefined) {
-              goldVal.innerText = liveData.currency[myUser].toLocaleString('it-IT');
-              return;
-            }
-          }
-          goldVal.innerText = "--";
-        }
         return;
       } catch (e) {
         localStorage.removeItem(STORAGE_USER_KEY);
       }
     }
 
-    if (goldBox) goldBox.style.display = 'none';
-    if (goldVal) goldVal.innerText = '--';
     container.innerHTML = `
       <button class="btn-twitch-login" id="btnLoginTwitch" onclick="loginWithTwitch()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -959,25 +871,8 @@ Guida ufficiale - Twitch Battle RPG<br>
     }
   });
 
-  function pollLocalGuideStatus() {
-    if (window.location.protocol.startsWith("http")) return;
-    const old = document.getElementById("local-status-script-guide");
-    if (old) old.remove();
-    const s = document.createElement("script");
-    s.id = "local-status-script-guide";
-    s.src = "status_data.js?t=" + Date.now();
-    s.onload = () => {
-      if (window.__LIVE_GAME_DATA) updateGuideGameStatus(window.__LIVE_GAME_DATA);
-    };
-    document.head.appendChild(s);
-  }
-
   window.addEventListener('DOMContentLoaded', () => {
-    pollLocalGuideStatus();
-    setInterval(pollLocalGuideStatus, 2000);
     initAuth();
-    checkGuideLiveStatus();
-    setInterval(checkGuideLiveStatus, 2500);
   });
 </script>
 
