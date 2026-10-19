@@ -1994,6 +1994,7 @@ const MARKET_MAX_PRICE = 500000;
 let activeTab = 'browse';
 let activeCategoryFilter = 'all';
 let activeBagFilter = 'all';
+let currentInvTab = 'all';
 let searchQuery = '';
 let currentSort = 'price_asc';
 
@@ -2545,7 +2546,7 @@ try {
 } catch(e) {}
 
 // STATO DEL PERSONAGGIO ATTIVO
-
+let charState = null;
 
 function isMateriaEquippedAnywhere(uid) {
   if (!currentUser || !currentUser.login) return false;
@@ -3037,6 +3038,9 @@ async function fetchMarketDataHttp() {
   return false;
 }
 
+function fetchMarketData() { return fetchMarketDataHttp(); }
+function updateGoldDisplay(force) { return updateUserGoldUI(); }
+
 async function manualSyncMarket() {
   await fetchMarketDataHttp();
   setTimeout(() => {
@@ -3071,6 +3075,7 @@ function setMarketCategoryFilter(cat, btn) {
 
 function setBagFilter(cat, btn) {
   activeBagFilter = cat;
+  currentInvTab = cat;
   document.querySelectorAll('#tabPaneSell .filter-chip').forEach(c => c.classList.remove('active'));
   if (btn) btn.classList.add('active');
   renderBackpackForSale();
@@ -3285,6 +3290,21 @@ function renderBackpackForSale() {
   const quotaDisplay = document.getElementById("sellQuotaDisplay");
   if (!container) return;
 
+  // Check login valutato PRIMA di tutto per evitare stati errati o return prematuri
+  if (!currentUser) {
+    container.innerHTML = `
+      <div class="empty-state-box" style="grid-column: 1 / -1;">
+        <div class="empty-state-icon">👤</div>
+        <div class="empty-state-title">Accesso Richiesto</div>
+        <div class="empty-state-desc">Accedi con il tuo account Twitch per visualizzare il tuo zaino e mettere all'asta i tuoi oggetti.</div>
+        <button class="btn-action btn-action-buy" style="margin: 0 auto;" onclick="loginWithTwitch()">Accedi con Twitch 🟣</button>
+      </div>
+    `;
+    if (countText) countText.innerText = "Accedi per vedere lo zaino";
+    if (quotaDisplay) quotaDisplay.innerText = "-- / 5";
+    return;
+  }
+
   if (!isGameCurrentlyActive && checkGameActive()) {
     isGameCurrentlyActive = true;
     updateGameStatusUI(true);
@@ -3322,19 +3342,6 @@ function renderBackpackForSale() {
   if (statMy) statMy.innerText = `${myCount} / ${MARKET_MAX_LISTINGS}`;
   if (badgeMy) badgeMy.innerText = `${myCount}/${MARKET_MAX_LISTINGS}`;
 
-  if (!currentUser) {
-    container.innerHTML = `
-      <div class="empty-state-box" style="grid-column: 1 / -1;">
-        <div class="empty-state-icon">👤</div>
-        <div class="empty-state-title">Accesso Richiesto</div>
-        <div class="empty-state-desc">Accedi con il tuo account Twitch per visualizzare il tuo zaino e mettere all'asta i tuoi oggetti.</div>
-        <button class="btn-action btn-action-buy" style="margin: 0 auto;" onclick="loginWithTwitch()">Accedi con Twitch 🟣</button>
-      </div>
-    `;
-    if (countText) countText.innerText = "Accedi per vedere lo zaino";
-    return;
-  }
-
   const hasChar = !!(DB_OWNERS && DB_OWNERS[myLogin]);
   if (!hasChar) {
     container.innerHTML = `
@@ -3353,19 +3360,40 @@ function renderBackpackForSale() {
     return;
   }
 
-  const userInv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
-  let items = [];
+  let charState = null;
+  if (typeof buildCharStateFromUser === 'function' && myLogin) {
+    try {
+      charState = buildCharStateFromUser(myLogin);
+    } catch(e) {}
+  }
 
-  if (activeBagFilter === 'all' || activeBagFilter === 'gear') {
-    (userInv.equip || []).forEach(eq => {
-      items.push({ ...eq, isEssence: false });
-    });
+  const userInv = DB_INVENTORY[myLogin] || { equip: [], essenze: [] };
+  const currentInvTab = (typeof activeBagFilter !== 'undefined') ? activeBagFilter : 'all';
+
+  let items = [];
+  if (currentInvTab === 'all') {
+    const rawGear = (charState && charState.backpack && charState.backpack.gear)
+      ? charState.backpack.gear
+      : ((userInv && (userInv.equip || userInv.gear)) ? (userInv.equip || userInv.gear) : []);
+    const rawEssenze = (charState && charState.backpack && charState.backpack.essenze)
+      ? charState.backpack.essenze
+      : ((userInv && userInv.essenze) ? userInv.essenze : []);
+    const gear = (rawGear || []).map(g => ({ ...g, isEssence: false }));
+    const essenze = (rawEssenze || []).map(e => ({ ...e, isEssence: true }));
+    items = gear.concat(essenze);
+  } else if (currentInvTab === 'gear') {
+    const rawGear = (charState && charState.backpack && charState.backpack.gear)
+      ? charState.backpack.gear
+      : ((userInv && (userInv.equip || userInv.gear)) ? (userInv.equip || userInv.gear) : []);
+    items = (rawGear || []).map(g => ({ ...g, isEssence: false }));
+  } else if (currentInvTab === 'essence' || currentInvTab === 'essenze') {
+    const rawEssenze = (charState && charState.backpack && charState.backpack.essenze)
+      ? charState.backpack.essenze
+      : ((userInv && userInv.essenze) ? userInv.essenze : []);
+    items = (rawEssenze || []).map(e => ({ ...e, isEssence: true }));
   }
-  if (activeBagFilter === 'all' || activeBagFilter === 'essence') {
-    (userInv.essenze || []).forEach(es => {
-      items.push({ ...es, isEssence: true });
-    });
-  }
+
+  items = Array.isArray(items) ? items : [];
 
   const badgeBackpack = document.getElementById("badgeBackpackCount");
   if (badgeBackpack) badgeBackpack.innerText = items.length;
@@ -3748,6 +3776,16 @@ async function executeBuyAction() {
   const cmd = `!marketbuy ${uid}`;
   closeBuyModal();
   await executeMarketChatCommand(cmd);
+  setTimeout(() => {
+    if (typeof fetchMarketData === 'function') fetchMarketData();
+    if (typeof fetchMarketDataHttp === 'function') fetchMarketDataHttp();
+    if (typeof fetchGameDataHttp === 'function') fetchGameDataHttp();
+    if (typeof fetchBattleState === 'function') fetchBattleState();
+    // Fallback: se nel file c'è una funzione che aggiorna l'oro o la lista, richiamala
+    if (typeof updateGoldDisplay === 'function') updateGoldDisplay(true);
+    if (typeof updateUserGoldUI === 'function') updateUserGoldUI();
+    if (typeof refreshAllViews === 'function') refreshAllViews();
+  }, 2000);
 }
 
 // -------------------------------------------------------------
@@ -3857,6 +3895,16 @@ async function executeSellAction() {
   const cmd = `!marketsell ${selectedSellItem.uid} ${price}`;
   closeSellModal();
   await executeMarketChatCommand(cmd);
+  setTimeout(() => {
+    if (typeof fetchMarketData === 'function') fetchMarketData();
+    if (typeof fetchMarketDataHttp === 'function') fetchMarketDataHttp();
+    if (typeof fetchGameDataHttp === 'function') fetchGameDataHttp();
+    if (typeof fetchBattleState === 'function') fetchBattleState();
+    // Fallback: se nel file c'è una funzione che aggiorna l'oro o la lista, richiamala
+    if (typeof updateGoldDisplay === 'function') updateGoldDisplay(true);
+    if (typeof updateUserGoldUI === 'function') updateUserGoldUI();
+    if (typeof refreshAllViews === 'function') refreshAllViews();
+  }, 2000);
 }
 
 // -------------------------------------------------------------
@@ -3903,6 +3951,16 @@ async function executeWithdrawAction() {
   const cmd = `!marketcancel ${selectedWithdrawListing.uid}`;
   closeWithdrawModal();
   await executeMarketChatCommand(cmd);
+  setTimeout(() => {
+    if (typeof fetchMarketData === 'function') fetchMarketData();
+    if (typeof fetchMarketDataHttp === 'function') fetchMarketDataHttp();
+    if (typeof fetchGameDataHttp === 'function') fetchGameDataHttp();
+    if (typeof fetchBattleState === 'function') fetchBattleState();
+    // Fallback: se nel file c'è una funzione che aggiorna l'oro o la lista, richiamala
+    if (typeof updateGoldDisplay === 'function') updateGoldDisplay(true);
+    if (typeof updateUserGoldUI === 'function') updateUserGoldUI();
+    if (typeof refreshAllViews === 'function') refreshAllViews();
+  }, 2000);
 }
 
 // -------------------------------------------------------------
