@@ -2082,59 +2082,360 @@ h1 {
   color: #fff;
   line-height: 1.35;
 }
+
+/* TOP NAV UNIFICATA TBRPG */
+.top-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 14px;
+  background: rgba(18, 18, 32, 0.9);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(212, 175, 55, 0.25);
+  border-radius: 14px;
+  padding: 10px 18px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.top-nav-left {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nav-brand-title {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--gold-light, #ffd700);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+.nav-brand-title:hover {
+  filter: drop-shadow(0 0 6px rgba(212, 175, 55, 0.5));
+}
+
+.sync-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #94a3b8;
+}
+.sync-status-pill.active,
+.sync-status-pill.synced {
+  background: rgba(16, 185, 129, 0.15);
+  border-color: #10b981;
+  color: #34d399;
+}
+.sync-status-pill.offline {
+  background: rgba(239, 68, 68, 0.15);
+  border-color: #ef4444;
+  color: #f87171;
+}
+.sync-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.nav-links-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.nav-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+  cursor: pointer;
+}
+.nav-pill-btn:hover {
+  background: rgba(212, 175, 55, 0.12);
+  border-color: #d4af37;
+  color: #fef08a;
+  transform: translateY(-1px);
+}
+.nav-pill-btn.active {
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.25) 0%, rgba(201, 162, 39, 0.1) 100%);
+  border-color: #d4af37;
+  color: #fff;
+  font-weight: 600;
+}
+
+.top-nav-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.user-gold-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(212, 175, 55, 0.15) 0%, rgba(20, 20, 35, 0.8) 100%);
+  border: 1px solid rgba(212, 175, 55, 0.4);
+  padding: 5px 14px;
+  border-radius: 20px;
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.2);
+}
+.user-gold-badge .coin-icon {
+  font-size: 1.1rem;
+}
+.user-gold-badge .gold-val {
+  font-family: 'Cinzel', Georgia, serif;
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--gold-light, #ffd700);
+}
+
+.twitch-user-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(145, 70, 255, 0.14);
+  border: 1px solid rgba(145, 70, 255, 0.4);
+  padding: 4px 12px 4px 6px;
+  border-radius: 20px;
+}
+.twitch-avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #9146ff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #fff;
+  overflow: hidden;
+}
+.twitch-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.twitch-name {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: #fff;
+}
+.btn-logout {
+  background: none;
+  border: none;
+  color: #94a3b8;
+  font-size: 0.72rem;
+  cursor: pointer;
+  text-decoration: underline;
+  transition: color 0.2s;
+}
+.btn-logout:hover { color: #ff6b6b; }
+
+
+/* PULSANTI PRIORITARI TOP-NAV */
+.nav-pill-btn.pill-battle {
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  background: rgba(239, 68, 68, 0.1);
+  font-weight: 600;
+}
+.nav-pill-btn.pill-battle:hover {
+  background: rgba(239, 68, 68, 0.22);
+  border-color: #ef4444;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+}
+.nav-pill-btn.pill-battle.battle-pulse {
+  animation: navBattlePulse 1.8s infinite;
+}
+@keyframes navBattlePulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 16px rgba(239, 68, 68, 0.8), 0 0 20px rgba(245, 158, 11, 0.5); }
+}
+
+.nav-pill-btn.pill-status {
+  border-color: rgba(59, 130, 246, 0.45);
+  color: #93c5fd;
+  background: rgba(59, 130, 246, 0.1);
+  font-weight: 600;
+}
+.nav-pill-btn.pill-status:hover {
+  background: rgba(59, 130, 246, 0.22);
+  border-color: #60a5fa;
+  color: #fff;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+}
+
+.nav-pill-btn.pill-shop {
+  border-color: rgba(212, 175, 55, 0.35);
+  color: var(--gold-light, #ffd700);
+}
+.nav-pill-btn.pill-shop:hover {
+  background: rgba(212, 175, 55, 0.18);
+  border-color: var(--gold, #d4af37);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.35);
+}
+
+.nav-pill-btn.pill-market {
+  border-color: rgba(145, 70, 255, 0.35);
+  color: #c49eff;
+}
+.nav-pill-btn.pill-market:hover {
+  background: rgba(145, 70, 255, 0.18);
+  border-color: #a855f7;
+  box-shadow: 0 0 12px rgba(145, 70, 255, 0.35);
+}
+
+.nav-pill-btn.pill-guide {
+  color: #94a3b8;
+  opacity: 0.85;
+}
+.nav-pill-btn.pill-guide:hover {
+  opacity: 1;
+  color: #e2e8f0;
+}
+
+/* MOBILE BOTTOM BAR COMPATTA */
+.mobile-bottom-bar {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  background: rgba(14, 14, 24, 0.95);
+  backdrop-filter: blur(16px);
+  border-top: 1px solid rgba(212, 175, 55, 0.35);
+  padding: 8px 10px;
+  z-index: 9999;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.6);
+  justify-content: space-around;
+  align-items: center;
+}
+.mobile-nav-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-decoration: none;
+  color: #94a3b8;
+  font-size: 0.68rem;
+  font-weight: 600;
+  padding: 4px 6px;
+  border-radius: 8px;
+  transition: all 0.2s;
+  min-width: 50px;
+}
+.mobile-nav-item .mobile-nav-icon {
+  font-size: 1.25rem;
+  line-height: 1;
+}
+.mobile-nav-item:hover, .mobile-nav-item:active {
+  color: #fff;
+  transform: translateY(-2px);
+}
+.mobile-nav-item.item-portal { color: #cbd5e1; }
+.mobile-nav-item.item-battle { color: #fca5a5; }
+.mobile-nav-item.item-battle:hover { color: #ef4444; }
+.mobile-nav-item.item-status { color: #93c5fd; }
+.mobile-nav-item.item-status:hover { color: #3b82f6; }
+.mobile-nav-item.item-shop { color: #fde047; }
+.mobile-nav-item.item-market { color: #c49eff; }
+.mobile-nav-item.item-guide { color: #94a3b8; }
+
+@media (max-width: 768px) {
+  .mobile-bottom-bar { display: flex; }
+  body { padding-bottom: 70px !important; }
+}
+
 </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- TOP TWITCH BAR -->
-  <div class="twitch-bar">
-    <div class="twitch-brand">
-      <a href="main.html" class="btn-back-portal">← Portale</a>
-      <a href="shop.html" class="btn-back-portal" style="border-color: rgba(212,175,55,0.4); color: var(--gold);">🛒 Bottega</a>
-      <button class="btn-sync-live" id="btnSyncLive" onclick="manualSyncGameData()" title="Sincronizza subito con i dati del gioco">
-        🔄 Sincronizza Gioco
-      </button>
-      <span class="twitch-status-pill sync-pill" id="syncStatusBadge">
-        <span class="pulse-dot"></span> <span id="syncStatusText">Sincronizzato</span>
-      </span>
+  <!-- TOP NAV UNIFICATA -->
+  <div class="top-nav">
+    <div class="top-nav-left">
+      <a href="main.html" class="nav-brand-title">
+        <span>⚔️</span>
+        <span>TBRPG</span>
+      </a>
+
+      <div class="sync-status-pill offline" id="syncStatusBadge">
+        <span class="sync-dot"></span>
+        <span id="syncStatusText">Gioco Chiuso (Offline)</span>
+      </div>
+
+      <div class="nav-links-row">
+        <a href="main.html" class="nav-pill-btn">← Portale</a>
+        <a href="battle.html" class="nav-pill-btn pill-battle" id="topNavBattleLink">Battaglia ⚔️</a>
+        <a href="shop.html" class="nav-pill-btn pill-shop">Bottega 💰</a>
+        <a href="market.html" class="nav-pill-btn pill-market">Mercatino 🏪</a>
+        <a href="guide.html" class="nav-pill-btn pill-guide">Guida 📖</a>
+      </div>
     </div>
 
-    <!-- AZIONI RAPIDE PARTY (!play / !leave) -->
-    <div class="twitch-party-actions" id="twitchPartyActions">
-      <button type="button" class="btn-cmd-action btn-cmd-play" id="btnCmdPlay" onclick="triggerPlayCommand()" title="Unisciti alla battaglia o alla coda del party (!play)">
-        <span class="cmd-icon">⚔️</span>
-        <span class="cmd-label">!play</span>
-      </button>
-      <button type="button" class="btn-cmd-action btn-cmd-leave" id="btnCmdLeave" onclick="triggerLeaveCommand()" title="Esci dal party o dalla coda (!leave)">
-        <span class="cmd-icon">🚪</span>
-        <span class="cmd-label">!leave</span>
-      </button>
-    </div>
+    <div class="top-nav-right">
+      <!-- AZIONI RAPIDE PARTY (!play / !leave) -->
+      <div class="twitch-party-actions" id="twitchPartyActions">
+        <button type="button" class="btn-cmd-action btn-cmd-play" id="btnCmdPlay" onclick="triggerPlayCommand()" title="Unisciti alla battaglia o alla coda del party (!play)">
+          <span class="cmd-icon">⚔️</span>
+          <span class="cmd-label">!play</span>
+        </button>
+        <button type="button" class="btn-cmd-action btn-cmd-leave" id="btnCmdLeave" onclick="triggerLeaveCommand()" title="Esci dal party o dalla coda (!leave)">
+          <span class="cmd-icon">🚪</span>
+          <span class="cmd-label">!leave</span>
+        </button>
+      </div>
 
-    <div class="twitch-user-area">
       <!-- SALDO ORO UTENTE -->
-      <div class="user-balance" id="userGoldBox" style="display:none;">
-        🪙 <span id="userGoldAmount">0</span> Oro
+      <div class="user-gold-badge" id="userGoldBox" style="display:none;" title="Il tuo saldo Oro attuale in gioco">
+        <span class="coin-icon">🪙</span>
+        <span class="gold-val" id="userGoldAmount">0</span>
+        <span style="font-size: 0.72rem; color: var(--gold); text-transform: uppercase;">Oro</span>
       </div>
 
-      <!-- PROFILO UTENTE LOGGATO -->
-      <div id="twitchUserBox" class="user-profile" style="display:none;">
-        <div class="user-avatar" id="userAvatarBox">
-          <img id="userAvatarImg" src="" alt="Avatar" style="display:none;">
-          <span id="userAvatarInitials"></span>
+      <!-- BADGE UTENTE TWITCH ALL'ESTREMO MARGINE DESTRO -->
+      <div id="twitchAuthContainer">
+        <!-- PROFILO UTENTE LOGGATO -->
+        <div id="twitchUserBox" class="twitch-user-pill" style="display:none;">
+          <div class="twitch-avatar" id="userAvatarBox">
+            <img id="userAvatarImg" src="" alt="Avatar" style="display:none;">
+            <span id="userAvatarInitials"></span>
+          </div>
+          <div class="twitch-name" id="userDisplayName"></div>
+          <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
         </div>
-        <div class="user-name" id="userDisplayName"></div>
-        <button class="btn-logout" onclick="logoutTwitch()" title="Disconnetti account Twitch">Esci</button>
-      </div>
 
-      <!-- BOTTONE LOGIN TWITCH (QUANDO DISCONNESSO) -->
-      <button id="btnLoginTwitch" class="btn-twitch-login" onclick="loginWithTwitch()">
-        <svg style="width:16px;height:16px;fill:#fff;" viewBox="0 0 24 24">
-          <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
-        </svg>
-        Accedi con Twitch
-      </button>
+        <!-- BOTTONE LOGIN TWITCH (QUANDO DISCONNESSO) -->
+        <button id="btnLoginTwitch" class="btn-twitch-login" onclick="loginWithTwitch()">
+          <svg style="width:16px;height:16px;fill:#fff;" viewBox="0 0 24 24">
+            <path d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+          </svg>
+          <span>Accedi con Twitch</span>
+        </button>
+      </div>
     </div>
   </div>
 
@@ -2508,8 +2809,8 @@ const MATERIA_STAT_BONUSES = {
   "Extra": { dex: 1 },
   "Turbo MP": {}
 };
-const DB_WEAPONS = {"1": {"id": 1, "name": "Spadone di ferro", "iconIndex": 98, "desc": "Arma stage 1, Essenze 1x. [FRZ +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone1>\n<weapon damage>\n100\n</weapon damage>", "params": [0, 0, 1, 0, 0, 0, 0, 0], "price": 0}, "2": {"id": 2, "name": "Spadone di bronzo", "iconIndex": 1787, "desc": "Arma stage 2, Essenze 1x. [FRZ +3]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone2>\n<weapon damage>\n155\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 0, 0, 0, 0], "price": 450}, "3": {"id": 3, "name": "Spadone d'acciaio", "iconIndex": 1788, "desc": "Arma stage 3, Essenze 1x. [FRZ +5]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone3>\n<weapon damage>\n206\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 0, 0, 0, 0], "price": 1200}, "4": {"id": 4, "name": "Spadone di smeraldo", "iconIndex": 1789, "desc": "Arma stage 4, Essenze 1x. [FRZ +7]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone4>\n<weapon damage>\n292\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 0, 0, 0, 0], "price": 2000}, "5": {"id": 5, "name": "Spadone d'oro", "iconIndex": 1790, "desc": "Arma stage 5, Essenze 1x. [FRZ +9]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone5>\n<weapon damage>\n415\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 0, 0, 0, 0], "price": 3000}, "6": {"id": 6, "name": "Spadone leggendario", "iconIndex": 1791, "desc": "Arma stage 6, Essenze 1x. [FRZ +11]", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: spadone6>\n<weapon damage>\n589\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 11, 0, 0, 0, 0, 0], "price": 4500}, "7": {"id": 7, "name": "Pugnale di ferro", "iconIndex": 1264, "desc": "Arma stage 1, Essenze 1x [DEX +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger Base>\n<weapon damage>\n83\n</weapon damage>", "params": [0, 0, 1, 0, 0, 0, 1, 0], "price": 0}, "8": {"id": 8, "name": "Pugnale di bronzo", "iconIndex": 1266, "desc": "Arma stage 2, Essenze 1x [FRZ +2, DEX +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger2>\n<weapon damage>\n140\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 0, 0, 1, 0], "price": 450}, "9": {"id": 9, "name": "Pugnale d'acciaio", "iconIndex": 1271, "desc": "Arma stage 3, Essenze 1x [FRZ +4, DEX +2]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger3>\n<weapon damage>\n209\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 0, 0, 2, 0], "price": 1200}, "10": {"id": 10, "name": "Pugnale di smeraldo", "iconIndex": 1269, "desc": "Arma stage 4, Essenze 1x [FRZ +6, DEX +2]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger4>\n<weapon damage>\n283\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 0, 0, 2, 0], "price": 2000}, "11": {"id": 11, "name": "Pugnale d'oro", "iconIndex": 1267, "desc": "Arma stage 5, Essenze 1x [FRZ +8, DEX +3]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger5>\n<weapon damage>\n402\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 0, 0, 3, 0], "price": 3000}, "12": {"id": 12, "name": "Pugnale leggendario", "iconIndex": 1274, "desc": "Arma stage 6, Essenze 1x [FRZ +10, Dex +4]", "note": "<materia slots: 0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Dagger6>\n<weapon damage>\n571\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 11, 0, 0, 0, 4, 0], "price": 4500}, "13": {"id": 13, "name": "Ascia di ferro", "iconIndex": 1312, "desc": "Arma stage 1, Essenze 1x [FRZ +1, MAG +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe Base>\n<weapon damage>\n95\n</weapon damage>", "params": [0, 0, 1, 0, 1, 0, 0, 0], "price": 0}, "14": {"id": 14, "name": "Ascia di bronzo", "iconIndex": 1314, "desc": "Arma stage 2, Essenze 1x [FRZ +3, MAG +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe2>\n<weapon damage>\n143\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 1, 0, 0, 0], "price": 450}, "15": {"id": 15, "name": "Ascia d'acciaio", "iconIndex": 1319, "desc": "Arma stage 3, Essenze 1x [FRZ +5, MAG +1]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe3>\n<weapon damage>\n203\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 1, 0, 0, 0], "price": 1200}, "16": {"id": 16, "name": "Ascia di smeraldo", "iconIndex": 1317, "desc": "Arma stage 4, Essenze 1x [FRZ +7, MAG +2]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe4>\n<weapon damage>\n265\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 2, 0, 0, 0], "price": 2000}, "17": {"id": 17, "name": "Ascia d'oro", "iconIndex": 1315, "desc": "Arma stage 5, Essenze 1x [FRZ +9, MAG +2]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe5>\n<weapon damage>\n370\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 2, 0, 0, 0], "price": 3000}, "18": {"id": 18, "name": "Ascia leggendaria", "iconIndex": 1322, "desc": "Arma stage 6, Essenze 1x [FRZ +10, MAG +4]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Axe6>\n<weapon damage>\n550\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 10, 0, 4, 0, 0, 0], "price": 4500}, "19": {"id": 19, "name": "Bastone di legno", "iconIndex": 1344, "desc": "Arma stage 1, Essenze 1x [MAG +3]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane Base>\n<weapon damage>\n70\n</weapon damage>", "params": [0, 0, 0, 0, 3, 0, 0, 0], "price": 0}, "20": {"id": 20, "name": "Bastone di bronzo", "iconIndex": 1346, "desc": "Arma stage 2, Essenze 1x [FRZ +2, MAG +4]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane2>\n<weapon damage>\n100\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 2, 0, 4, 0, 0, 0], "price": 450}, "21": {"id": 21, "name": "Bastone d'acciaio", "iconIndex": 1351, "desc": "Arma stage 3, Essenze 1x [FRZ +3, MAG +6]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane3>\n<weapon damage>\n142\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 3, 0, 6, 0, 0, 0], "price": 1200}, "22": {"id": 22, "name": "Bastone di smeraldo", "iconIndex": 1349, "desc": "Arma stage 4, Essenze 1x [FRZ +4, MAG +7]", "note": "<materia slots: 0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane4>\n<weapon damage>\n202\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 4, 0, 7, 0, 0, 0], "price": 2000}, "23": {"id": 23, "name": "Bastone d'oro", "iconIndex": 1347, "desc": "Arma stage 5, Essenze 1x [FRZ +6, MAG +8]", "note": "<materia slots: 0=0, type weapon, growth 1, icon icon 1803, 1804>\n<Weapon Image: Cane5>\n<weapon damage>\n287\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 6, 0, 8, 0, 0, 0], "price": 3000}, "24": {"id": 24, "name": "Bastone leggendario", "iconIndex": 1354, "desc": "Arma stage 6, Essenze 1x [FRZ +8, MAG +12]", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1, icon 1803, 1804>\n<Weapon Image: Cane6>\n<weapon damage>\n408\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 8, 0, 12, 0, 0, 0], "price": 4500}, "38": {"id": 38, "name": "Mani Nude", "iconIndex": 77, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0}, "39": {"id": 39, "name": "Colossus", "iconIndex": 730, "desc": "Un blocco d'acciaio enorme, ma maneggevole, Materia 0x. [Atk 35, Cos +32, Mag +40, Dex -2%, Luk +10, Hit 107%]", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 0, icon 161, 162>\n<Weapon Image: 2handed1>\n<weapon damage>\n350\n</weapon damage>\n\n", "params": [0, 0, 0, 30, 40, 0, 0, 10], "price": 0}, "40": {"id": 40, "name": "Nova", "iconIndex": 1733, "desc": "Spada di origine sconosciuta. Ignora la riduzione danno Morph [Frz +10, Dex +2, Hit 98%] Materia 0.5x", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 0.5, icon 160, 161, 162>\n<Weapon Image: Futuristic Sword Green>\n<Conformer>", "params": [0, 0, 45, 0, 0, 0, 10, 0], "price": 0}};
-const DB_ARMORS = {"1":{"id":1,"name":"Essenze Magiche","etypeId":2,"iconIndex":1805,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"2":{"id":2,"name":"Fuoco","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ardenti, elemento Fuoco.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 2\naddedcut\nskills: 1:6, 2:7, 3:8\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"3":{"id":3,"name":"Ghiaccio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Gelanti, elemento Ghiaccio.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 3\naddedcut\nskills: 1:9, 2:10, 3:11\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"4":{"id":4,"name":"Tuono","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Folgoranti, elemento Tuono.","note":"<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 4\naddedcut\nskills: 1:12, 2:13, 3:14\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":600,"isMateria":true},"5":{"id":5,"name":"Terra","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Sismiche, elemento Terra.","note":"<materia>\nap: 4300, 7200, 19000, 7500\nprice: 52500\nelements: 6\naddedcut\nskills: 1:41, 2:42, 3:43\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"6":{"id":6,"name":"Veleno","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Tossiche, elemento Veleno.","note":"<materia>\nap: 4500, 8000, 19000, 6500\nprice: 48500\nelements: 11\nstates: 4\naddedcut\nskills: 1:27, 2:28, 3:29\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>","params":[0,0,-1,0,1,0,0,0],"price":1200,"isMateria":true},"7":{"id":7,"name":"Cura","etypeId":3,"iconIndex":1805,"desc":"Essenza di magie Ristorative.","note":"<materia>\nap: 3900, 6600, 16500, 7800\nprice: 42000\nskills: 1:15, 2:16, 3:17\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mdf +2>","params":[0,0,-1,0,1,0,0,0],"price":800,"isMateria":true},"8":{"id":8,"name":"Tempo","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Temporali,  aumento/diminuzione Destrezza.","note":"<materia>\nap: 7500, 18000, 25000 ,40000\nprice: 46500\nskills: 1:18, 2:19, 3:20\nstates: 11,13\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"9":{"id":9,"name":"Oblio","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Oblio, ad area, non elementale.","note":"<materia>\nap: 10300, 51700\nprice: 150000\nskills: 1:40, 2:39\naddedcut\n</materia>\n<bonus lv3:mat +4>","params":[0,0,-4,-2,4,2,0,0],"price":0,"isMateria":true},"10":{"id":10,"name":"Drain","etypeId":3,"iconIndex":1805,"desc":"Essenza di magia Drain.","note":"<materia>\nap: 40000\nprice: 52500\nskills: 1:21\naddedcut\n</materia>","params":[0,0,-2,0,2,0,0,0],"price":0,"isMateria":true},"11":{"id":11,"name":"Rinascita","etypeId":3,"iconIndex":1805,"desc":"Essenza di Magie di Resurrezione.","note":"<materia>\nap: 45000, 55000\nprice: 60000\nskills: 1:44, 2:45\n</materia>","params":[0,0,-2,-1,2,1,0,0],"price":0,"isMateria":true},"12":{"id":12,"name":"Pietra","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:34\nstates: 17\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"13":{"id":13,"name":"Morte","etypeId":3,"iconIndex":1805,"desc":"","note":"<materia>\nap: 45000\nprice: 50000\nskills: 1:47\nstates: 20\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"15":{"id":15,"name":"Essenze Fisiche","etypeId":2,"iconIndex":1821,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"16":{"id":16,"name":"Sabotaggio","etypeId":3,"iconIndex":1821,"desc":"Essenza di sabotaggio. Permette di debilitare i nemici.","note":"<materia>\ntype: command\nap: 3700, 24500\nprice: 50000\nskills: 1:57, 2:58\naddedcut\n</materia>\n<bonus lv3:atk +2, luk+2>","params":[0,0,0,0,0,0,0,0],"price":600,"isMateria":true},"17":{"id":17,"name":"Assalto","etypeId":3,"iconIndex":1821,"desc":"Essenza d'assalto. Permette di sferrare potenti pugnalate alle spalle.","note":"<materia>\ntype: command\nap: 34500\nprice: 50000\nskills: 1:59\naddedcut\n</materia>\n<bonus lv2:atk+ 3, luk +3>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"18":{"id":18,"name":"Bombardiere","etypeId":3,"iconIndex":1821,"desc":"Essenza che permette di lanciare bombe ai nemici. Munizioni limitate.","note":"<materia>\ntype: command\nap: 2800, 4700, 12500, 12000\nprice: 50000\nskills: 1:64\naddedcut\nbombAmmo\n</materia>\n<bonus lv4:atk +1, agi +1>\n<bonus lv5:atk +2, agi +2>","params":[0,0,0,0,0,0,1,0],"price":800,"isMateria":true},"21":{"id":21,"name":"Essenze Support","etypeId":2,"iconIndex":1807,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"22":{"id":22,"name":"Omni","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette a una Essenza collegata di poter essere usata su obbiettivi multipli.","note":"<materia>\ntype: support\nap: 7200, 10800, 16200, 22300\nprice: 55000\npaired: all\nlimited\n</materia>\n<bonus lv4:mp +25>\n<bonus lv5:mp +50>","params":[0,0,0,0,0,0,0,0],"price":1000,"isMateria":true},"23":{"id":23,"name":"Elemento","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare l' elemento dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 20000, 40000, 60000, 80000\nprice: 90000\npaired: elemental +30%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"24":{"id":24,"name":"Stato","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di associare lo stato alterato dell' Essenza collegata ad Arma o Armatura.","note":"<materia>\ntype: support\nap: 100000\nprice: 90000\npaired: added effect +15%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":1200,"isMateria":true},"25":{"id":25,"name":"Assorbi HP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in Hp dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nhpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"26":{"id":26,"name":"Assorbi MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette di recuperare parte del danno inflitto in MP dall' Essenza collegata.","note":"<materia>\ntype: support\nap: 100000\nprice: 97000\nmpabsorb\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"27":{"id":27,"name":"Turbo MP","etypeId":3,"iconIndex":1807,"desc":"Essenza che aumenta il danno dell' Essenza  collegata in %, ma ne aumenta il consumo di Mp.","note":"<materia>\ntype: support\nap: 10000, 30000, 60000, 120000\nprice: 105000\npaired: damage +10%\npaired: mp cost +10%\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"28":{"id":28,"name":"Final Attack","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 20000, 40000, 80000, 160000\nprice: 200000\npaired: final +100%\nlimited\n</materia>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"29":{"id":29,"name":"Extra","etypeId":3,"iconIndex":1807,"desc":"Essenza che permette un attacco extra dopo aver utilizzato l' Essenza collegata.","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: addedcut\n</materia>\n<bonus lv2:agi +3>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"30":{"id":30,"name":"Quadra","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: quadra\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"31":{"id":31,"name":"Costo Hp","etypeId":3,"iconIndex":1807,"desc":"","note":"<materia>\ntype: support\nap: 100000\nprice: 95000\npaired: hpcost\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"35":{"id":35,"name":"Essenze Summon","etypeId":2,"iconIndex":1806,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"41":{"id":41,"name":"Essenze Independent","etypeId":2,"iconIndex":1822,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"42":{"id":42,"name":"Vita Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Hp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: hp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"43":{"id":43,"name":"Mana Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Mp massimi in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: mp +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"44":{"id":44,"name":"Destrezza Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Destrezza in %.","note":"<materia>\nap: 10000, 20000, 30000 , 50000\nprice: 62000\neffect: agi +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"45":{"id":45,"name":"Fortuna Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Fortuna in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: luk +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"46":{"id":46,"name":"Magia Plus","etypeId":3,"iconIndex":1822,"desc":"Essenza che aumenta Magia in %.","note":"<materia>\nap: 15000, 25000, 35000 , 55000\nprice: 68000\neffect: mat +10%\nindependent\n</materia>","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":true},"47":{"id":47,"name":"Nemesi","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di contrattaccare gli attacchi fisici.","note":"<materia>\nap: 5800, 5200, 17800, 13200\nprice: 71000\neffect: cnt +20%\nindependent\n</materia>\n<bonus lv4:atk+ 1>\n<bonus lv5:atk+ 1, luk +1>","params":[0,0,0,0,0,0,1,0],"price":1500,"isMateria":true},"48":{"id":48,"name":"Egida","etypeId":3,"iconIndex":1822,"desc":"Essenza che permette di intercettare gli attacchi fisici verso gli alleati.","note":"<materia>\ntype: independent\nap: 4400, 4200, 16900, 14500\nprice: 100000\ncover\n</materia>\n<bonus lv4:def +1, mdf +1>\n<bonus lv5:def +1, hp +150>","params":[0,0,0,1,0,0,0,0],"price":600,"isMateria":true},"61":{"id":61,"name":"Armature e accessori","etypeId":2,"iconIndex":128,"desc":"","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"62":{"id":62,"name":"Anello Arcano","etypeId":3,"iconIndex":3682,"desc":"Anello con potere magico. [+3 MAG, +25 MP]","note":"","params":[0,25,0,0,3,0,0,0],"price":2500,"isMateria":""},"63":{"id":63,"name":"Anello Agile","etypeId":3,"iconIndex":3680,"desc":"Anello che aumentà la Destrezza e la Fortuna. [+3 DEX, +3 LUK]","note":"","params":[0,0,0,0,0,0,3,3],"price":2500,"isMateria":""},"64":{"id":64,"name":"Collana Resiliente","etypeId":3,"iconIndex":4535,"desc":"Collana che rende più resistente il portatore. [+3 COS, +3 RES]","note":"","params":[0,0,0,3,0,3,0,0],"price":2500,"isMateria":""},"65":{"id":65,"name":"Corazza di cuoio","etypeId":2,"iconIndex":4192,"desc":"Semplice, ma resistente, Essenze 1x, [+2 Cos, +2 Res].","note":"<materia slots: 0=0, type armor, growth 1, icon 161, 162>\n","params":[0,0,0,2,0,2,0,0],"price":0,"isMateria":false},"66":{"id":66,"name":"Anello Robusto","etypeId":3,"iconIndex":4537,"desc":"Sempre pronto a combattere! [+3 FRZ, +100 HP].","note":"","params":[100,0,3,0,0,0,0,0],"price":2500,"isMateria":""},"67":{"id":67,"name":"Guanti del Potere","etypeId":3,"iconIndex":4040,"desc":"Cambia l' attacco base in Doppio Attacco.","note":"<doubleAttack>","params":[0,0,4,0,0,0,2,0],"price":0,"isMateria":false},"68":{"id":68,"name":"Cappuccio Sdoppiante","etypeId":3,"iconIndex":4857,"desc":"Fornisce l' abilità Doppia Magia.","note":"\n\n","params":[0,0,0,0,4,2,0,0],"price":0,"isMateria":false},"69":{"id":69,"name":"Guanti Plasmanti","etypeId":3,"iconIndex":4072,"desc":"Fornisce l'abilità Trasforma.","note":"","params":[0,0,3,0,0,0,1,0],"price":0,"isMateria":""},"70":{"id":70,"name":"Scouter","etypeId":3,"iconIndex":699,"desc":"Strano congegno di provenienza sconosciuta. Fornisce l' abilità Esamina.","note":"","params":[0,0,1,0,1,0,0,0],"price":2000,"isMateria":""},"71":{"id":71,"name":"Bracciali del Titano","etypeId":3,"iconIndex":4991,"desc":"Enormi bracciali che appartenevano a un gigante. [Frz + 33%]","note":"","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":""},"72":{"id":72,"name":"Anello della Fenice","etypeId":3,"iconIndex":4736,"desc":"Fornisce Autoresurrezione una volta per battaglia.","note":"attenzione a spostarli , controllare\nAutolife.js","params":[0,0,0,2,0,5,0,0],"price":0,"isMateria":false},"73":{"id":73,"name":"Orecchino di Smeraldo","etypeId":3,"iconIndex":4602,"desc":"Aumenta i danni magici del 33%.","note":"attenzione a spostarli , controllare\nmagicalaccessorio.js","params":[0,0,0,0,20,0,0,0],"price":0,"isMateria":false},"74":{"id":74,"name":"Guanti del Ladro","etypeId":3,"iconIndex":142,"desc":"Fornisce l'abilità Furto.","note":"","params":[0,0,0,0,0,0,2,0],"price":0,"isMateria":""},"75":{"id":75,"name":"Vestiti","etypeId":2,"iconIndex":2218,"desc":"Vestiti base del personaggio [COS 0, RES 0]","note":"<materia slots: 0=0:0, type armor, growth 1, icon 1803, 1804>\n","params":[0,0,0,0,0,0,0,0],"price":0,"isMateria":false},"76":{"id":76,"name":"Giacca in pelle","etypeId":2,"iconIndex":2217,"desc":"Una semplice giacca in pelle [COS +1, RES +1]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 5>","params":[0,0,0,1,0,1,0,0],"price":300,"isMateria":false},"77":{"id":77,"name":"Armatura in pelle","etypeId":2,"iconIndex":2216,"desc":"Armatura in pelle di decente fattura [COS +3, RES +2]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 10>","params":[0,0,0,3,0,2,0,0],"price":800,"isMateria":false},"78":{"id":78,"name":"Cotta di maglia","etypeId":2,"iconIndex":2215,"desc":"Una cotta di maglia ben fatta [COS +6, RES +4]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 15>","params":[0,0,0,6,0,4,0,0],"price":1500,"isMateria":false},"79":{"id":79,"name":"Armatura in ferro","etypeId":2,"iconIndex":2214,"desc":"Un'armatura di ferro forgiata da un fabbro competente [COS +9, RES +6]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 20>","params":[0,0,0,9,0,6,0,0],"price":2200,"isMateria":false},"80":{"id":80,"name":"Armatura pesante","etypeId":2,"iconIndex":2213,"desc":"Un'armatura pesante di pregiata fattura  [COS +14, RES +9]","note":"<materia slots: 0=0, type armor, growth 1, icon 1803, 1804>\n<levelReq: 25>","params":[0,0,0,14,0,9,0,0],"price":3000,"isMateria":false}};
+const DB_WEAPONS = {"1": {"id": 1, "name": "Spadone di ferro", "iconIndex": 98, "desc": "Arma stage 1, Essenze 1x.\n[FRZ +1] 0=0", "note": "<materia slots: 0=0, type weapon, growth 1>\n<Weapon Image: spadone1>\n<weapon damage>\n100\n</weapon damage>", "params": [0, 0, 1, 0, 0, 0, 0, 0], "price": 0}, "2": {"id": 2, "name": "Spadone di bronzo", "iconIndex": 1787, "desc": "Arma stage 2, Essenze 1x.\n[FRZ +3] 0=0:0", "note": "<materia slots: 0=0:0, type weapon, growth 1>\n<Weapon Image: spadone2>\n<weapon damage>\n155\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 0, 0, 0, 0], "price": 900}, "3": {"id": 3, "name": "Spadone d'acciaio", "iconIndex": 1788, "desc": "Arma stage 3, Essenze 1x.\n[FRZ +5, DEX+1] 0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: spadone3>\n<weapon damage>\n206\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 0, 0, 1, 0], "price": 2700}, "4": {"id": 4, "name": "Spadone di smeraldo", "iconIndex": 1789, "desc": "Arma stage 4, Essenze 1x.\n[FRZ +7, DEX +1] 0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: spadone4>\n<weapon damage>\n292\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 0, 0, 1, 0], "price": 5500}, "5": {"id": 5, "name": "Spadone d'oro", "iconIndex": 1790, "desc": "Arma stage 5, Essenze 1x.\n[FRZ +9, DEX +2] 0=0:0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: spadone5>\n<weapon damage>\n415\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 0, 0, 2, 0], "price": 9500}, "6": {"id": 6, "name": "Spadone leggendario", "iconIndex": 1791, "desc": "Arma stage 6, Essenze 1x.\n[FRZ +11, DEX +2] 0=0:0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: spadone6>\n<weapon damage>\n589\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 11, 0, 0, 0, 2, 0], "price": 15000}, "7": {"id": 7, "name": "Pugnale di ferro", "iconIndex": 1264, "desc": "Arma stage 1, Essenze 1x\n[FRZ +1, DEX +1] 0=0", "note": "<materia slots: 0=0, type weapon, growth 1>\n<Weapon Image: Dagger Base>\n<weapon damage>\n83\n</weapon damage>", "params": [0, 0, 1, 0, 0, 0, 1, 0], "price": 0}, "8": {"id": 8, "name": "Pugnale di bronzo", "iconIndex": 1266, "desc": "Arma stage 2, Essenze 1x\n[FRZ +3, DEX +1] 0=0:0", "note": "<materia slots: 0=0:0, type weapon, growth 1>\n<Weapon Image: Dagger2>\n<weapon damage>\n140\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 0, 0, 1, 0], "price": 900}, "9": {"id": 9, "name": "Pugnale d'acciaio", "iconIndex": 1271, "desc": "Arma stage 3, Essenze 1x\n[FRZ +5, DEX +2] 0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Dagger3>\n<weapon damage>\n209\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 0, 0, 2, 0], "price": 2700}, "10": {"id": 10, "name": "Pugnale di smeraldo", "iconIndex": 1269, "desc": "Arma stage 4, Essenze 1x\n[FRZ +7, DEX +2] 0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Dagger4>\n<weapon damage>\n283\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 0, 0, 2, 0], "price": 5500}, "11": {"id": 11, "name": "Pugnale d'oro", "iconIndex": 1267, "desc": "Arma stage 5, Essenze 1x\n[FRZ +9, DEX +3] 0=0:0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Dagger5>\n<weapon damage>\n402\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 0, 0, 3, 0], "price": 9500}, "12": {"id": 12, "name": "Pugnale leggendario", "iconIndex": 1274, "desc": "Arma stage 6, Essenze 1x\n[FRZ +11, Dex +4] 0=0:0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Dagger6>\n<weapon damage>\n571\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 11, 0, 0, 0, 4, 0], "price": 15000}, "13": {"id": 13, "name": "Ascia di ferro", "iconIndex": 1312, "desc": "Arma stage 1, Essenze 1x [FRZ +1, MAG +1]", "note": "<materia slots: 0=0, type weapon, growth 1>\n<Weapon Image: Axe Base>\n<weapon damage>\n95\n</weapon damage>", "params": [0, 0, 1, 0, 1, 0, 0, 0], "price": 0}, "14": {"id": 14, "name": "Ascia di bronzo", "iconIndex": 1314, "desc": "Arma stage 2, Essenze 1x\n[FRZ +3, MAG +2] 0=0:0", "note": "<materia slots: 0=0:0, type weapon, growth 1>\n<Weapon Image: Axe2>\n<weapon damage>\n143\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 3, 0, 2, 0, 0, 0], "price": 900}, "15": {"id": 15, "name": "Ascia d'acciaio", "iconIndex": 1319, "desc": "Arma stage 3, Essenze 1x\n[FRZ +5, MAG +3] 0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Axe3>\n<weapon damage>\n203\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 5, 0, 3, 0, 0, 0], "price": 2700}, "16": {"id": 16, "name": "Ascia di smeraldo", "iconIndex": 1317, "desc": "Arma stage 4, Essenze 1x\n[FRZ +7, MAG +4] 0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Axe4>\n<weapon damage>\n265\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 7, 0, 4, 0, 0, 0], "price": 5500}, "17": {"id": 17, "name": "Ascia d'oro", "iconIndex": 1315, "desc": "Arma stage 5, Essenze 1x\n[FRZ +9, MAG +5] 0=0:0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Axe5>\n<weapon damage>\n370\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 9, 0, 5, 0, 0, 0], "price": 9500}, "18": {"id": 18, "name": "Ascia leggendaria", "iconIndex": 1322, "desc": "Arma stage 6, Essenze 1x\n[FRZ +10, MAG +6] 0=0:0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Axe6>\n<weapon damage>\n550\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 10, 0, 6, 0, 0, 0], "price": 15000}, "19": {"id": 19, "name": "Bastone di legno", "iconIndex": 1344, "desc": "Arma stage 1, Essenze 1x\n[MAG +3] 0=0", "note": "<materia slots: 0=0, type weapon, growth 1>\n<Weapon Image: Cane Base>\n<weapon damage>\n70\n</weapon damage>", "params": [0, 0, 0, 0, 3, 0, 0, 0], "price": 0}, "20": {"id": 20, "name": "Bastone di bronzo", "iconIndex": 1346, "desc": "Arma stage 2, Essenze 1x\n[FRZ +2, MAG +4] 0=0:0", "note": "<materia slots: 0=0:0, type weapon, growth 1>\n<Weapon Image: Cane2>\n<weapon damage>\n100\n</weapon damage>\n<levelReq: 5>", "params": [0, 0, 2, 0, 4, 0, 0, 0], "price": 900}, "21": {"id": 21, "name": "Bastone d'acciaio", "iconIndex": 1351, "desc": "Arma stage 3, Essenze 1x\n[FRZ +3, MAG +6] 0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Cane3>\n<weapon damage>\n142\n</weapon damage>\n<levelReq: 10>", "params": [0, 0, 3, 0, 6, 0, 0, 0], "price": 2700}, "22": {"id": 22, "name": "Bastone di smeraldo", "iconIndex": 1349, "desc": "Arma stage 4, Essenze 1x\n[FRZ +4, MAG +7] 0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Cane4>\n<weapon damage>\n202\n</weapon damage>\n<levelReq: 15>", "params": [0, 0, 4, 0, 7, 0, 0, 0], "price": 5500}, "23": {"id": 23, "name": "Bastone d'oro", "iconIndex": 1347, "desc": "Arma stage 5, Essenze 1x\n[FRZ +6, MAG +8] 0=0:0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 1>\n<Weapon Image: Cane5>\n<weapon damage>\n287\n</weapon damage>\n<levelReq: 20>", "params": [0, 0, 6, 0, 8, 0, 0, 0], "price": 9500}, "24": {"id": 24, "name": "Bastone leggendario", "iconIndex": 1354, "desc": "Arma stage 6, Essenze 1x\n[FRZ +8, MAG +12] 0=0:0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 1>\n<Weapon Image: Cane6>\n<weapon damage>\n408\n</weapon damage>\n<levelReq: 25>", "params": [0, 0, 8, 0, 12, 0, 0, 0], "price": 15000}, "38": {"id": 38, "name": "Mani Nude", "iconIndex": 77, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0}, "39": {"id": 39, "name": "Colossus", "iconIndex": 730, "desc": "Un blocco d'acciaio enorme, ma maneggevole, Materia 0x.\n[Atk 35, Cos +32, Mag +40, Dex -2%, Luk +10, Hit 107%]", "note": "<materia slots: 0=0:0=0:0=0:0=0, type weapon, growth 0, icon 161, 162>\n<Weapon Image: 2handed1>\n<weapon damage>\n350\n</weapon damage>\n\n", "params": [0, 0, 0, 30, 40, 0, 0, 10], "price": 0}, "40": {"id": 40, "name": "Nova", "iconIndex": 1733, "desc": "Spada di origine sconosciuta. Ignora la riduzione\ndanno Morph [Frz +10, Dex +2, Hit 98%] Materia 0.5x", "note": "<materia slots: 0=0:0=0:0=0:0, type weapon, growth 0.5, icon 160, 161, 162>\n<Weapon Image: Futuristic Sword Green>\n<Conformer>", "params": [0, 0, 45, 0, 0, 0, 10, 0], "price": 0}};
+const DB_ARMORS = {"1": {"id": 1, "name": "Essenze Magiche", "etypeId": 2, "iconIndex": 1805, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "2": {"id": 2, "name": "Fuoco", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Ardenti, elemento Fuoco.", "note": "<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 2\naddedcut\nskills: 1:6, 2:7, 3:8\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 600, "isMateria": true}, "3": {"id": 3, "name": "Ghiaccio", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Gelanti, elemento Ghiaccio.", "note": "<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 3\naddedcut\nskills: 1:9, 2:10, 3:11\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 600, "isMateria": true}, "4": {"id": 4, "name": "Tuono", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Folgoranti, elemento Tuono.", "note": "<materia>\nap: 3600, 6400, 17000, 7800\nprice: 40500\nelements: 4\naddedcut\nskills: 1:12, 2:13, 3:14\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 600, "isMateria": true}, "5": {"id": 5, "name": "Terra", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Sismiche, elemento Terra.", "note": "<materia>\nap: 4300, 7200, 19000, 7500\nprice: 52500\nelements: 6\naddedcut\nskills: 1:41, 2:42, 3:43\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 1000, "isMateria": true}, "6": {"id": 6, "name": "Veleno", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Tossiche, elemento Veleno.", "note": "<materia>\nap: 4500, 8000, 19000, 6500\nprice: 48500\nelements: 11\nstates: 4\naddedcut\nskills: 1:27, 2:28, 3:29\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mat +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 1000, "isMateria": true}, "7": {"id": 7, "name": "Cura", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magie Ristorative.", "note": "<materia>\nap: 3900, 6600, 16500, 7800\nprice: 42000\nskills: 1:15, 2:16, 3:17\n</materia>\n<bonus lv4:mat +1>\n<bonus lv5:mdf +2>", "params": [0, 0, -1, 0, 1, 0, 0, 0], "price": 800, "isMateria": true}, "8": {"id": 8, "name": "Tempo", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magia Temporali, \naumento/diminuzione Destrezza.", "note": "<materia>\nap: 7500, 18000, 25000 ,40000\nprice: 46500\nskills: 1:18, 2:19, 3:20\nstates: 11,13\n</materia>", "params": [0, 0, -2, -1, 2, 1, 0, 0], "price": 0, "isMateria": true}, "9": {"id": 9, "name": "Oblio", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magia Oblio, ad area, non elementale.", "note": "<materia>\nap: 10300, 51700\nprice: 150000\nskills: 1:40, 2:39\naddedcut\n</materia>\n<bonus lv3:mat +4>", "params": [0, 0, -4, -2, 4, 2, 0, 0], "price": 0, "isMateria": true}, "10": {"id": 10, "name": "Drain", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di magia Drain.", "note": "<materia>\nap: 40000\nprice: 52500\nskills: 1:21\naddedcut\n</materia>", "params": [0, 0, -2, 0, 2, 0, 0, 0], "price": 0, "isMateria": true}, "11": {"id": 11, "name": "Rinascita", "etypeId": 3, "iconIndex": 1805, "desc": "Essenza di Magie di Resurrezione.", "note": "<materia>\nap: 45000, 55000\nprice: 60000\nskills: 1:44, 2:45\n</materia>", "params": [0, 0, -2, -1, 2, 1, 0, 0], "price": 0, "isMateria": true}, "12": {"id": 12, "name": "Pietra", "etypeId": 3, "iconIndex": 1805, "desc": "", "note": "<materia>\nap: 45000\nprice: 50000\nskills: 1:34\nstates: 17\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "13": {"id": 13, "name": "Morte", "etypeId": 3, "iconIndex": 1805, "desc": "", "note": "<materia>\nap: 45000\nprice: 50000\nskills: 1:47\nstates: 20\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "15": {"id": 15, "name": "Essenze Fisiche", "etypeId": 2, "iconIndex": 1821, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "16": {"id": 16, "name": "Sabotaggio", "etypeId": 3, "iconIndex": 1821, "desc": "Essenza di sabotaggio. Permette di debilitare i nemici.", "note": "<materia>\ntype: command\nap: 3700, 24500\nprice: 50000\nskills: 1:57, 2:58\naddedcut\n</materia>\n<bonus lv3:atk +2, luk+2>", "params": [0, 0, 0, 0, 0, 0, 1, 0], "price": 600, "isMateria": true}, "17": {"id": 17, "name": "Assalto", "etypeId": 3, "iconIndex": 1821, "desc": "Essenza d'assalto. Permette di sferrare\npotenti attacchi alle spalle.", "note": "<materia>\ntype: command\nap: 35000\nprice: 50000\nskills: 1:59\naddedcut\n</materia>\n<bonus lv2:atk+ 3, luk +3>", "params": [0, 0, 0, 0, 0, 0, 0, 1], "price": 1200, "isMateria": true}, "18": {"id": 18, "name": "Bombardiere", "etypeId": 3, "iconIndex": 1821, "desc": "Essenza che permette di lanciare bombe ai nemici.\nMunizioni limitate.", "note": "<materia>\ntype: command\nap: 2800, 4700, 12000, 12500\nprice: 50000\nskills: 1:64\naddedcut\nbombAmmo\n</materia>\n<bonus lv4:atk +1, agi +1>\n<bonus lv5:atk +2, agi +2>", "params": [0, 0, 0, 0, 0, 0, 1, 0], "price": 800, "isMateria": true}, "21": {"id": 21, "name": "Essenze Support", "etypeId": 2, "iconIndex": 1807, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "22": {"id": 22, "name": "Omni", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette a una Essenza collegata di\npoter essere usata su obbiettivi multipli.", "note": "<materia>\ntype: support\nap: 7200, 10800, 16200, 22300\nprice: 55000\npaired: all\nlimited\n</materia>\n<bonus lv4:mp +15>\n<bonus lv5:mp +35>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 800, "isMateria": true}, "23": {"id": 23, "name": "Elemento", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette di associare l' elemento\ndell' Essenza collegata ad Arma o Armatura.", "note": "<materia>\ntype: support\nap: 3500, 6500, 15000, 12000\nprice: 90000\npaired: elemental +30%\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 1000, "isMateria": true}, "24": {"id": 24, "name": "Stato", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette di associare lo stato alterato\ndell' Essenza collegata ad Arma o Armatura.", "note": "<materia>\ntype: support\nap: 45000\nprice: 90000\npaired: added effect +15%\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 1000, "isMateria": true}, "25": {"id": 25, "name": "Assorbi HP", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette di recuperare parte del\ndanno inflitto in PV dall' Essenza collegata.", "note": "<materia>\ntype: support\nap: 50000\nprice: 97000\nhpabsorb\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 7500, "isMateria": true}, "26": {"id": 26, "name": "Assorbi MP", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette di recuperare parte del\ndanno inflitto in PM dall' Essenza collegata.", "note": "<materia>\ntype: support\nap: 50000\nprice: 97000\nmpabsorb\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 7500, "isMateria": true}, "27": {"id": 27, "name": "Turbo MP", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che aumenta il danno dell' Essenza \ncollegata in %, ma ne aumenta il consumo di PM.", "note": "<materia>\ntype: support\nap: 10000, 30000, 60000, 120000\nprice: 105000\npaired: damage +10%\npaired: mp cost +10%\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "28": {"id": 28, "name": "Final Attack", "etypeId": 3, "iconIndex": 1807, "desc": "", "note": "<materia>\ntype: support\nap: 20000, 40000, 80000, 160000\nprice: 200000\npaired: final +100%\nlimited\n</materia>\n", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "29": {"id": 29, "name": "Extra", "etypeId": 3, "iconIndex": 1807, "desc": "Essenza che permette un attacco extra dopo aver\nutilizzato l' Essenza collegata.", "note": "<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: addedcut\n</materia>\n<bonus lv2:agi +3>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "30": {"id": 30, "name": "Quadra", "etypeId": 3, "iconIndex": 1807, "desc": "", "note": "<materia>\ntype: support\nap: 200000\nprice: 205000\npaired: quadra\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "31": {"id": 31, "name": "Costo Hp", "etypeId": 3, "iconIndex": 1807, "desc": "", "note": "<materia>\ntype: support\nap: 100000\nprice: 95000\npaired: hpcost\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "35": {"id": 35, "name": "Essenze Summon", "etypeId": 2, "iconIndex": 1806, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "41": {"id": 41, "name": "Essenze Independent", "etypeId": 2, "iconIndex": 1822, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "42": {"id": 42, "name": "Vita Plus", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che aumenta Hp massimi in %.", "note": "<materia>\nap: 4800, 5300, 15000, 25000\nprice: 62000\neffect: hp +10%\ntype: independent\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "43": {"id": 43, "name": "Mana Plus", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che aumenta Mp massimi in %.", "note": "<materia>\nap: 4800, 5300, 15000, 25000\nprice: 62000\neffect: mp +10%\ntype: independent\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 7500, "isMateria": true}, "44": {"id": 44, "name": "Destrezza Plus", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che aumenta Destrezza in %.", "note": "<materia>\nap: 4800, 5300, 15000, 25000\nprice: 62000\neffect: agi +10%\ntype: independent\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 7500, "isMateria": true}, "45": {"id": 45, "name": "Fortuna Plus", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che aumenta Fortuna in %.", "note": "<materia>\nap: 4800, 5300, 15000, 25000\nprice: 68000\neffect: luk +10%\ntype: independent\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 7500, "isMateria": true}, "46": {"id": 46, "name": "Magia Plus", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che aumenta Magia in %.", "note": "<materia>\nap: 4800, 5300, 15000, 25000\nprice: 68000\neffect: mat +10%\ntype: independent\n</materia>", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": true}, "47": {"id": 47, "name": "Nemesi", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che permette di contrattaccare gli\nattacchi fisici. Massimo 2 hanno effetto.", "note": "<materia>\nap: 5600, 5200, 17800, 13400\nprice: 71000\neffect: cnt +20% 'Contrattacco'\ntype: independent\n</materia>\n<bonus lv4:atk+ 1>\n<bonus lv5:atk+ 1, luk +1>", "params": [0, 0, 0, 0, 0, 0, 1, 0], "price": 1500, "isMateria": true}, "48": {"id": 48, "name": "Egida", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che permette di intercettare gli\nattacchi fisici verso gli alleati.", "note": "<materia>\ntype: independent\nap: 4400, 4200, 16900, 14500\nprice: 100000\ncover\n</materia>\n<bonus lv4:def +1, mdf +1>\n<bonus lv5:def +1, hp +150>", "params": [0, 0, 0, 1, 0, 0, 0, 0], "price": 600, "isMateria": true}, "61": {"id": 61, "name": "Armature e accessori", "etypeId": 2, "iconIndex": 128, "desc": "", "note": "", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "62": {"id": 62, "name": "Anello Arcano", "etypeId": 3, "iconIndex": 3682, "desc": "Anello con potere magico. [+1 MAG, +15 MP]", "note": "", "params": [0, 15, 0, 0, 1, 0, 0, 0], "price": 0, "isMateria": ""}, "63": {"id": 63, "name": "Anello Agile", "etypeId": 3, "iconIndex": 3680, "desc": "Anello che aumentà la Destrezza e la Fortuna.\n[+1 DEX, +1 LUK]", "note": "", "params": [0, 0, 0, 0, 0, 0, 1, 1], "price": 0, "isMateria": ""}, "64": {"id": 64, "name": "Collana Resiliente", "etypeId": 3, "iconIndex": 4535, "desc": "Collana che rende più resistente il portatore.\n[+1 COS, +1 RES]", "note": "", "params": [0, 0, 0, 1, 0, 1, 0, 0], "price": 0, "isMateria": ""}, "65": {"id": 65, "name": "Corazza di cuoio", "etypeId": 2, "iconIndex": 4192, "desc": "Semplice, ma resistente, Essenze 1x, [+2 Cos, +2 Res].", "note": "<materia slots: 0=0, type armor, growth 1, icon 161, 162>\n", "params": [0, 0, 0, 2, 0, 2, 0, 0], "price": 0, "isMateria": false}, "66": {"id": 66, "name": "Anello Robusto", "etypeId": 3, "iconIndex": 4537, "desc": "Sempre pronto a combattere! [+1 FRZ, +25 HP].", "note": "", "params": [25, 0, 1, 0, 0, 0, 0, 0], "price": 0, "isMateria": ""}, "67": {"id": 67, "name": "Guanti del Potere", "etypeId": 3, "iconIndex": 4040, "desc": "Cambia l' attacco base in Doppio Attacco.", "note": "<doubleAttack>", "params": [0, 0, 4, 0, 0, 0, 2, 0], "price": 0, "isMateria": false}, "68": {"id": 68, "name": "Cappuccio Sdoppiante", "etypeId": 3, "iconIndex": 4857, "desc": "Fornisce l' abilità Doppia Magia.", "note": "\n\n", "params": [0, 0, 0, 0, 4, 2, 0, 0], "price": 0, "isMateria": false}, "69": {"id": 69, "name": "Guanti Plasmanti", "etypeId": 3, "iconIndex": 4072, "desc": "Fornisce l'abilità Trasforma.", "note": "", "params": [0, 0, 3, 0, 0, 0, 1, 0], "price": 0, "isMateria": ""}, "70": {"id": 70, "name": "Scouter", "etypeId": 3, "iconIndex": 699, "desc": "Strano congegno di provenienza sconosciuta.\nFornisce l' abilità Esamina.", "note": "", "params": [0, 0, 1, 0, 1, 0, 0, 0], "price": 0, "isMateria": ""}, "71": {"id": 71, "name": "Bracciali del Titano", "etypeId": 3, "iconIndex": 4991, "desc": "Enormi bracciali che appartenevano a un gigante.\n[Frz + 33%]", "note": "", "params": [0, 0, 0, 0, 0, 0, 1, 0], "price": 0, "isMateria": ""}, "72": {"id": 72, "name": "Anello della Fenice", "etypeId": 3, "iconIndex": 4736, "desc": "Fornisce Autoresurrezione una volta per battaglia.", "note": "attenzione a spostarli , controllare\nAutolife.js", "params": [0, 0, 0, 2, 0, 2, 0, 0], "price": 0, "isMateria": false}, "73": {"id": 73, "name": "Orecchino di Smeraldo", "etypeId": 3, "iconIndex": 4602, "desc": "Aumenta i danni magici del 33%.", "note": "attenzione a spostarli , controllare\nmagicalaccessorio.js", "params": [0, 0, 0, 0, 1, 0, 0, 0], "price": 0, "isMateria": false}, "74": {"id": 74, "name": "Guanti del Ladro", "etypeId": 3, "iconIndex": 142, "desc": "Fornisce l'abilità Furto.", "note": "", "params": [0, 0, 0, 0, 0, 0, 2, 0], "price": 0, "isMateria": ""}, "75": {"id": 75, "name": "Vestiti", "etypeId": 2, "iconIndex": 2218, "desc": "Stage 1 : vestiti base del personaggio \n[COS 0, RES 0] 0=0", "note": "<materia slots: 0=0, type armor, growth 1>\n", "params": [0, 0, 0, 0, 0, 0, 0, 0], "price": 0, "isMateria": false}, "76": {"id": 76, "name": "Giacca in pelle", "etypeId": 2, "iconIndex": 2217, "desc": "Stage 2 : giacca in pelle semplice\n[COS +1, RES +1] 0=0:0", "note": "<materia slots: 0=0:0, type armor, growth 1>\n<levelReq: 5>", "params": [0, 0, 0, 1, 0, 1, 0, 0], "price": 600, "isMateria": false}, "77": {"id": 77, "name": "Armatura in pelle", "etypeId": 2, "iconIndex": 2216, "desc": "Stage 3 : armatura in pelle di decente fattura\n[COS +3, RES +2] 0=0:0=0", "note": "<materia slots: 0=0:0=0, type armor, growth 1>\n<levelReq: 10>", "params": [0, 0, 0, 3, 0, 2, 0, 0], "price": 1800, "isMateria": false}, "78": {"id": 78, "name": "Cotta di maglia", "etypeId": 2, "iconIndex": 2215, "desc": "Stage 4 : cotta di maglia ben fatta \n[COS +6, RES +4] 0=0:0=0:0", "note": "<materia slots: 0=0:0=0:0, type armor, growth 1>\n<levelReq: 15>", "params": [0, 0, 0, 6, 0, 4, 0, 0], "price": 3500, "isMateria": false}, "79": {"id": 79, "name": "Armatura in ferro", "etypeId": 2, "iconIndex": 2214, "desc": "Stage 5 : armatura di ferro forgiata con cura\n[COS +9, RES +6] 0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0, type armor, growth 1>\n<levelReq: 20>", "params": [0, 0, 0, 9, 0, 6, 0, 0], "price": 6500, "isMateria": false}, "80": {"id": 80, "name": "Armatura pesante", "etypeId": 2, "iconIndex": 2213, "desc": "Stage 6 : armatura pesante di pregiata fattura \n[COS +14, RES +9] 0=0:0=0:0=0:0=0", "note": "<materia slots: 0=0:0=0:0=0:0=0, type armor, growth 1>\n<levelReq: 25>", "params": [0, 0, 0, 14, 0, 9, 0, 0], "price": 10000, "isMateria": false}, "49": {"id": 49, "name": "Impeto", "etypeId": 3, "iconIndex": 1822, "desc": "Essenza che permette di potenziare il personaggio\na scapito di PV e difese.", "note": "<materia>\ntype: independent\nap: 4000, 5200, 14500, 17500\nprice: 180000\n</materia>", "params": [0, 0, 1, 0, 1, 0, 0, 0], "price": 1500, "isMateria": true}, "81": {"id": 81, "name": "Anello dello Zefiro", "etypeId": 3, "iconIndex": 4714, "desc": "Per il mago che vuole essere veloce.\n[+1 DEX, +1 MAG]", "note": "", "params": [0, 0, 0, 0, 1, 0, 1, 0], "price": 0, "isMateria": false}, "82": {"id": 82, "name": "Bandana del Duellante", "etypeId": 3, "iconIndex": 4894, "desc": "Sei un pirata? [+1 FRZ, +1 DEX]", "note": "", "params": [0, 0, 1, 0, 0, 0, 1, 0], "price": 0, "isMateria": false}};
 const FALLBACK_OWNERS = {"test_bomb":{"slot":100,"class":"guerriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_altro":{"slot":101,"class":"mago","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_ladro":{"slot":102,"class":"ladro","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"test_avventuriero":{"slot":103,"class":"avventuriero","sprite":"Actor1","face":"Actor1","sv":"Actor1_1","level":30,"exp":0,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"ashen84":{"slot":10,"class":"ladro","sprite":"pg_mora_2","face":"pg_mora_2_face","sv":"pg_mora_2_sv","level":1,"exp":23,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"captainlover92":{"slot":11,"class":"avventuriero","sprite":"pg_biondo_2","face":"pg_biondo_2_face","sv":"pg_biondo_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]},"kenz088":{"slot":12,"class":"guerriero","sprite":"pg_bionda_2","face":"pg_bionda_2_face","sv":"pg_bionda_2_sv","level":1,"exp":26,"equips":[{"slotIndex":0,"etypeId":1,"itemId":0},{"slotIndex":1,"etypeId":2,"itemId":0},{"slotIndex":2,"etypeId":3,"itemId":0},{"slotIndex":3,"etypeId":3,"itemId":0}]}};
 const FALLBACK_INVENTORY = {};
 const FALLBACK_CURRENCY = {"test_altro":1322,"test_ladro":1322,"test_avventuriero":1322,"test_guerriero":111,"test_bomb":1127,"ashen84":84,"captainlover92":634,"kenz088":434};
@@ -5164,6 +5465,31 @@ window.addEventListener('DOMContentLoaded', () => {
   });
 });
 </script>
+
+
+<!-- BARRA FISSA IN BASSO PER MOBILE & SPLIT-SCREEN -->
+<nav class="mobile-bottom-bar" id="mobileBottomBar">
+  <a href="main.html" class="mobile-nav-item item-portal">
+    <span class="mobile-nav-icon">🚪</span>
+    <span class="mobile-nav-label">Portale</span>
+  </a>
+  <a href="battle.html" class="mobile-nav-item item-battle" id="mobBattleLink">
+    <span class="mobile-nav-icon">⚔️</span>
+    <span class="mobile-nav-label">Battaglia</span>
+  </a>
+  <a href="status.html" class="mobile-nav-item item-status" style="color:#60a5fa; font-weight:bold;">
+    <span class="mobile-nav-icon">🛡️</span>
+    <span class="mobile-nav-label">Status</span>
+  </a>
+  <a href="shop.html" class="mobile-nav-item item-shop">
+    <span class="mobile-nav-icon">💰</span>
+    <span class="mobile-nav-label">Bottega</span>
+  </a>
+  <a href="market.html" class="mobile-nav-item item-market">
+    <span class="mobile-nav-icon">🏪</span>
+    <span class="mobile-nav-label">Mercato</span>
+  </a>
+</nav>
 
 </body>
 </html>
