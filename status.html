@@ -4897,7 +4897,7 @@ function updateGameStatusUI(active, data) {
     }
     if (topSyncPill) {
       topSyncPill.className = "twitch-status-pill sync-pill synced";
-      if (topSyncText) topSyncText.innerText = inBattle ? "In Battaglia ⚔️" : "Gioco Attivo";
+      if (topSyncText) topSyncText.innerText = inBattle ? "In Battaglia ⚔️" : "Live";
     }
   } else if (liveData && liveData.inTitle) {
     if (banner) {
@@ -4979,7 +4979,7 @@ function updateSyncStatusBadge(synced) {
 
   if (synced && isGameCurrentlyActive) {
     badge.className = "twitch-status-pill sync-pill synced";
-    text.innerText = "Gioco Attivo";
+    text.innerText = "Live";
   } else {
     badge.className = "twitch-status-pill sync-pill offline";
     text.innerText = "Gioco Chiuso (Offline)";
