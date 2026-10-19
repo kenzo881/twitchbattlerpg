@@ -2528,7 +2528,7 @@ h1 {
 
       <div class="sync-status-pill offline" id="syncStatusBadge">
         <span class="sync-dot"></span>
-        <span id="syncStatusText">Gioco Chiuso (Offline)</span>
+        <span id="syncStatusText">Offline</span>
       </div>
 
       <div class="nav-links-row">
@@ -4934,7 +4934,7 @@ function updateGameStatusUI(active, data) {
     }
     if (topSyncPill) {
       topSyncPill.className = "twitch-status-pill sync-pill offline";
-      if (topSyncText) topSyncText.innerText = "Gioco Chiuso (Offline)";
+      if (topSyncText) topSyncText.innerText = "Offline";
     }
   }
 }
@@ -4989,7 +4989,7 @@ function updateSyncStatusBadge(synced) {
     text.innerText = "Live";
   } else {
     badge.className = "twitch-status-pill sync-pill offline";
-    text.innerText = "Gioco Chiuso (Offline)";
+    text.innerText = "Offline";
   }
 }
 
