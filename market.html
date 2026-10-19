@@ -10,6 +10,10 @@
    ───────────────────────────────────────────────────────────── */
 (function() {
   if (typeof EventSource === 'undefined') return;
+  try {
+    var savedLive = localStorage.getItem('__LIVE_GAME_DATA_CACHE');
+    if (savedLive) window.__LIVE_GAME_DATA = JSON.parse(savedLive);
+  } catch(e) {}
 
   var originalAddEventListener = EventSource.prototype.addEventListener;
 
@@ -42,6 +46,9 @@
         // (es. checkCanExecuteBattleCommand, openBuyModal, ecc.)
         if (sourceUrl.indexOf('live_data') !== -1) {
           window.__LIVE_GAME_DATA = window[cacheKey];
+          try {
+            localStorage.setItem('__LIVE_GAME_DATA_CACHE', JSON.stringify(window.__LIVE_GAME_DATA));
+          } catch(e) {}
         }
 
         var mergedEvent = {
