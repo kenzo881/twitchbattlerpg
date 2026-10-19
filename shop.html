@@ -2520,6 +2520,13 @@ document.getElementById("search").addEventListener("input", function(e) {
 renderTabs();
 renderGrid();
 window.addEventListener('DOMContentLoaded', () => {
+  if (window.__LIVE_GAME_DATA) {
+    // Aggiorna subito il badge visivo per evitare il flash Offline
+    if (typeof updateGameStatusUI === 'function') updateGameStatusUI(window.__LIVE_GAME_DATA);
+    // Applica subito i dati in cache per popolare la pagina
+    if (typeof applyLiveGameData === 'function') applyLiveGameData(window.__LIVE_GAME_DATA);
+    if (typeof applyIncomingGameData === 'function') applyIncomingGameData(window.__LIVE_GAME_DATA);
+  }
   initAuth();
   updateGameStatusUI(false);
   initFirebaseRealtimeStream();

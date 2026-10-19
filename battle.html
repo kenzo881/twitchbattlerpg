@@ -3507,6 +3507,9 @@ function getGameOperationalState(data) {
     // INIZIALIZZAZIONE ALL'AVVIO
     // ============================================================
     window.addEventListener("DOMContentLoaded", () => {
+      if (window.__LIVE_GAME_DATA) {
+        handleLiveGameStatus(window.__LIVE_GAME_DATA);
+      }
       pollLocalBattleStatus();
       setInterval(pollLocalBattleStatus, 2000);
       initAuth();

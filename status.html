@@ -5557,6 +5557,11 @@ function logoutTwitch() {
 
 // INIZIALIZZAZIONE ALL'AVVIO
 window.addEventListener('DOMContentLoaded', () => {
+  if (window.__LIVE_GAME_DATA) {
+    const initActive = checkGameActive(window.__LIVE_GAME_DATA);
+    updateGameStatusUI(initActive, window.__LIVE_GAME_DATA);
+    applyLiveGameData(window.__LIVE_GAME_DATA);
+  }
   initAuth();
   initFirebaseRealtimeStream();
 
