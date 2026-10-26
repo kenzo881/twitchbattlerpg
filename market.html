@@ -4060,6 +4060,29 @@ function openMateriaModal(uid, fromMarket = true) {
     }
   }
 
+  // FALLBACK: cerca l'essenza arricchita nel backpack ricalcolato al volo
+  if (!mat && currentUser && currentUser.login && typeof buildCharStateFromUser === 'function') {
+    try {
+      const tmpState = buildCharStateFromUser(currentUser.login.toLowerCase());
+      const bagMat = (tmpState && tmpState.backpack && Array.isArray(tmpState.backpack.essenze))
+        ? tmpState.backpack.essenze.find(x => x.uid === uid)
+        : null;
+      if (bagMat) {
+        mat = {
+          uid: bagMat.uid,
+          name: bagMat.name,
+          armorId: bagMat.armorId,
+          level: bagMat.level || 1,
+          currentPp: bagMat.currentPp || 0,
+          category: bagMat.category || "Magiche",
+          iconData: bagMat.iconData || "",
+          desc: bagMat.desc || "",
+          statBonus: bagMat.statBonus || {}
+        };
+      }
+    } catch(e) {}
+  }
+
   if (!mat) return;
 
   const dbData = getMateriaDbEntry(mat.name);
