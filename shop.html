@@ -2522,9 +2522,10 @@ renderGrid();
 window.addEventListener('DOMContentLoaded', () => {
   initAuth();
   if (window.__LIVE_GAME_DATA) {
-    // Aggiorna subito il badge visivo per evitare il flash Offline
-    if (typeof updateGameStatusUI === 'function') updateGameStatusUI(window.__LIVE_GAME_DATA);
-    // Applica subito i dati in cache per popolare la pagina
+    // FIX: applyLiveGameData aggiorna già il banner internamente (via updateGameStatusUI).
+    // La chiamata esplicita a updateGameStatusUI settava isGameCurrentlyActive=true PRIMA di applyLiveGameData,
+    // facendo credere a applyLiveGameData che lo stato non fosse cambiato (wasActive===active) e impedendo
+    // il primo renderGrid() → la pagina mostrava la shop-offline-card pur essendo il banner in LIVE.
     if (typeof applyLiveGameData === 'function') applyLiveGameData(window.__LIVE_GAME_DATA);
   } else {
     updateGameStatusUI(false);
