@@ -4125,7 +4125,15 @@ function openMateriaModal(uid, fromMarket = true) {
 
   const futureEl = document.getElementById("modalMateriaFutureBonuses");
   if (dbData.bonuses && dbData.bonuses.length > 0) {
-    const bList = dbData.bonuses.map(b => "Lv." + b.level + ": " + ((b.text || b.raw || "")).toUpperCase());
+    const bList = dbData.bonuses.map(f => {
+      if (f && typeof f === 'object' && f.text !== undefined) {
+        return (f.text + ' ' + (f.label || '')).trim();
+      }
+      if (f && typeof f === 'object' && f.raw !== undefined) {
+        return (f.level ? 'Lv.' + f.level + ': ' : '') + f.raw;
+      }
+      return String(f);
+    }).filter(Boolean);
     futureEl.innerHTML = "✨ <b>Bonus maestria essenza:</b> " + bList.join(" • ");
   } else {
     futureEl.innerHTML = "";

@@ -3987,7 +3987,16 @@ function openMateriaModal(uid) {
 
   const futureEl = document.getElementById("modalMateriaFutureBonuses");
   if (dbData.bonuses && dbData.bonuses.length > 0) {
-    futureEl.innerHTML = "✨ <b>Bonus futuri di maestria:</b> " + dbData.bonuses.join(", ");
+    const bList = dbData.bonuses.map(f => {
+      if (f && typeof f === 'object' && f.text !== undefined) {
+        return (f.text + ' ' + (f.label || '')).trim();
+      }
+      if (f && typeof f === 'object' && f.raw !== undefined) {
+        return (f.level ? 'Lv' + f.level + ': ' : '') + f.raw;
+      }
+      return String(f);
+    }).filter(Boolean);
+    futureEl.innerHTML = "✨ <b>Bonus futuri di maestria:</b> " + bList.join(", ");
   } else {
     futureEl.innerHTML = "";
   }
