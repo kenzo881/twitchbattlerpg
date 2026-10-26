@@ -2290,6 +2290,16 @@ function calculateBaseStatsForClass(className, level) {
   return { mhp: 100, mmp: 25, frz: 10, cos: 8, mag: 8, res: 8, dex: 10, luk: 4 };
 }
 
+function getMateriaDbEntry(name) {
+  if (window.__LIVE_GAME_DATA && window.__LIVE_GAME_DATA.materiaDb && window.__LIVE_GAME_DATA.materiaDb[name]) {
+    return window.__LIVE_GAME_DATA.materiaDb[name];
+  }
+  if (typeof MATERIA_DATABASE !== 'undefined' && MATERIA_DATABASE && MATERIA_DATABASE[name]) {
+    return MATERIA_DATABASE[name];
+  }
+  return {};
+}
+
 // VERIFICA SINERGIA REALE
 function checkMateriaSynergy(mat1, mat2) {
   if (!mat1 || !mat2) {
@@ -4060,10 +4070,12 @@ function openMateriaModal(uid, fromMarket = true) {
     }
   }
 
-  // FALLBACK: cerca l'essenza arricchita nel backpack ricalcolato al volo
-  if (!mat && currentUser && currentUser.login && typeof buildCharStateFromUser === 'function') {
+  // FALLBACK 1: cerca nel backpack calcolato al volo (con logging di errori)
+  if (!mat && currentUser && currentUser.login) {
     try {
-      const tmpState = buildCharStateFromUser(currentUser.login.toLowerCase());
+      const tmpState = (typeof buildCharStateFromUser === 'function')
+        ? buildCharStateFromUser(currentUser.login.toLowerCase())
+        : null;
       const bagMat = (tmpState && tmpState.backpack && Array.isArray(tmpState.backpack.essenze))
         ? tmpState.backpack.essenze.find(x => x.uid === uid)
         : null;
@@ -4080,10 +4092,40 @@ function openMateriaModal(uid, fromMarket = true) {
           statBonus: bagMat.statBonus || {}
         };
       }
-    } catch(e) {}
+    } catch(err) {
+      console.error('[openMateriaModal] Errore buildCharStateFromUser:', err);
+    }
   }
 
-  if (!mat) return;
+  // FALLBACK 2: cerca in DB_INVENTORY in modo diretto (senza arricchimento)
+  if (!mat && currentUser && currentUser.login && typeof DB_INVENTORY !== 'undefined' && DB_INVENTORY) {
+    const invRaw = DB_INVENTORY[currentUser.login.toLowerCase()];
+    const essRaw = (invRaw && Array.isArray(invRaw.essenze))
+      ? invRaw.essenze.find(x => x.uid === uid)
+      : null;
+    if (essRaw) {
+      const dbEss = (typeof findArmor === 'function' ? findArmor(essRaw.armorId) : null) || {};
+      mat = {
+        uid: essRaw.uid,
+        name: dbEss.name || essRaw.name || ('Essenza #' + (essRaw.armorId || '?')),
+        armorId: essRaw.armorId,
+        level: essRaw.level || 1,
+        currentPp: essRaw.ap || 0,
+        category: (typeof getEssenzaCategory === 'function' ? getEssenzaCategory(essRaw.armorId, dbEss) : null) || 'Magiche',
+        iconData: (typeof findItemIcon === 'function' ? findItemIcon(dbEss.name || essRaw.name) : "") || "",
+        desc: dbEss.desc || "",
+        statBonus: (typeof findMateriaStatBonus === 'function' ? findMateriaStatBonus(dbEss.name || essRaw.name, dbEss) : {})
+      };
+    }
+  }
+
+  if (!mat) {
+    if (typeof showToast === 'function') {
+      showToast("⚠️ Dettagli non disponibili", "Essenza #" + uid + " non trovata nei dati correnti. Ricarica la pagina o verifica il live_data.");
+    }
+    console.warn('[openMateriaModal] mat null per uid=' + uid + ', fromMarket=' + fromMarket);
+    return;
+  }
 
   const dbData = getMateriaDbEntry(mat.name);
   const overlay = document.getElementById("materiaModalOverlay");
